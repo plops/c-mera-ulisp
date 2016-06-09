@@ -24,6 +24,8 @@
        ,@body)
      (typedef struct ,name ,name)))
 
+(defmacro err (&rest rest))
+
 (let ((workspace-size 315)
       (buflen 13))
  (with-open-file (*standard-output* "ulisp.ino"
@@ -33,17 +35,17 @@
    (loop for e in (list
 		   (include <setjmp.h>)
 		   (deftstruct cons_object
-		     (decl ((struct cons_object* car)
-			    (struct cons_object* cdr))))
+		     (decl ((cons_object* car)
+			    (cons_object* cdr))))
 		   (deftstruct cons_symbol
 		     (decl ((unsigned int type)
 			    (unsigned int name))))
 		   (deftstruct cons_number
 		     (decl ((unsigned int type)
 			    (int integer))))
-		   (decl ((struct cons-object* freelist)
+		   (decl ((cons_object* freelist)
 			  (unsigned int freespace)
-			  (struct cons-object (aref workspace workspace-size))))
+			  (cons_object (aref workspace workspace-size))))
 		   (use-variables freelist
 				  freespace
 				  workspace)
@@ -51,11 +53,16 @@
 		     (set freelist 0)
 		     (for ((int i 0) (< i workspace-size) ++i)
 		       (decl ((struct cons_object* obj (+ workspace i)))
-			 (set (pref obj car) 0)
-			 (set (pref obj cdr) freelist)
+			 (set (cons-car obj) 0)
+			 (set (cons-cdr obj) freelist)
 			 (set freelist obj)
 			 freespace++)))
 		   (function myalloc () -> cons_object*
-			     ))
+		     (if (== 0 freespace)
+			 (err "No room"))
+		     (decl ((cons_object* temp freelist))
+		       (set freelist (cons-cdr freelist))
+		       freespace--
+		       (return temp))))
       do
 	(simple-print e))))
