@@ -13,7 +13,8 @@
 ;;  - garbage collection marks objects by setting top bit of leftmost word
 ;;    (never more than 32 kBytes of RAM)
 
-
+(defmacro cons-car (x)
+  `(pref (cast '(struct cons_object*) ,x) car))
 
 (let ((workspace-size 315)
       (buflen 13))
@@ -23,11 +24,27 @@
 				    :if-does-not-exist :create)
    (loop for e in (list
 		   (include <setjmp.h>)
-		   (struct bla
-		     (decl ((int n))))
+		   (struct cons_object
+		     (decl ((struct cons_object* car)
+			    (struct cons_object* cdr))))
+		   (struct cons_symbol
+		     (decl ((unsigned int type)
+			    (unsigned int name))))
+		   (struct cons_number
+		     (decl ((unsigned int type)
+			    (int integer))))
+		   (decl ((struct cons-object* freelist)
+			  (struct cons-object (aref workspace workspace-size))))
+		   (use-variables freelist workspace)
 		   (function init-workspace () -> void
-		       (let ((freelist 0))
-			 (dotimes (i workspace-size)
-			  ))))
+		     (set freelist 0)
+		     (for ((int i 0) (< i workspace-size) ++i)
+		       (decl ((struct cons_object* obj (+ workspace i)))
+					;(set (cons-car obj) 0)
+			 (set (pref obj car) 0)
+			 (set (cons-car obj) 0)
+			 (set (pref obj cdr) freelist)
+			 (set freelist obj)
+			 freelist++))))
       do
 	(simple-print e))))
