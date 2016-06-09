@@ -15,6 +15,14 @@
 
 (defmacro cons-car (x)
   `(pref (cast '(struct cons_object*) ,x) car))
+(defmacro cons-cdr (x)
+  `(pref (cast '(struct cons_object*) ,x) cdr))
+
+(defmacro deftstruct (name &body body)
+  `(progn
+     (struct ,name
+       ,@body)
+     (typedef struct ,name ,name)))
 
 (let ((workspace-size 315)
       (buflen 13))
@@ -24,27 +32,30 @@
 				    :if-does-not-exist :create)
    (loop for e in (list
 		   (include <setjmp.h>)
-		   (struct cons_object
+		   (deftstruct cons_object
 		     (decl ((struct cons_object* car)
 			    (struct cons_object* cdr))))
-		   (struct cons_symbol
+		   (deftstruct cons_symbol
 		     (decl ((unsigned int type)
 			    (unsigned int name))))
-		   (struct cons_number
+		   (deftstruct cons_number
 		     (decl ((unsigned int type)
 			    (int integer))))
 		   (decl ((struct cons-object* freelist)
+			  (unsigned int freespace)
 			  (struct cons-object (aref workspace workspace-size))))
-		   (use-variables freelist workspace)
+		   (use-variables freelist
+				  freespace
+				  workspace)
 		   (function init-workspace () -> void
 		     (set freelist 0)
 		     (for ((int i 0) (< i workspace-size) ++i)
 		       (decl ((struct cons_object* obj (+ workspace i)))
-					;(set (cons-car obj) 0)
 			 (set (pref obj car) 0)
-			 (set (cons-car obj) 0)
 			 (set (pref obj cdr) freelist)
 			 (set freelist obj)
-			 freelist++))))
+			 freespace++)))
+		   (function myalloc () -> cons_object*
+			     ))
       do
 	(simple-print e))))
