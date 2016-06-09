@@ -23,6 +23,8 @@
 				    :if-does-not-exist :create)
    (loop for e in (list
 		   (include <setjmp.h>)
+		   (struct bla
+		     (decl ((int n))))
 		   (function init-workspace () -> void
 		       (let ((freelist 0))
 			 (dotimes (i workspace-size)
