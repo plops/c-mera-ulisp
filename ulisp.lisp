@@ -26,6 +26,11 @@
 
 (defmacro err (&rest rest))
 
+(defparameter *none* 0)
+(defparameter *symbol* 1)
+(defparameter *number* 2)
+
+
 (let ((workspace-size 315)
       (buflen 13))
  (with-open-file (*standard-output* "ulisp.ino"
@@ -63,6 +68,18 @@
 		     (decl ((cons_object* temp freelist))
 		       (set freelist (cons-cdr freelist))
 		       freespace--
-		       (return temp))))
+		       (return temp)))
+		   (function myfree ((cons_object* obj)) -> void
+		     (set (cons-cdr obj) freelist)
+		     (set freelist obj)
+		     freespace++)
+		   (function  make-number ((int n)) -> cons_object*
+		     (decl ((cons_number* ptr
+					  (cast 
+					   'cons_number
+					   (funcall myalloc))))
+		       (set (pref ptr type) *number*)
+		       (set (pref ptr integer) n)
+		       (return (cast cons_object* ptr)))))
       do
 	(simple-print e))))
