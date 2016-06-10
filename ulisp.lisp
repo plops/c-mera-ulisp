@@ -175,7 +175,20 @@
 			 (return (+ n #\0 -30)))
 		     (if (== 27 n)
 			 (return #\-))
-		     (return 0)))
+		     (return 0))
+		   (function pack40 ((char* c)) -> int
+		     (return (+ (* 40 (+ (* 40 (toradix40 (aref c 0)))
+					 (toradix40 (aref c 1))))
+				(toradix40 (aref c 2)))))
+		   (function digitvalue ((char d)) -> int
+		     (if (and (<= #\0 d)
+			      (<= d #\9))
+			 (return (- d #\0)))
+		     (set d (\| d #x20))
+		     (if (and (<= #\a d)
+			      (<= d #\f))
+			 (return (+ 10 (- d #\a ))))
+		     (return 16)))
       do
 	(simple-print e))))
 
