@@ -120,6 +120,11 @@
 		       (decl ((cons_object* arg (cons-car obj))
 			      (int type (pref (cast 'cons_number* obj)
 					      type)))
-			 (mark obj))))
+			 (mark obj)
+			 (if (and (!= *symbol* type)
+				  (!= *number* type))
+			     (progn
+			       (funcall mark-object arg)
+			       (funcall mark-object (cons-cdr obj)))))))
       do
 	(simple-print e))))
