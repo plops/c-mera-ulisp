@@ -22,8 +22,22 @@
   `(progn
      (typedef struct ,name ,name)
      (struct ,name
-       ,@body)
-     ))
+       ,@body)))
+
+(defmacro marked (x)
+  `(!= 0
+       (& (cast 'uint (cons-car ,x))
+	  #x8000)))
+
+(defmacro mark (x)
+  `(set (cons-car ,x)
+	(logior (cast 'uint (cons-car ,x))
+		#x8000)))
+
+(defmacro unmark (x)
+  `(set (cons-car ,x)
+	(& (cast 'uint (cons-car ,x))
+	   #x7fff)))
 
 (defmacro err (&rest rest))
 
@@ -40,6 +54,7 @@
 				    :if-does-not-exist :create)
    (loop for e in (list
 		   (include <setjmp.h>)
+		   (typedef unsigned int uint)
 		   (deftstruct cons_object
 		     (decl ((cons_object* car)
 			    (cons_object* cdr))))
@@ -88,6 +103,23 @@
 						    (funcall myalloc))))
 		       (set (pref ptr car) arg1)
 		       (set (pref ptr cdr) arg2)
-		       (return ptr))))
+		       (return ptr)))
+		   (function make-csymbol ((unsigned int name)) -> cons_object*
+		       (decl ((cons_symbol* ptr
+					  (cast 
+					   'cons_symbol*
+					   (funcall myalloc))))
+			 (set (pref ptr type) *symbol*)
+			 (set (pref ptr name) name)
+			 (return (cast cons_object* ptr))))
+ 		   (function mark-object ((cons_object* obj)) -> void
+		       (if (== 0 obj)
+			   (return))
+		       (if (marked obj)
+			     (return))
+		       (decl ((cons_object* arg (cons-car obj))
+			      (int type (pref (cast 'cons_number obj)
+					      type)))
+			 )))
       do
 	(simple-print e))))
