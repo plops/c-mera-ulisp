@@ -65,14 +65,17 @@
 		     (decl ((unsigned int type)
 			    (int integer))))
 		   (decl ((cons_object* freelist)
+			  (cons_object* tee)
 			  (unsigned int freespace)
 			  (cons_object (aref workspace workspace-size))))
 		   (use-variables freelist
 				  freespace
-				  workspace)
+				  workspace
+				  tee)
 		   (function init-workspace () -> void
 		     (set freelist 0)
-		     (for ((int i 0) (< i workspace-size) ++i)
+		     (for ((int i (- workspace-size 1))
+			   (<= 0 i) --i)
 		       (decl ((struct cons_object* obj (+ workspace i)))
 			 (set (cons-car obj) 0)
 			 (set (cons-cdr obj) freelist)
@@ -137,6 +140,8 @@
 			       (set (cons-car obj) 0)
 			       (set (cons-cdr obj) freelist)
 			       (set freelist obj)
-			       freespace++))))))
+			       freespace++)))))
+		   (function gc ((cons_object* form) (cons_object* env)) -> void
+		     (mark-object tee)))
       do
 	(simple-print e))))
