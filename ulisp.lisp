@@ -13,10 +13,6 @@
 ;;  - garbage collection marks objects by setting top bit of leftmost word
 ;;    (never more than 32 kBytes of RAM)
 
-(defmacro cons-car (x)
-  `(pref (cast '(struct cons_object*) ,x) car))
-(defmacro cons-cdr (x)
-  `(pref (cast '(struct cons_object*) ,x) cdr))
 
 (defmacro deftstruct (name &body body)
   `(progn
@@ -45,9 +41,22 @@
 (defparameter *symbol* 1)
 (defparameter *number* 2)
 
+(defmacro cons-car (x)
+  `(pref (cast '(struct cons_object*) ,x) car))
+(defmacro cons-cdr (x)
+  `(pref (cast '(struct cons_object*) ,x) cdr))
+(defmacro cons-name (x)
+  `(pref (cast '(struct cons_symbol*) ,x) name))
+(defmacro cons-type (x)
+  `(pref (cast '(struct cons_symbol*) ,x) type))
+(defmacro cons-integer (x)
+  `(pref (cast '(struct cons_number*) ,x) integer))
+
+
 
 (let ((workspace-size 315)
-      (buflen 13))
+      (buflen 17) ;; length of longest symbol 
+      )
  (with-open-file (*standard-output* "ulisp.c"
 				    :direction :output
 				    :if-exists :supersede
@@ -71,12 +80,14 @@
 			  (cons_object* gc-stack)
 			  (unsigned int freespace)
 			  (cons_object (aref workspace workspace-size))
-			  (jmp_buf exception)))
+			  (jmp_buf exception)
+			  (char (aref buffer (+ buflen 1)))))
 		   (use-variables freelist
 				  freespace
 				  workspace
 				  tee global-env gc-stack
-				  exception)
+				  exception
+				  buffer)
 		   (function init-workspace () -> void
 		     (set freelist 0)
 		     (for ((int i (- workspace-size 1))
@@ -188,7 +199,10 @@
 		     (if (and (<= #\a d)
 			      (<= d #\f))
 			 (return (+ 10 (- d #\a ))))
-		     (return 16)))
+		     (return 16))
+		   (function name ((cons_object* obj)) -> char*
+		     (set (aref buffer 3) (cast 'char 0))
+		     (if (!= *symbol* (pref obj type)))))
       do
 	(simple-print e))))
 
