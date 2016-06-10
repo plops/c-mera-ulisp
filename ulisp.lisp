@@ -54,6 +54,7 @@
 				    :if-does-not-exist :create)
    (loop for e in (list
 		   (include <setjmp.h>)
+		   (include <stdio.h>)
 		   (typedef unsigned int uint)
 		   (deftstruct cons_object
 		     (decl ((cons_object* car)
@@ -85,9 +86,13 @@
 			 (set (cons-cdr obj) freelist)
 			 (set freelist obj)
 			 freespace++)))
+		   (function erro ((const char* string)) -> void
+		     (funcall printf "Error: %s\\n" string)
+		     (set gc-stack 0)
+		     (funcall longjmp exception 1))
 		   (function myalloc () -> cons_object*
 		     (if (== 0 freespace)
-			 (err "No room"))
+			 (funcall erro "No room"))
 		     (decl ((cons_object* temp freelist))
 		       (set freelist (cons-cdr freelist))
 		       freespace--
@@ -141,7 +146,7 @@
 			 (if (== 1 (marked obj))
 			     (unmark obj)
 			     (progn
-			       (set (cons-car obj) 0)
+			       (set (cons-car obj) (cast 'cons_object* 0))
 			       (set (cons-cdr obj) freelist)
 			       (set freelist obj)
 			       freespace++)))))
@@ -152,10 +157,7 @@
 		     (mark-object form)
 		     (mark-object env)
 		     (funcall sweep))
-		   (function err ((const char* string)) -> void
-		     (funcall printf "Error: %s\\n" string)
-		     (set gc-stack 0)
-		     (funcall longjmp exception 1))
+		   
 		   (function toradix40 ((int ch)) -> int
 		     (if (== 0 ch)
 			 (return 0))
@@ -164,7 +166,15 @@
 		     (set ch (\| ch #x20))
 		     (if (and (<= #\a ch) (<= ch #\z))
 			 (return (+ 1 (- ch #\a))))
-		     (err "ill. char in sym")
+		     (funcall erro "ill. char in sym")
+		     (return 0))
+		   (function fromradix40 ((int n)) -> int
+		     (if (and (<= 1 n) (<= n 26))
+			 (return (+ n #\a -1)))
+		     (if (and (<= 1 30) (<= n 39))
+			 (return (+ n #\0 -30)))
+		     (if (== 27 n)
+			 (return #\-))
 		     (return 0)))
       do
 	(simple-print e))))
