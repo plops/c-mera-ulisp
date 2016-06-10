@@ -202,7 +202,9 @@
 		     (return 16))
 		   (function name ((cons_object* obj)) -> char*
 		     (set (aref buffer 3) (cast 'char 0))
-		     (if (!= *symbol* (pref obj type)))))
+		     (if (!= *symbol* (cons-type obj))
+			 (erro "name"))
+		     ))
       do
 	(simple-print e))))
 
