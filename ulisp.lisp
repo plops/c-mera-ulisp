@@ -155,6 +155,17 @@
 		   (function err ((const char* string)) -> void
 		     (funcall printf "Error: %s\\n" string)
 		     (set gc-stack 0)
-		     (funcall longjmp exception 1)))
+		     (funcall longjmp exception 1))
+		   (function toradix40 ((int ch)) -> int
+		     (if (== 0 ch)
+			 (return 0))
+		     (if (and (<= #\0 ch) (<= ch #\9))
+			 (return (+ 30 (- ch #\0))))
+		     (set ch (\| ch #x20))
+		     (if (and (<= #\a ch) (<= ch #\z))
+			 (return (+ 1 (- ch #\a))))
+		     (err "ill. char in sym")
+		     (return 0)))
       do
 	(simple-print e))))
+
