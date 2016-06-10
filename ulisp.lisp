@@ -66,12 +66,16 @@
 			    (int integer))))
 		   (decl ((cons_object* freelist)
 			  (cons_object* tee)
+			  (cons_object* global-env)
+			  (cons_object* gc-stack)
 			  (unsigned int freespace)
-			  (cons_object (aref workspace workspace-size))))
+			  (cons_object (aref workspace workspace-size))
+			  (jmp_buf exception)))
 		   (use-variables freelist
 				  freespace
 				  workspace
-				  tee)
+				  tee global-env gc-stack
+				  exception)
 		   (function init-workspace () -> void
 		     (set freelist 0)
 		     (for ((int i (- workspace-size 1))
@@ -132,7 +136,7 @@
 		   (function sweep () -> void
 		     (set freelist 0)
 		     (set freespace 0)
-		     (for ((int i 0) (< i workspace-size) ++i)
+		     (for ((int i (- workspace-size 1)) (<= 0 i) --i)
 		       (decl ((cons_object* obj (+ workspace i)))
 			 (if (== 1 (marked obj))
 			     (unmark obj)
@@ -142,6 +146,15 @@
 			       (set freelist obj)
 			       freespace++)))))
 		   (function gc ((cons_object* form) (cons_object* env)) -> void
-		     (mark-object tee)))
+		     (mark-object tee)
+		     (mark-object global-env)
+		     (mark-object gc-stack)
+		     (mark-object form)
+		     (mark-object env)
+		     (funcall sweep))
+		   (function err ((const char* string)) -> void
+		     (funcall printf "Error: %s\\n" string)
+		     (set gc-stack 0)
+		     (funcall longjmp exception 1)))
       do
 	(simple-print e))))
