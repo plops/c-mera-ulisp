@@ -31,7 +31,7 @@
 
 (defmacro mark (x)
   `(set (cons-car ,x)
-	(| (cast 'uint (cons-car ,x))
+	(\| (cast 'uint (cons-car ,x))
 		#x8000)))
 
 (defmacro unmark (x)
