@@ -125,6 +125,18 @@
 				  (!= *number* type))
 			     (progn
 			       (funcall mark-object arg)
-			       (funcall mark-object (cons-cdr obj)))))))
+			       (funcall mark-object (cons-cdr obj))))))
+		   (function sweep () -> void
+		     (set freelist 0)
+		     (set freespace 0)
+		     (for ((int i 0) (< i workspace-size) ++i)
+		       (decl ((cons_object* obj (+ workspace i)))
+			 (if (== 1 (marked obj))
+			     (unmark obj)
+			     (progn
+			       (set (cons-car obj) 0)
+			       (set (cons-cdr obj) freelist)
+			       (set freelist obj)
+			       freespace++))))))
       do
 	(simple-print e))))
