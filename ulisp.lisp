@@ -20,9 +20,10 @@
 
 (defmacro deftstruct (name &body body)
   `(progn
+     (typedef struct ,name ,name)
      (struct ,name
        ,@body)
-     (typedef struct ,name ,name)))
+     ))
 
 (defmacro err (&rest rest))
 
@@ -33,7 +34,7 @@
 
 (let ((workspace-size 315)
       (buflen 13))
- (with-open-file (*standard-output* "ulisp.ino"
+ (with-open-file (*standard-output* "ulisp.c"
 				    :direction :output
 				    :if-exists :supersede
 				    :if-does-not-exist :create)
@@ -76,10 +77,17 @@
 		   (function  make-number ((int n)) -> cons_object*
 		     (decl ((cons_number* ptr
 					  (cast 
-					   'cons_number
+					   'cons_number*
 					   (funcall myalloc))))
 		       (set (pref ptr type) *number*)
 		       (set (pref ptr integer) n)
-		       (return (cast cons_object* ptr)))))
+		       (return (cast cons_object* ptr))))
+		   (function make-cons ((cons_object* arg1)
+					(cons_object* arg2)) -> cons_object*
+		     (decl ((cons_object* ptr (cast 'cons_object*
+						    (funcall myalloc))))
+		       (set (pref ptr car) arg1)
+		       (set (pref ptr cdr) arg2)
+		       (return ptr))))
       do
 	(simple-print e))))
