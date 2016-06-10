@@ -31,7 +31,7 @@
 
 (defmacro mark (x)
   `(set (cons-car ,x)
-	(logior (cast 'uint (cons-car ,x))
+	(| (cast 'uint (cons-car ,x))
 		#x8000)))
 
 (defmacro unmark (x)
@@ -118,8 +118,8 @@
 		       (if (marked obj)
 			     (return))
 		       (decl ((cons_object* arg (cons-car obj))
-			      (int type (pref (cast 'cons_number obj)
+			      (int type (pref (cast 'cons_number* obj)
 					      type)))
-			 )))
+			 (mark obj))))
       do
 	(simple-print e))))
