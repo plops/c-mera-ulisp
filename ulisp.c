@@ -104,7 +104,7 @@ void mark_object(cons_object *obj)
 	}
 	cons_object *arg = ((cons_object*)obj)->car;
 	intgr type = ((cons_number*)obj)->type;
-	((cons_object*)obj)->car = ((uintgr)((cons_object*)obj)->car) | 32768;
+	((cons_object*)obj)->car = ((cons_object*)(((uintgr)((cons_object*)obj)->car) | 32768));
 	if ((1 != type) && (2 != type)) {
 		mark_object(arg);
 		mark_object(((cons_object*)obj)->cdr);
@@ -118,7 +118,7 @@ void sweep(void)
 	for(int i = 315 - 1; 0 <= i; --i){
 		cons_object *obj = workspace + i;
 		if (1 == (0 != (((uintgr)((cons_object*)obj)->car) & 32768))) {
-			((cons_object*)obj)->car = ((uintgr)((cons_object*)obj)->car) & 32767;
+			((cons_object*)obj)->car = ((cons_object*)(((uintgr)((cons_object*)obj)->car) & 32767));
 		}
 		else {
 			((cons_object*)obj)->car = ((cons_object*)0);

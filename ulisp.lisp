@@ -27,13 +27,15 @@
 
 (defmacro mark (x)
   `(set (cons-car ,x)
-	(\| (cast 'uintgr (cons-car ,x))
-		#x8000)))
+	(cast 'cons_object*
+	      (\| (cast 'uintgr (cons-car ,x))
+		  #x8000))))
 
 (defmacro unmark (x)
   `(set (cons-car ,x)
-	(& (cast 'uintgr (cons-car ,x))
-	   #x7fff)))
+	(cast 'cons_object*
+	      (& (cast 'uintgr (cons-car ,x))
+		 #x7fff))))
 
 (defmacro err (&rest rest))
 
