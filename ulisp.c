@@ -196,5 +196,6 @@ char *name(cons_object *obj)
 
 int main(void)
 {
-	printf("%lud\n", sizeof(int*));
+	printf("%lx\n", __UINT64_C((UINTPTR_MAX + 1) << 1));
+	return 0;
 }

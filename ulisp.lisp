@@ -228,7 +228,8 @@
 			 (erro "name"))
 		     )
 		   (function main () -> int
-		     (funcall printf "%lud\\n" (sizeof int*)))) ;; => 8
+		     (funcall printf "%lx\\n" (funcall __UINT64_C (<< (+ UINTPTR_MAX 1) 1)))
+		     (return 0))) ;; => 8
       do
 	(simple-print e))))
 
