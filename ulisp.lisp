@@ -73,7 +73,7 @@
     (let)
     (letstar)
     (closure)
-    (special_forms)
+    (specfrms)
     (quote)
     (defun)
     (defvar)
@@ -95,15 +95,35 @@
     (atom)
     (listp)))
 
-(defmacro gen-builtin-table ()
+(defun builtin-functions-name (x)
+  (first x))
+
+(defun builtin-functions-name-maxlength ()
+ (reduce #'cl:max
+	 (mapcar #'(lambda (x) (cl:length (format nil "~a" (builtin-functions-name x))))
+		 *builtin-functions*)))
+
+(defun builtin-function-name-clist ()
+ `(clist ,@(mapcar #'(lambda (x) (format nil "~a" (builtin-functions-name x)))
+	  *builtin-functions*)))
+
+#+nil
+(builtin-function-name-clist)
+
+(defmacro gen-builtin-table-string ()
   `(decl ,(loop for (e) in *builtin-functions* and i from 0 collect
-		`(const char
-			,(cl:intern (cl:format nil "STRING~3,'0d" i))
-			,(cl:format nil "~a" e)))))
+	       `(const char
+		       ,(cl:intern (cl:format nil "STRING~3,'0d" i))
+		       ,(cl:format nil "~a" e)))))
+
+(defmacro gen-builtin-table-string-variables ()
+  `(use-variables ,@(loop for (e) in *builtin-functions* and i from 0 collect
+			(cl:intern (cl:format nil "STRING~3,'0d" i)))))
+
 
 #+nil
 (let ((workspace-size 315)
-      (buflen 17) ;; length of longest symbol 
+      (buflen (builtin-functions-name-maxlength)) ;; length of longest symbol 
       )
   (with-open-file (*standard-output* "ulisp.c"
 				    :direction :output
@@ -126,8 +146,10 @@
 		   (deftstruct cons_number
 		     (decl ((uintgr type) 
 			    (intgr integer))))
-		   (decl ((const char string000 "bla")))
-		   #+nil (gen-builtin-table)
+		   (decl ((const char (aref builtin-names
+					(cl:length *builtin-functions*)
+					buflen)
+				 (builtin-function-name-list))))
 		   (decl ((cons_object* freelist)
 			  (cons_object* tee)
 			  (cons_object* global-env)
@@ -142,7 +164,8 @@
 				  tee global-env gc-stack
 				  exception
 				  buffer
-				  UINTPTR_MAX)
+				  UINTPTR_MAX
+				  builtin-names)
 		   (function init-workspace () -> void
 		     (set freelist 0)
 		     (for ((intgr i (- workspace-size 1))
