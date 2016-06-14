@@ -1,6 +1,8 @@
 #include <setjmp.h>
 #include <stdio.h>
-typedef unsigned int uint;
+#include <stdint.h>
+typedef uintptr_t uintgr;
+typedef intptr_t intgr;
 typedef struct cons_object cons_object;
 
 struct cons_object
@@ -12,21 +14,21 @@ typedef struct cons_symbol cons_symbol;
 
 struct cons_symbol
 {
-	unsigned int type;
-	unsigned int name;
+	uintgr type;
+	uintgr name;
 };
 typedef struct cons_number cons_number;
 
 struct cons_number
 {
-	unsigned int type;
-	int integer;
+	uintgr type;
+	intgr integer;
 };
 cons_object *freelist;
 cons_object *tee;
 cons_object *global_env;
 cons_object *gc_stack;
-unsigned int freespace;
+uintgr freespace;
 cons_object workspace[315];
 jmp_buf exception;
 char buffer[17 + 1];
@@ -34,7 +36,7 @@ char buffer[17 + 1];
 void init_workspace(void)
 {
 	freelist = 0;
-	for(int i = 315 - 1; 0 <= i; --i){
+	for(intgr i = 315 - 1; 0 <= i; --i){
 		struct cons_object *obj = workspace + i;
 		((cons_object*)obj)->car = 0;
 		((cons_object*)obj)->cdr = freelist;
@@ -68,7 +70,7 @@ void myfree(cons_object *obj)
 	freespace++;
 }
 
-cons_object *make_number(int n)
+cons_object *make_number(intgr n)
 {
 	cons_number *ptr = ((cons_number*)myalloc());
 	ptr->type = 2;
@@ -84,7 +86,7 @@ cons_object *make_cons(cons_object *arg1, cons_object *arg2)
 	return ptr;
 }
 
-cons_object *make_csymbol(unsigned int name)
+cons_object *make_csymbol(uintgr name)
 {
 	cons_symbol *ptr = ((cons_symbol*)myalloc());
 	ptr->type = 1;
@@ -97,12 +99,12 @@ void mark_object(cons_object *obj)
 	if (0 == obj) {
 		return;
 	}
-	if (0 != (((uint)((cons_object*)obj)->car) & 32768)) {
+	if (0 != (((uintgr)((cons_object*)obj)->car) & 32768)) {
 		return;
 	}
 	cons_object *arg = ((cons_object*)obj)->car;
-	int type = ((cons_number*)obj)->type;
-	((cons_object*)obj)->car = ((uint)((cons_object*)obj)->car) | 32768;
+	intgr type = ((cons_number*)obj)->type;
+	((cons_object*)obj)->car = ((uintgr)((cons_object*)obj)->car) | 32768;
 	if ((1 != type) && (2 != type)) {
 		mark_object(arg);
 		mark_object(((cons_object*)obj)->cdr);
@@ -115,8 +117,8 @@ void sweep(void)
 	freespace = 0;
 	for(int i = 315 - 1; 0 <= i; --i){
 		cons_object *obj = workspace + i;
-		if (1 == (0 != (((uint)((cons_object*)obj)->car) & 32768))) {
-			((cons_object*)obj)->car = ((uint)((cons_object*)obj)->car) & 32767;
+		if (1 == (0 != (((uintgr)((cons_object*)obj)->car) & 32768))) {
+			((cons_object*)obj)->car = ((uintgr)((cons_object*)obj)->car) & 32767;
 		}
 		else {
 			((cons_object*)obj)->car = ((cons_object*)0);
@@ -137,7 +139,7 @@ void gc(cons_object *form, cons_object *env)
 	sweep();
 }
 
-int toradix40(int ch)
+intgr toradix40(intgr ch)
 {
 	if (0 == ch) {
 		return 0;
@@ -153,7 +155,7 @@ int toradix40(int ch)
 	return 0;
 }
 
-int fromradix40(int n)
+intgr fromradix40(intgr n)
 {
 	if ((1 <= n) && (n <= 26)) {
 		return n + 'a' + -1;
@@ -167,12 +169,12 @@ int fromradix40(int n)
 	return 0;
 }
 
-int pack40(char *c)
+intgr pack40(char *c)
 {
 	return (40 * ((40 * toradix40(c[0])) + toradix40(c[1]))) + toradix40(c[2]);
 }
 
-int digitvalue(char d)
+intgr digitvalue(char d)
 {
 	if (('0' <= d) && (d <= '9')) {
 		return d - '0';

@@ -22,17 +22,17 @@
 
 (defmacro marked (x)
   `(!= 0
-       (& (cast 'uint (cons-car ,x))
+       (& (cast 'uintgr (cons-car ,x))
 	  #x8000)))
 
 (defmacro mark (x)
   `(set (cons-car ,x)
-	(\| (cast 'uint (cons-car ,x))
+	(\| (cast 'uintgr (cons-car ,x))
 		#x8000)))
 
 (defmacro unmark (x)
   `(set (cons-car ,x)
-	(& (cast 'uint (cons-car ,x))
+	(& (cast 'uintgr (cons-car ,x))
 	   #x7fff)))
 
 (defmacro err (&rest rest))
@@ -53,7 +53,7 @@
   `(pref (cast '(struct cons_number*) ,x) integer))
 
 
-
+#+nil
 (let ((workspace-size 315)
       (buflen 17) ;; length of longest symbol 
       )
@@ -64,21 +64,23 @@
    (loop for e in (list
 		   (include <setjmp.h>)
 		   (include <stdio.h>)
-		   (typedef unsigned int uint)
+		   (include <stdint.h>)
+		   (typedef uintptr_t uintgr)
+		   (typedef intptr_t intgr)
 		   (deftstruct cons_object
 		     (decl ((cons_object* car)
 			    (cons_object* cdr))))
 		   (deftstruct cons_symbol
-		     (decl ((unsigned int type)
-			    (unsigned int name))))
+		     (decl ((uintgr type)
+			    (uintgr name))))
 		   (deftstruct cons_number
-		     (decl ((unsigned int type)
-			    (int integer))))
+		     (decl ((uintgr type)
+			    (intgr integer))))
 		   (decl ((cons_object* freelist)
 			  (cons_object* tee)
 			  (cons_object* global-env)
 			  (cons_object* gc-stack)
-			  (unsigned int freespace)
+			  (uintgr freespace)
 			  (cons_object (aref workspace workspace-size))
 			  (jmp_buf exception)
 			  (char (aref buffer (+ buflen 1)))))
@@ -90,7 +92,7 @@
 				  buffer)
 		   (function init-workspace () -> void
 		     (set freelist 0)
-		     (for ((int i (- workspace-size 1))
+		     (for ((intgr i (- workspace-size 1))
 			   (<= 0 i) --i)
 		       (decl ((struct cons_object* obj (+ workspace i)))
 			 (set (cons-car obj) 0)
@@ -112,7 +114,7 @@
 		     (set (cons-cdr obj) freelist)
 		     (set freelist obj)
 		     freespace++)
-		   (function  make-number ((int n)) -> cons_object*
+		   (function  make-number ((intgr n)) -> cons_object*
 		     (decl ((cons_number* ptr
 					  (cast 
 					   'cons_number*
@@ -127,7 +129,7 @@
 		       (set (pref ptr car) arg1)
 		       (set (pref ptr cdr) arg2)
 		       (return ptr)))
-		   (function make-csymbol ((unsigned int name)) -> cons_object*
+		   (function make-csymbol ((uintgr name)) -> cons_object*
 		       (decl ((cons_symbol* ptr
 					  (cast 
 					   'cons_symbol*
@@ -141,8 +143,8 @@
 		       (if (marked obj)
 			     (return))
 		       (decl ((cons_object* arg (cons-car obj))
-			      (int type (pref (cast 'cons_number* obj)
-					      type)))
+			      (intgr type (pref (cast 'cons_number* obj)
+						type)))
 			 (mark obj)
 			 (if (and (!= *symbol* type)
 				  (!= *number* type))
@@ -169,7 +171,7 @@
 		     (mark-object env)
 		     (funcall sweep))
 		   
-		   (function toradix40 ((int ch)) -> int
+		   (function toradix40 ((intgr ch)) -> intgr
 		     (if (== 0 ch)
 			 (return 0))
 		     (if (and (<= #\0 ch) (<= ch #\9))
@@ -179,7 +181,7 @@
 			 (return (+ 1 (- ch #\a))))
 		     (funcall erro "ill. char in sym")
 		     (return 0))
-		   (function fromradix40 ((int n)) -> int
+		   (function fromradix40 ((intgr n)) -> intgr
 		     (if (and (<= 1 n) (<= n 26))
 			 (return (+ n #\a -1)))
 		     (if (and (<= 1 30) (<= n 39))
@@ -187,11 +189,11 @@
 		     (if (== 27 n)
 			 (return #\-))
 		     (return 0))
-		   (function pack40 ((char* c)) -> int
+		   (function pack40 ((char* c)) -> intgr
 		     (return (+ (* 40 (+ (* 40 (toradix40 (aref c 0)))
 					 (toradix40 (aref c 1))))
 				(toradix40 (aref c 2)))))
-		   (function digitvalue ((char d)) -> int
+		   (function digitvalue ((char d)) -> intgr
 		     (if (and (<= #\0 d)
 			      (<= d #\9))
 			 (return (- d #\0)))
