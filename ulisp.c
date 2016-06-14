@@ -99,12 +99,12 @@ void mark_object(cons_object *obj)
 	if (0 == obj) {
 		return;
 	}
-	if (0 != (((uintgr)((cons_object*)obj)->car) & ((UINTPTR_MAX - 1) << 1))) {
+	if (0 != (((uintgr)((cons_object*)obj)->car) & (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1)))) {
 		return;
 	}
 	cons_object *arg = ((cons_object*)obj)->car;
 	intgr type = ((cons_number*)obj)->type;
-	((cons_object*)obj)->car = ((cons_object*)(((uintgr)((cons_object*)obj)->car) | ((UINTPTR_MAX - 1) << 1)));
+	((cons_object*)obj)->car = ((cons_object*)(((uintgr)((cons_object*)obj)->car) | (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1))));
 	if ((1 != type) && (2 != type)) {
 		mark_object(arg);
 		mark_object(((cons_object*)obj)->cdr);
@@ -117,8 +117,8 @@ void sweep(void)
 	freespace = 0;
 	for(int i = 315 - 1; 0 <= i; --i){
 		cons_object *obj = workspace + i;
-		if (1 == (0 != (((uintgr)((cons_object*)obj)->car) & ((UINTPTR_MAX - 1) << 1)))) {
-			((cons_object*)obj)->car = ((cons_object*)(((uintgr)((cons_object*)obj)->car) & (((UINTPTR_MAX - 1) << 1) - 1)));
+		if (1 == (0 != (((uintgr)((cons_object*)obj)->car) & (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1))))) {
+			((cons_object*)obj)->car = ((cons_object*)(((uintgr)((cons_object*)obj)->car) & ((__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1)) - 1)));
 		}
 		else {
 			((cons_object*)obj)->car = ((cons_object*)0);
@@ -196,6 +196,6 @@ char *name(cons_object *obj)
 
 int main(void)
 {
-	printf("%lx\n", __UINT64_C((UINTPTR_MAX + 1) << 1));
+	printf("%lx\n", __UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1));
 	return 0;
 }

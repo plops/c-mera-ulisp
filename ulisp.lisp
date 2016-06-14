@@ -24,9 +24,9 @@
 (defparameter *mark-bit*
   ;; #x8000
   ;; #x8000000000000000
-  (<< (- UINTPTR_MAX 1) 1)
-	  )
+  (<< (funcall __UINT64_C 1) (- (* 8 (sizeof uintptr_t)) 1)))
 
+(ash 1 (cl:- (cl:* 8 8) 1))
 (cl:ash (cl:+ 1 18446744073709551615) -1)
 
 (defmacro marked (x)
@@ -228,8 +228,9 @@
 			 (erro "name"))
 		     )
 		   (function main () -> int
-		     (funcall printf "%lx\\n" (funcall __UINT64_C (<< (+ UINTPTR_MAX 1) 1)))
-		     (return 0))) ;; => 8
+		     (funcall printf "%lx\\n" *mark-bit*)
+		     (return 0))) 
       do
 	(simple-print e))))
+
 
