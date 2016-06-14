@@ -23,20 +23,23 @@
 
 (defparameter *mark-bit*
   ;; #x8000
-	  #x8000000000000000 
+  ;; #x8000000000000000
+  (<< (- UINTPTR_MAX 1) 1)
 	  )
+
+(cl:ash (cl:+ 1 18446744073709551615) -1)
 
 (defmacro marked (x)
   `(!= 0
        (& (cast 'uintgr (cons-car ,x))
-	  (funcall __UINT64_C *mark-bit*))))
+	  *mark-bit*)))
 
 (defmacro mark (x)
   `(set (cons-car ,x)
 	(cast 'cons_object*
 	      (\| (cast 'uintgr (cons-car ,x))
 		  ;; #x8000
-		  (funcall __UINT64_C *mark-bit*)
+		  *mark-bit*
 		  ))))
 
 (defmacro unmark (x)
@@ -44,7 +47,7 @@
 	(cast 'cons_object*
 	      (& (cast 'uintgr (cons-car ,x))
 		 ;; #x7fff
-		 (funcall __UINT64_C (cl:- *mark-bit* 1))
+		 (- *mark-bit* 1)
 		 ))))
 
 (defmacro err (&rest rest))
@@ -105,7 +108,8 @@
 				  workspace
 				  tee global-env gc-stack
 				  exception
-				  buffer)
+				  buffer
+				  UINTPTR_MAX)
 		   (function init-workspace () -> void
 		     (set freelist 0)
 		     (for ((intgr i (- workspace-size 1))
