@@ -1,8 +1,10 @@
 #include <setjmp.h>
 #include <stdio.h>
 #include <stdint.h>
+//I use integers that have the same size as a pointer
 typedef uintptr_t uintgr;
 typedef intptr_t intgr;
+//C-mera doesn't support unions
 typedef struct cons_object cons_object;
 
 struct cons_object
@@ -24,6 +26,7 @@ struct cons_number
 	uintgr type;
 	intgr integer;
 };
+const char string000 = "bla";
 cons_object *freelist;
 cons_object *tee;
 cons_object *global_env;
@@ -186,11 +189,24 @@ intgr digitvalue(char d)
 	return 16;
 }
 
+char *lookupstring(uintgr name)
+{
+	return buffer;
+}
+
 char *name(cons_object *obj)
 {
 	buffer[3] = ((char)0);
 	if (1 != ((cons_symbol*)obj)->type) {
 		erro("name");
+	}
+	uintgr x = ((cons_symbol*)obj)->name;
+	if (x < 28) {
+		return lookupstring(x);
+	}
+	for(int n = 2; 0 <= n; --n){
+		buffer[n] = fromradix40(x % 40);
+		x = x / 40;
 	}
 }
 

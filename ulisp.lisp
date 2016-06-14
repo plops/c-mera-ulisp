@@ -26,9 +26,6 @@
   ;; #x8000000000000000
   (<< (funcall __UINT64_C 1) (- (* 8 (sizeof uintptr_t)) 1)))
 
-(ash 1 (cl:- (cl:* 8 8) 1))
-(cl:ash (cl:+ 1 18446744073709551615) -1)
-
 (defmacro marked (x)
   `(!= 0
        (& (cast 'uintgr (cons-car ,x))
@@ -68,15 +65,47 @@
   `(pref (cast '(struct cons_number*) ,x) integer))
 
 
+(defparameter *builtin-functions*
+  '((symbols)
+    (nil)
+    (tee)
+    (lambda)
+    (let)
+    (letstar)
+    (closure)
+    (special_forms)
+    (quote)
+    (defun)
+    (defvar)
+    (setq)
+    (loop)
+    (push)
+    (pop)
+    (incf)
+    (decf)
+    (progn)
+    (return)
+    (if)
+    (cond)
+    (and)
+    (or)
+    (functions)
+    (not)
+    (cons)
+    (atom)
+    (listp)))
+
+(defmacro gen-builtin-table ()
+  `(decl ,(loop for (e) in *builtin-functions* and i from 0 collect
+		`(const char
+			,(cl:intern (cl:format nil "STRING~3,'0d" i))
+			,(cl:format nil "~a" e)))))
+
 #+nil
 (let ((workspace-size 315)
       (buflen 17) ;; length of longest symbol 
       )
   (with-open-file (*standard-output* "ulisp.c"
-
-
-
-				     
 				    :direction :output
 				    :if-exists :supersede
 				    :if-does-not-exist :create)
@@ -84,8 +113,10 @@
 		   (include <setjmp.h>)
 		   (include <stdio.h>)
 		   (include <stdint.h>)
+		   (comment "I use integers that have the same size as a pointer")
 		   (typedef uintptr_t uintgr)
 		   (typedef intptr_t intgr)
+		   (comment "C-mera doesn't support unions")
 		   (deftstruct cons_object
 		     (decl ((cons_object* car)
 			    (cons_object* cdr))))
@@ -93,8 +124,10 @@
 		     (decl ((uintgr type)
 			    (uintgr name))))
 		   (deftstruct cons_number
-		     (decl ((uintgr type)
+		     (decl ((uintgr type) 
 			    (intgr integer))))
+		   (decl ((const char string000 "bla")))
+		   #+nil (gen-builtin-table)
 		   (decl ((cons_object* freelist)
 			  (cons_object* tee)
 			  (cons_object* global-env)
@@ -222,11 +255,18 @@
 			      (<= d #\f))
 			 (return (+ 10 (- d #\a ))))
 		     (return 16))
+		   (function lookupstring ((uintgr name)) -> char*
+		     (return buffer))
 		   (function name ((cons_object* obj)) -> char*
 		     (set (aref buffer 3) (cast 'char 0))
 		     (if (!= *symbol* (cons-type obj))
 			 (erro "name"))
-		     )
+		     (decl ((uintgr x (cons-name obj)))
+		       (if (< x (cl:length *builtin-functions*))
+			   (return (funcall lookupstring x)))
+		       (for ((int n 2) (<= 0 n) --n)
+			 (set (aref buffer n) (funcall fromradix40 (% x 40)))
+			 (set x (/ x 40)))))
 		   (function main () -> int
 		     (funcall printf "%lx\\n" *mark-bit*)
 		     (return 0))) 
