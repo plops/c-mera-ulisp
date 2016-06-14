@@ -29,26 +29,22 @@
 (defmacro marked (x)
   `(!= 0
        (& (cast 'uintgr (cons-car ,x))
-	  *mark-bit*)))
-
-
-
+	  (funcall __UINT64_C *mark-bit*))))
 
 (defmacro mark (x)
   `(set (cons-car ,x)
 	(cast 'cons_object*
 	      (\| (cast 'uintgr (cons-car ,x))
 		  ;; #x8000
-		  *mark-bit*
+		  (funcall __UINT64_C *mark-bit*)
 		  ))))
-
 
 (defmacro unmark (x)
   `(set (cons-car ,x)
 	(cast 'cons_object*
 	      (& (cast 'uintgr (cons-car ,x))
 		 ;; #x7fff
-		 (cl:- *mark-bit* 1)
+		 (funcall __UINT64_C (cl:- *mark-bit* 1))
 		 ))))
 
 (defmacro err (&rest rest))
