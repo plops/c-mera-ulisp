@@ -193,3 +193,8 @@ char *name(cons_object *obj)
 		erro("name");
 	}
 }
+
+int main(void)
+{
+	printf("%d\n", sizeof(int*));
+}

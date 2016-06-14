@@ -31,6 +31,7 @@
 	      (\| (cast 'uintgr (cons-car ,x))
 		  #x8000))))
 
+
 (defmacro unmark (x)
   `(set (cons-car ,x)
 	(cast 'cons_object*
@@ -208,7 +209,9 @@
 		     (set (aref buffer 3) (cast 'char 0))
 		     (if (!= *symbol* (cons-type obj))
 			 (erro "name"))
-		     ))
+		     )
+		   (function main () -> int
+		     (funcall printf "%d\\n" (sizeof int*)))) ;; => 8
       do
 	(simple-print e))))
 
