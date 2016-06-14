@@ -120,11 +120,10 @@
   `(use-variables ,@(loop for (e) in *builtin-functions* and i from 0 collect
 			(cl:intern (cl:format nil "STRING~3,'0d" i)))))
 
-
 #+nil
 (let ((workspace-size 315)
       (buflen (builtin-functions-name-maxlength)) ;; length of longest symbol 
-      )
+      (cnil 'NULL))
   (with-open-file (*standard-output* "ulisp.c"
 				    :direction :output
 				    :if-exists :supersede
@@ -165,7 +164,8 @@
 				  exception
 				  buffer
 				  UINTPTR_MAX
-				  builtin-name)
+				  builtin-name
+				  NULL)
 		   (function init-workspace () -> void
 		     (set freelist 0)
 		     (for ((intgr i (- workspace-size 1))
@@ -309,6 +309,21 @@
 			      (&& (== *number* (cons-type a))
 				  (== *number* (cons-type b))
 				  (== (cons-integer a) (cons-integer b))))))
+		   (function value ((uintgr n) (cons_object* env)) -> cons_object*
+		     (while (!= NULL env)
+		       (decl ((cons_object* item (cons-car env)))
+			 (if (== n (cons-name (cons-car item)))
+			     (return item))
+			 (set env (cons-cdr env))))
+		     (return cnil))
+		   (function findvalue ((cons_object* var) (cons_object* env)) -> cons_object*
+		       (decl ((uintgr varname (cons-name var))
+			      (cons_object* pair (funcall value varname env)))
+			 (if (== NULL pair)
+			     (set pair (funcall value varname global-env)))
+			 (if (== NULL pair)
+			     (erro "unknown var"))
+			 (return pair)))
 		   (function main () -> int
 		     (funcall printf "%lx\\n" *mark-bit*)
 		     (return 0))) 
