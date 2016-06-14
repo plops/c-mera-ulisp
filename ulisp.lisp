@@ -103,9 +103,9 @@
 	 (mapcar #'(lambda (x) (cl:length (format nil "~a" (builtin-functions-name x))))
 		 *builtin-functions*)))
 
-(defun builtin-function-name-clist ()
- `(clist ,@(mapcar #'(lambda (x) (format nil "~a" (builtin-functions-name x)))
-	  *builtin-functions*)))
+(defmacro builtin-function-name-clist ()
+  `(clist ,@(mapcar #'(lambda (x) (format nil "~a" (builtin-functions-name x)))
+		    *builtin-functions*)))
 
 #+nil
 (builtin-function-name-clist)
@@ -146,10 +146,10 @@
 		   (deftstruct cons_number
 		     (decl ((uintgr type) 
 			    (intgr integer))))
-		   (decl ((const char (aref builtin-names
+		   (decl ((const char (aref builtin-name
 					(cl:length *builtin-functions*)
 					buflen)
-				 (builtin-function-name-list))))
+				 (builtin-function-name-clist))))
 		   (decl ((cons_object* freelist)
 			  (cons_object* tee)
 			  (cons_object* global-env)
@@ -165,7 +165,7 @@
 				  exception
 				  buffer
 				  UINTPTR_MAX
-				  builtin-names)
+				  builtin-name)
 		   (function init-workspace () -> void
 		     (set freelist 0)
 		     (for ((intgr i (- workspace-size 1))
@@ -279,6 +279,8 @@
 			 (return (+ 10 (- d #\a ))))
 		     (return 16))
 		   (function lookupstring ((uintgr name)) -> char*
+		     (for ((int i 0) (< i buflen) ++i)
+		       (set (aref buffer i) (aref builtin-name name i)))
 		     (return buffer))
 		   (function name ((cons_object* obj)) -> char*
 		     (set (aref buffer 3) (cast 'char 0))
@@ -290,6 +292,10 @@
 		       (for ((int n 2) (<= 0 n) --n)
 			 (set (aref buffer n) (funcall fromradix40 (% x 40)))
 			 (set x (/ x 40)))))
+		   (function _integer ((cons_object* obj)) -> intgr
+		       (if (!= *number* (cons-type obj))
+			   (erro "not number"))
+		       (return (cons-integer obj)))
 		   (function main () -> int
 		     (funcall printf "%lx\\n" *mark-bit*)
 		     (return 0))) 
