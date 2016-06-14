@@ -291,14 +291,24 @@
 			   (return (funcall lookupstring x)))
 		       (for ((int n 2) (<= 0 n) --n)
 			 (set (aref buffer n) (funcall fromradix40 (% x 40)))
-			 (set x (/ x 40)))))
+			 (set x (/ x 40))))
+		     (return buffer))
 		   (function _integer ((cons_object* obj)) -> intgr
 		       (if (!= *number* (cons-type obj))
 			   (erro "not number"))
 		       (return (cons-integer obj)))
-		   (function issymbol ((cons_object* obj) (uintgr n))
+		   (function issymbol ((cons_object* obj) (uintgr n)) -> int
 		       (return (&& (== *symbol* (cons-type obj))
 				   (cons-name n))))
+		   (function _eq ((cons_object* a) (cons_object* b)) -> int
+		     (return (\|\|
+			      (== a b)
+			      (&& (== *symbol* (cons-type a))
+				  (== *symbol* (cons-type b))
+				  (== (cons-name a) (cons-name b)))
+			      (&& (== *number* (cons-type a))
+				  (== *number* (cons-type b))
+				  (== (cons-integer a) (cons-integer b))))))
 		   (function main () -> int
 		     (funcall printf "%lx\\n" *mark-bit*)
 		     (return 0))) 
