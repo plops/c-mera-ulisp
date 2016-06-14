@@ -99,12 +99,12 @@ void mark_object(cons_object *obj)
 	if (0 == obj) {
 		return;
 	}
-	if (0 != (((uintgr)((cons_object*)obj)->car) & 32768)) {
+	if (0 != (((uintgr)((cons_object*)obj)->car) & 9223372036854775808)) {
 		return;
 	}
 	cons_object *arg = ((cons_object*)obj)->car;
 	intgr type = ((cons_number*)obj)->type;
-	((cons_object*)obj)->car = ((cons_object*)(((uintgr)((cons_object*)obj)->car) | 32768));
+	((cons_object*)obj)->car = ((cons_object*)(((uintgr)((cons_object*)obj)->car) | 9223372036854775808));
 	if ((1 != type) && (2 != type)) {
 		mark_object(arg);
 		mark_object(((cons_object*)obj)->cdr);
@@ -117,8 +117,8 @@ void sweep(void)
 	freespace = 0;
 	for(int i = 315 - 1; 0 <= i; --i){
 		cons_object *obj = workspace + i;
-		if (1 == (0 != (((uintgr)((cons_object*)obj)->car) & 32768))) {
-			((cons_object*)obj)->car = ((cons_object*)(((uintgr)((cons_object*)obj)->car) & 32767));
+		if (1 == (0 != (((uintgr)((cons_object*)obj)->car) & 9223372036854775808))) {
+			((cons_object*)obj)->car = ((cons_object*)(((uintgr)((cons_object*)obj)->car) & 9223372036854775807));
 		}
 		else {
 			((cons_object*)obj)->car = ((cons_object*)0);
@@ -196,5 +196,5 @@ char *name(cons_object *obj)
 
 int main(void)
 {
-	printf("%d\n", sizeof(int*));
+	printf("%lud\n", sizeof(int*));
 }

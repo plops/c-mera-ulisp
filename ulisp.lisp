@@ -20,23 +20,36 @@
      (struct ,name
        ,@body)))
 
+
+(defparameter *mark-bit*
+  ;; #x8000
+	  #x8000000000000000 
+	  )
+
 (defmacro marked (x)
   `(!= 0
        (& (cast 'uintgr (cons-car ,x))
-	  #x8000)))
+	  *mark-bit*)))
+
+
+
 
 (defmacro mark (x)
   `(set (cons-car ,x)
 	(cast 'cons_object*
 	      (\| (cast 'uintgr (cons-car ,x))
-		  #x8000))))
+		  ;; #x8000
+		  *mark-bit*
+		  ))))
 
 
 (defmacro unmark (x)
   `(set (cons-car ,x)
 	(cast 'cons_object*
 	      (& (cast 'uintgr (cons-car ,x))
-		 #x7fff))))
+		 ;; #x7fff
+		 (cl:- *mark-bit* 1)
+		 ))))
 
 (defmacro err (&rest rest))
 
@@ -60,7 +73,11 @@
 (let ((workspace-size 315)
       (buflen 17) ;; length of longest symbol 
       )
- (with-open-file (*standard-output* "ulisp.c"
+  (with-open-file (*standard-output* "ulisp.c"
+
+
+
+				     
 				    :direction :output
 				    :if-exists :supersede
 				    :if-does-not-exist :create)
@@ -211,7 +228,7 @@
 			 (erro "name"))
 		     )
 		   (function main () -> int
-		     (funcall printf "%d\\n" (sizeof int*)))) ;; => 8
+		     (funcall printf "%lud\\n" (sizeof int*)))) ;; => 8
       do
 	(simple-print e))))
 
