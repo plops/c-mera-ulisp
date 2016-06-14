@@ -265,7 +265,7 @@
 		     (if (== 27 n)
 			 (return #\-))
 		     (return 0))
-		   (function pack40 ((char* c)) -> intgr
+		   (function pack40 ((char* c)) -> uintgr
 		     (return (+ (* 40 (+ (* 40 (toradix40 (aref c 0)))
 					 (toradix40 (aref c 1))))
 				(toradix40 (aref c 2)))))
@@ -296,6 +296,9 @@
 		       (if (!= *number* (cons-type obj))
 			   (erro "not number"))
 		       (return (cons-integer obj)))
+		   (function issymbol ((cons_object* obj) (uintgr n))
+		       (return (&& (== *symbol* (cons-type obj))
+				   (cons-name n))))
 		   (function main () -> int
 		     (funcall printf "%lx\\n" *mark-bit*)
 		     (return 0))) 
