@@ -138,10 +138,18 @@
      collect (first (elt *builtin-function* i))))
 
 (defun builtin-function-name-type (name)
+  "find in which class NAME is. It can be either :sym, :spec, :tail
+or :fun. Returns nil for the delimeters F_SYM F_SPEC, F_TAIL and F_FUN
+and throws error when string is not a builtin."
+  (unless (member name (mapcar #'first *builtin-function*))
+    (error "~a not a builtin" name))
   (cl:cond ((member name (builtin-symbol-list)) :sym)
 	   ((member name (builtin-special-function-list)) :spec)
 	   ((member name (builtin-tail-function-list)) :tail)
 	   ((member name (builtin-normal-function-list)) :fun)))
+
+(mapcar #'builtin-function-name-type (mapcar #'first *builtin-function*)
+ )
 
 #+nil
 (builtin-function-name-type 'not)
