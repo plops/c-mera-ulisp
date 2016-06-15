@@ -574,7 +574,29 @@
 				     (set env newenv)
 				     (set form (funcall tf_progn forms env))
 				     (set TC 1)
-				     (funcall goto EVAL))))))))
+				     (comment "goto EVAL;" :prefix "")))
+			       (if (== (builtin-function-name-to-number 'lambda) name)
+				   (progn
+				     (if (== NULL env)
+					 (return form))
+				     (decl ((cons_object* envcopy NULL))
+				       (while (!= NULL env)
+					 (decl ((cons_object* pair (cons-car env))
+						(cons_object* val (cons-cdr pair)))
+					   (if (== *number* (cons-type val))
+					       (set val (funcall _number
+								 (cons-integer val))))
+					   (_push (funcall _cons (cons-car pair)
+							   val)
+						  envcopy)
+					   (set env (cons-cdr env))))
+				       (return (funcall
+						_cons
+						(funcall
+						 _symbol
+						 (builtin-function-name-to-number
+						  'closure))
+						(funcall _cons envcopy args)))))))))))
 		   (function main () -> int
 		     (return 0))) 
       do

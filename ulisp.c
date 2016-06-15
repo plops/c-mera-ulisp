@@ -497,7 +497,25 @@ cons_object *_eval(cons_object *form, cons_object *env)
 				env = newenv;
 				form = tf_progn(forms, env);
 				TC = 1;
-				goto(EVAL);
+				goto EVAL;
+			}
+			if (3 == name) {
+				if (NULL == env) {
+					return form;
+				}
+				cons_object *envcopy = NULL;
+				while (NULL != env) {
+					{
+						cons_object *pair = ((cons_object*)env)->car;
+						cons_object *val = ((cons_object*)pair)->cdr;
+						if (2 == ((cons_symbol*)val)->type) {
+							val = _number(((cons_number*)val)->integer);
+						}
+						envcopy = _cons(_cons(((cons_object*)pair)->car, val), envcopy);
+						env = ((cons_object*)env)->cdr;
+					}
+				}
+				return _cons(_symbol(6), _cons(envcopy, args));
 			}
 		}
 	}
