@@ -181,7 +181,8 @@
 			  (uintgr freespace)
 			  (cons_object (aref workspace workspace-size))
 			  (jmp_buf exception)
-			  (char (aref buffer (+ buflen 1)))))
+			  (char (aref buffer (+ buflen 1)))
+			  ))
 		   (use-variables freelist
 				  freespace
 				  workspace
@@ -499,6 +500,47 @@
 							env)))
 		       (set (cons-cdr pair) arg)
 		       (return arg)))
+		   (function _eval ((cons_object* form)
+				    (cons_object* env))
+		       -> cons_object*
+		     (decl ((int TC 0))
+		       (comment "EVAL:" :prefix "") ;; FIXME this is crazy
+		       (if (< freespace 10)
+			   (funcall gc form env))
+		       ;; FIXME i left out some _end stuff and serial break
+		       (if (== NULL form)
+			   (return cnil))
+		       (if (== *number* (cons-type form))
+			   (return form))
+		       (if (== *symbol* (cons-type form))
+			   (decl ((cons_object* name (cons-name form)))
+			     (if (== (builtin-function-name-to-number 'nil)
+				     name)
+				 (return nil))
+			     (decl ((cons_object* pair (funcall value name env)))
+			       (if (!= NULL pair)
+				   (return (cons-cdr pair)))
+			       (set pair (value name global-env))
+			       (if (!= NULL pair)
+				   (return (cons-cdr pair))
+				   (if (<= name (cl:length *builtin-function*))
+				       (return form))))
+			     (erro "undefined")))
+		       (comment "it's a list")
+		       (decl ((cons_object* function (cons-car form))
+			      (cons_object* args (cons-cdr form)))
+			 (comment "list starting with symbol?")
+			 (if (== *symbol* (cons-type function))
+			     (decl ((uintgr name (cons-name function)))
+			       (if (== (builtin-function-name-to-number 'let)
+				       name)
+				   ;; FIXME leaving out LETSTAR
+				   
+				   (decl ((cons_object* assigns (cons-car args))
+					  (cons_object* forms (cons-cdr args))
+					  (cons_object* newenv env))
+				     (while (!= NULL assigns)
+				       (decl ((cons_object* assign (cons-car assigns))))))))))))
 		   (function main () -> int
 		    
 		     (return 0))) 

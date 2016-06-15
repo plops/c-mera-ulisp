@@ -427,6 +427,40 @@ cons_object *SP_setq(cons_object *args, cons_object *env)
 	return arg;
 }
 
+cons_object *_eval(cons_object *form, cons_object *env)
+{
+	int TC = 0;
+	EVAL:
+	if (freespace < 10) {
+		gc(form, env);
+	}
+	if (NULL == form) {
+		return NULL;
+	}
+	if (2 == ((cons_symbol*)form)->type) {
+		return form;
+	}
+	if (1 == ((cons_symbol*)form)->type) {
+		cons_object *name = ((cons_symbol*)form)->name;
+		if (1 == name) {
+			return;
+		}
+		cons_object *pair = value(name, env);
+		if (NULL != pair) {
+			return ((cons_object*)pair)->cdr;
+		}
+		pair = value(name, global_env);
+		if (NULL != pair) {
+			return ((cons_object*)pair)->cdr;
+		}
+		else if (name <= 29) 
+		{
+			return form;
+		}
+		erro("undefined");
+	}
+}
+
 int main(void)
 {
 	return 0;
