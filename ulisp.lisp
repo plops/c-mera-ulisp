@@ -124,7 +124,13 @@
 
 (defmacro gen-builtin-table-string-variables ()
   `(use-variables ,@(loop for (e) in *builtin-function* and i from 0 collect
-			(cl:intern (cl:format nil "STRING~3,'0d" i)))))
+			 (cl:intern (cl:format nil "STRING~3,'0d" i)))))
+
+(defmacro defspecial (name &body body)
+  `(function ,(intern (format nil "SP_~a" name)) ((cons_object* args)
+						  (cons_object* env))
+       -> cons_object*
+     ,@body))
 
 #+nil
 (let ((workspace-size 315)
@@ -186,7 +192,7 @@
 		     (funcall printf "Error: %s\\n" string)
 		     (set gc-stack 0)
 		     (funcall longjmp exception 1))
-		   (function myalloc () -> cons_object*
+		   (function _alloc () -> cons_object*
 		     (if (== 0 freespace)
 			 (funcall erro "No room"))
 		     (decl ((cons_object* temp freelist))
@@ -197,26 +203,26 @@
 		     (set (cons-cdr obj) freelist)
 		     (set freelist obj)
 		     freespace++)
-		   (function  make-number ((intgr n)) -> cons_object*
+		   (function  _number ((intgr n)) -> cons_object*
 		     (decl ((cons_number* ptr
 					  (cast 
 					   'cons_number*
-					   (funcall myalloc))))
+					   (funcall _alloc))))
 		       (set (pref ptr type) *number*)
 		       (set (pref ptr integer) n)
 		       (return (cast cons_object* ptr))))
-		   (function make-cons ((cons_object* arg1)
+		   (function _cons ((cons_object* arg1)
 					(cons_object* arg2)) -> cons_object*
 		     (decl ((cons_object* ptr (cast 'cons_object*
-						    (funcall myalloc))))
+						    (funcall _alloc))))
 		       (set (pref ptr car) arg1)
 		       (set (pref ptr cdr) arg2)
 		       (return ptr)))
-		   (function make-csymbol ((uintgr name)) -> cons_object*
+		   (function _symbol ((uintgr name)) -> cons_object*
 		       (decl ((cons_symbol* ptr
 					  (cast 
 					   'cons_symbol*
-					   (funcall myalloc))))
+					   (funcall _alloc))))
 			 (set (pref ptr type) *symbol*)
 			 (set (pref ptr name) name)
 			 (return (cast cons_object* ptr))))
@@ -436,6 +442,15 @@
 		     (if (== cnil arg)
 			 (return cnil))
 		     (return (cons-cdr arg)))
+		   (defspecial quote
+		     (comment "(void) env;" :prefix "")
+		     (return (cons-car args)))
+		   (defspecial defun
+		     (comment "(void) env;" :prefix "")
+		     (decl ((cons_object* var (cons-car args)))
+		       (if (!= *symbol* (cons-type var))
+			   (erro "not a symbol"))
+		       (decl ((cons_object* val (funcall cons (funcall symbol (builtin-function-name-to-number 'lambda))))))))
 		   (function main () -> int
 		    
 		     (return 0))) 
