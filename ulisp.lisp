@@ -233,10 +233,10 @@ and throws error when string is not a builtin."
 (defmacro dec (x)
   `(set ,x (- ,x 1)))
 
-(defmacro %dolist ((more list) &body body)
+(defmacro %dolist (e &body body)
   `(while (!= NULL ,e)
      ,@body
-     (set ,e (cons-cdr ,list))))
+     (set ,e (cons-cdr ,e))))
 
 #+nil
 (let ((workspace-size 315)
@@ -678,9 +678,21 @@ and throws error when string is not a builtin."
 		      (if (== NULL args)
 			  (return tee))
 		      (decl ((o more (cons-cdr args)))
-			(%dolist (more args)
-			  )))
-		    (deftailrec or)
+			(while (!= NULL more)
+			  (if (== NULL (funcall _eval (cons-car args) env))
+			      (return cnil))
+			  (set args more)
+			  (set more (cons-cdr args)))
+			(return (cons-car args))))
+		    (deftailrec or
+		      (decl ((o more (cons-cdr args)))
+			(while (!= NULL more)
+			  (decl ((o result (funcall _eval (cons-car args) env)))
+			    (if (!= NULL result)
+			       (return result)))
+			  (set args more)
+			  (set more (cons-cdr args)))
+			(return (cons-car args))))
 		    (deffunction not)
 		    (deffunction cons)
 		    (deffunction atom)
