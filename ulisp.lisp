@@ -267,6 +267,7 @@ and throws error when string is not a builtin."
 		    (include <stdint.h>) ;; uintptr_t
 		    (include <ctype.h>) ;; isschar
 		    (include <unistd.h>) ;; exit
+		    (include <string.h>) ;; strcmp
 		    (comment "I use integers that have the same size as a pointer")
 		    (typedef uintptr_t uintgr)
 		    (typedef intptr_t intgr)
@@ -317,6 +318,7 @@ and throws error when string is not a builtin."
 		    (comment "forward declarations")
 		    (deftailrec progn) (comment ";" :prefix "")
 		    (function _eval ((cons_object* form)(cons_object* env)) -> cons_object*) (comment ";" :prefix "")
+		    (function _read () -> o) (comment ";" :prefix "")
 		    (function init-workspace () -> void
 		      (set freelist 0)
 		      (for ((intgr i (- workspace-size 1))
@@ -524,8 +526,15 @@ and throws error when string is not a builtin."
 			  (set list (cons-cdr list))
 			  (inc len))
 			(return len)))
+		    (function builtin ((char* n)) -> int
+		      (decl ((intgr entry 0))
+			(while (< entry (cl:length *builtin-function*))
+			  (if (== 0 (funcall strcmp n (aref builtin-name entry)))
+			      (return entry))
+			  (inc entry))
+			(return (cl:length *builtin-function*))))
 		    (function lookupmin ((uintgr name)) -> int
-		      (comment "(void) name;" :prefix "")
+		      (comment "(void) name;" :prefix "") ;; FIXME
 		      (return 0))
 		    (function lookupmax ((uintgr name)) -> int
 		      (comment "(void) name;" :prefix "")
@@ -960,7 +969,7 @@ and throws error when string is not a builtin."
 			    (return (cast 'o *ket*)))
 			(if (== #\( ch)
 			    (return (cast 'o *bra*)))
-			(if (== #\' ch)
+			(if (== (char-code #\') ch)
 			    (return (cast 'o *quo*)))
 			(if (== #\. ch)
 			    (return (cast 'o *dot*)))
@@ -1011,7 +1020,7 @@ and throws error when string is not a builtin."
 					   (erro "num out of range"))
 				       (return (funcall _number (* sign result)))))
 			    (decl ((intgr x (funcall builtin buffer)))
-			      (if (== x cnil)
+			      (if (== x 0)
 				  (return cnil))
 			      (if (< x (cl:length *builtin-function*))
 				  (return (funcall _symbol x))
