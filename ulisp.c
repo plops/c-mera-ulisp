@@ -277,7 +277,7 @@ cons_object *closure(int tail, cons_object *fname, cons_object *state, cons_obje
 	while (NULL != state) {
 		cons_object *item = ((cons_object*)state)->car;
 		if (NULL == findtwin(((cons_object*)item)->car, *env)) {
-			_push(item, *env);
+			*env = _cons(item, *env);
 		}
 		state = ((cons_object*)state)->cdr;
 	}
@@ -292,12 +292,12 @@ cons_object *closure(int tail, cons_object *fname, cons_object *state, cons_obje
 					((cons_object*)item)->cdr = value;
 				}
 				else {
-					_push(_cons(var, value), *env);
+					*env = _cons(_cons(var, value), *env);
 				}
 			}
 		}
 		else {
-			_push(_cons(var, value), *env);
+			*env = _cons(_cons(var, value), *env);
 		}
 		params = ((cons_object*)params)->cdr;
 		args = ((cons_object*)args)->cdr;
@@ -397,7 +397,7 @@ cons_object *SP_defun(cons_object *args, cons_object *env)
 		((cons_object*)pair)->cdr = val;
 		return var;
 	}
-	_push(_cons(var, val), global_env);
+	global_env = _cons(_cons(var, val), global_env);
 	return var;
 }
 
@@ -415,7 +415,7 @@ cons_object *SP_defvar(cons_object *args, cons_object *env)
 	else {
 		return var;
 	}
-	_push(_cons(var, val), global_env);
+	global_env = _cons(_cons(var, val), global_env);
 	return var;
 }
 

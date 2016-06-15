@@ -67,6 +67,12 @@
 (defmacro _second (x)
   `(cons-car (cons-cdr ,x)))
 
+(defmacro _push (x y)
+  `(set ,y (funcall _cons ,x ,y)))
+
+(defmacro _pop (y)
+  `(set ,y (cons-cdr ,y)))
+
 (defparameter *builtin-function*
   '((symbols)
     (nil)
@@ -363,7 +369,7 @@
 			 (decl ((cons_object *item (cons-car state)))
 			   (if (== NULL (funcall findtwin (cons-car item)
 						 *env))
-			       (funcall _push item *env))
+			       (_push item *env))
 			   (set state (cons-cdr state))))
 		       (comment "add arguments to environment")
 		       (while (&& (!= NULL params)
@@ -374,8 +380,8 @@
 			       (decl ((cons_object* item (funcall findtwin var *env)))
 				 (if (!= NULL item)
 				     (set (cons-cdr item) value)
-				     (funcall _push (funcall _cons var value) *env)))
-			       (funcall _push (funcall _cons var value) *env))
+				     (_push (funcall _cons var value) *env)))
+			       (_push (funcall _cons var value) *env))
 			   (set params (cons-cdr params))
 			   (set args (cons-cdr args))))
 		       (if (!= NULL params)
@@ -469,7 +475,7 @@
 			 (if (!= NULL pair)
 			     (progn (set (cons-cdr pair) val)
 				    (return var)))
-			 (funcall _push (funcall _cons var val) global-env)
+			 (_push (funcall _cons var val) global-env)
 			 (return var))))
 		   (defspecial defvar
 		     (decl ((cons_object* var (cons-car args)))
@@ -481,7 +487,7 @@
 			 (if (!= NULL pair)
 			     (set (cons-cdr pair) val)
 			     (return var))
-			 (funcall _push (funcall _cons var val)
+			 (_push (funcall _cons var val)
 				  global-env)
 			 (return var))))
 		   (defspecial setq
