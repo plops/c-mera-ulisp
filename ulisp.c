@@ -378,13 +378,13 @@ cons_object *cdrx(cons_object *arg)
 	return ((cons_object*)arg)->cdr;
 }
 
-cons_object *SP_quote(cons_object *args, cons_object *env)
+cons_object *sp_quote(cons_object *args, cons_object *env)
 {
 	(void) env;
 	return ((cons_object*)args)->car;
 }
 
-cons_object *SP_defun(cons_object *args, cons_object *env)
+cons_object *sp_defun(cons_object *args, cons_object *env)
 {
 	(void) env;
 	cons_object *var = ((cons_object*)args)->car;
@@ -401,7 +401,7 @@ cons_object *SP_defun(cons_object *args, cons_object *env)
 	return var;
 }
 
-cons_object *SP_defvar(cons_object *args, cons_object *env)
+cons_object *sp_defvar(cons_object *args, cons_object *env)
 {
 	cons_object *var = ((cons_object*)args)->car;
 	if (1 != ((cons_symbol*)var)->type) {
@@ -419,12 +419,26 @@ cons_object *SP_defvar(cons_object *args, cons_object *env)
 	return var;
 }
 
-cons_object *SP_setq(cons_object *args, cons_object *env)
+cons_object *sp_setq(cons_object *args, cons_object *env)
 {
 	cons_object *arg = _eval(((cons_object*)((cons_object*)args)->cdr)->car, env);
 	cons_object *pair = findvalue(((cons_object*)args)->car, env);
 	((cons_object*)pair)->cdr = arg;
 	return arg;
+}
+
+cons_object *tf_progn(cons_object *args, cons_object *env)
+{
+	if (NULL == args) {
+		return NULL;
+	}
+	cons_object *more = ((cons_object*)args)->cdr;
+	while (NULL != more) {
+		_eval(((cons_object*)args)->car, env);
+		args = more;
+		more = ((cons_object*)args)->cdr;
+	}
+	return ((cons_object*)args)->car;
 }
 
 cons_object *_eval(cons_object *form, cons_object *env)
@@ -480,6 +494,10 @@ cons_object *_eval(cons_object *form, cons_object *env)
 					}
 					assigns = ((cons_object*)assigns)->cdr;
 				}
+				env = newenv;
+				form = tf_progn(forms, env);
+				TC = 1;
+				goto(EVAL);
 			}
 		}
 	}

@@ -140,8 +140,15 @@
 			 (cl:intern (cl:format nil "STRING~3,'0d" i)))))
 
 (defmacro defspecial (name &body body)
-  `(function ,(intern (format nil "SP_~a" name)) ((cons_object* args)
-						  (cons_object* env))
+  `(function ,(intern (string-upcase (format nil "sp_~a" name)))
+       ((cons_object* args)
+	(cons_object* env))
+       -> cons_object*
+     ,@body))
+
+(defmacro deftailrec (name &body body)
+  `(function ,(intern (string-upcase (format nil "tf_~a" name))) ((cons_object* args)
+								  (cons_object* env))
        -> cons_object*
      ,@body))
 
@@ -196,7 +203,8 @@
 				  buffer
 				  UINTPTR_MAX
 				  builtin-name
-				  NULL)
+				  NULL
+				  EVAL)
 		   (function init-workspace () -> void
 		     (set freelist 0)
 		     (for ((intgr i (- workspace-size 1))
@@ -505,6 +513,15 @@
 							env)))
 		       (set (cons-cdr pair) arg)
 		       (return arg)))
+		   (deftailrec progn
+		     (if (== NULL args)
+			 (return cnil))
+		     (decl ((cons_object* more (cons-cdr args)))
+		       (while (!= NULL more)
+			 (funcall _eval (cons-car args) env)
+			 (set args more)
+			 (set more (cons-cdr args)))
+		       (return (cons-car args))))
 		   (function _eval ((cons_object* form)
 				    (cons_object* env)) -> cons_object*
 		     (decl ((int TC 0))
@@ -553,7 +570,11 @@
 						    newenv)
 					     (_push (_cons assign cnil)
 						    newenv)))
-				       (set assigns (cons-cdr assigns))))))))))
+				       (set assigns (cons-cdr assigns)))
+				     (set env newenv)
+				     (set form (funcall tf_progn forms env))
+				     (set TC 1)
+				     (funcall goto EVAL))))))))
 		   (function main () -> int
 		     (return 0))) 
       do
