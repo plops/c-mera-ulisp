@@ -459,6 +459,23 @@ cons_object *_eval(cons_object *form, cons_object *env)
 		}
 		erro("undefined");
 	}
+	//it's a list
+	cons_object *function = ((cons_object*)form)->car;
+	cons_object *args = ((cons_object*)form)->cdr;
+	//list starting with symbol?
+	if (1 == ((cons_symbol*)function)->type) {
+		{
+			uintgr name = ((cons_symbol*)function)->name;
+			if (4 == name) {
+				cons_object *assigns = ((cons_object*)args)->car;
+				cons_object *forms = ((cons_object*)args)->cdr;
+				cons_object *newenv = env;
+				while (NULL != assigns) {
+					cons_object *assign = ((cons_object*)assigns)->car;
+				}
+			}
+		}
+	}
 }
 
 int main(void)
