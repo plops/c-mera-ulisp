@@ -233,6 +233,11 @@ and throws error when string is not a builtin."
 (defmacro dec (x)
   `(set ,x (- ,x 1)))
 
+(defmacro %dolist ((more list) &body body)
+  `(while (!= NULL ,e)
+     ,@body
+     (set ,e (cons-cdr ,list))))
+
 #+nil
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
@@ -669,7 +674,12 @@ and throws error when string is not a builtin."
 				  (return (funcall tf_progn forms env)))))
 			(set args (cons-cdr args)))
 		      (return cnil))
-		    (deftailrec and)
+		    (deftailrec and
+		      (if (== NULL args)
+			  (return tee))
+		      (decl ((o more (cons-cdr args)))
+			(%dolist (more args)
+			  )))
 		    (deftailrec or)
 		    (deffunction not)
 		    (deffunction cons)
