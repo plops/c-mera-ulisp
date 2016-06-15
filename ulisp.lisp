@@ -357,7 +357,7 @@
 			 (decl ((cons_object *item (cons-car state)))
 			   (if (== NULL (funcall findtwin (cons-car item)
 						 *env))
-			       (funcall push item *env))
+			       (funcall _push item *env))
 			   (set state (cons-cdr state))))
 		       (comment "add arguments to environment")
 		       (while (&& (!= NULL params)
@@ -368,8 +368,8 @@
 			       (decl ((cons_object* item (funcall findtwin var *env)))
 				 (if (!= NULL item)
 				     (set (cons-cdr item) value)
-				     (funcall push (funcall cons var value) *env)))
-			       (funcall push (funcall cons var value) *env))
+				     (funcall _push (funcall _cons var value) *env)))
+			       (funcall _push (funcall _cons var value) *env))
 			   (set params (cons-cdr params))
 			   (set args (cons-cdr args))))
 		       (if (!= NULL params)
@@ -450,7 +450,22 @@
 		     (decl ((cons_object* var (cons-car args)))
 		       (if (!= *symbol* (cons-type var))
 			   (erro "not a symbol"))
-		       (decl ((cons_object* val (funcall cons (funcall symbol (builtin-function-name-to-number 'lambda))))))))
+		       (decl ((cons_object*
+			       val
+			       (funcall
+				_cons
+				(funcall
+				 _symbol
+				 (builtin-function-name-to-number 'lambda))
+				(cons-cdr args)))
+			      (cons_object* pair
+					    (funcall value (cons-name var)
+						     global-env)))
+			 (if (!= NULL pair)
+			     (progn (set (cons-cdr pair) val)
+				    (return var)))
+			 (funcall _push (funcall _cons var val) global-env)
+			 (return var))))
 		   (function main () -> int
 		    
 		     (return 0))) 
