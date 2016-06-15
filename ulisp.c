@@ -419,6 +419,14 @@ cons_object *SP_defvar(cons_object *args, cons_object *env)
 	return var;
 }
 
+cons_object *SP_setq(cons_object *args, cons_object *env)
+{
+	cons_object *arg = _eval(((cons_object*)((cons_object*)args)->cdr)->car, env);
+	cons_object *pair = findvalue(((cons_object*)args)->car, env);
+	((cons_object*)pair)->cdr = arg;
+	return arg;
+}
+
 int main(void)
 {
 	return 0;

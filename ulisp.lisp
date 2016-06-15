@@ -484,6 +484,15 @@
 			 (funcall _push (funcall _cons var val)
 				  global-env)
 			 (return var))))
+		   (defspecial setq
+		     (decl ((cons_object* arg (funcall _eval
+						       (_second args)
+						       env))
+			    (cons_object* pair (funcall findvalue
+							(cons-car args)
+							env)))
+		       (set (cons-cdr pair) arg)
+		       (return arg)))
 		   (function main () -> int
 		    
 		     (return 0))) 
