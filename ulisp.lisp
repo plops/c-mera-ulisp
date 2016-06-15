@@ -266,6 +266,7 @@ and throws error when string is not a builtin."
 		    (include <stdio.h>)
 		    (include <stdint.h>) ;; uintptr_t
 		    (include <ctype.h>) ;; isschar
+		    (include <unistd.h>) ;; exit
 		    (comment "I use integers that have the same size as a pointer")
 		    (typedef uintptr_t uintgr)
 		    (typedef intptr_t intgr)
@@ -937,7 +938,7 @@ and throws error when string is not a builtin."
 			   (aref builtin-fptr (cl:length *builtin-function*))
 					(builtin-function-ptr-clist)
 					)))
-		    (function getc () -> int
+		    (function _getc () -> int
 		      (if last-char
 			  (decl ((int temp last-char))
 			    (set last-char 0)
@@ -954,7 +955,7 @@ and throws error when string is not a builtin."
 			(if (== #\newline ch)
 			    (set ch (funcall _getc)))
 			(if (== EOF ch)
-			    (funcall exit 0))
+			    (funcall _exit 0))
 			(if (== #\) ch)
 			    (return (cast 'o *ket*)))
 			(if (== #\( ch)
