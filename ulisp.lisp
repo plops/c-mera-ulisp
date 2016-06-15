@@ -406,7 +406,36 @@
 				   result
 				   (funcall closure 0
 					    NULL NULL function args env)))
-			     (return (funcall eval result *env))))))
+			     (return (funcall eval result *env)))))
+		     (if (and (funcall listp function)
+			      (funcall issymbol (cons-car function)
+				       (builtin-function-name-to-number
+					'closure)))
+			 (progn
+			   (set function (cons-cdr function))
+			   (decl ((cons_object*
+				   result
+				   (funcall closure 0
+					    NULL
+					    (cons-car function)
+					    (cons-cdr function)
+					    args env)))
+			     (return (funcall eval result *env)))))
+		     (erro "illegal function")
+		     (return NULL))
+		   (comment "checked car and cdr")
+		   (function carx ((cons_object* arg)) -> cons_object*
+		     (if (== 0 (funcall listp arg))
+			 (erro "can't take car"))
+		     (if (== cnil arg)
+			 (return cnil))
+		     (return (cons-car arg)))
+		   (function cdrx ((cons_object* arg)) -> cons_object*
+		     (if (== 0 (funcall listp arg))
+			 (erro "can't take cdr"))
+		     (if (== cnil arg)
+			 (return cnil))
+		     (return (cons-cdr arg)))
 		   (function main () -> int
 		    
 		     (return 0))) 
