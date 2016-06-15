@@ -247,7 +247,7 @@ and throws error when string is not a builtin."
      ,@body
      (set ,e (cons-cdr ,e))))
 
-#+nil
+
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
@@ -762,7 +762,11 @@ and throws error when string is not a builtin."
 				   (return (funcall _apply (cons-car args)
 						    (cons-cdr args)
 						    (addr-of env))))
-			    (erro "last arg not list"))))
+			    (erro "last arg not list"))
+			(set (cons-cdr previous)  (cons-car last))
+			(return (funcall _apply (cons-car args)
+					 (cons-cdr args)
+					 (addr-of env)))))
 		    
 		    (function _eval ((cons_object* form)
 				     (cons_object* env)) -> cons_object*
@@ -897,8 +901,9 @@ and throws error when string is not a builtin."
 					 (funcall issymbol (cons-car function)
 						  (builtin-function-name-to-number 'lambda)))
 				    (progn
-				     (set form (funcall closure TCstart fname NULL
-							(cons-cdr function) args (addr-of env)))
+				      (set form (funcall closure TCstart
+							 fname NULL (cons-cdr function) args
+							 (addr-of env)))
 				     (_pop gc-stack)
 				     (set TC 1)
 				     (comment "goto EVAL;" :prefix "")))
@@ -907,14 +912,15 @@ and throws error when string is not a builtin."
 						  (builtin-function-name-to-number 'closure)))
 				    (progn
 				      (set function (cons-cdr function))
-				      (set form (funcall closure TCstart (cons-car function)
-							 (cons-cdr function) args (addr-of env)))
+				      (set form (funcall closure TCstart
+							 fname (cons-car function) (cons-cdr function) args
+							 (addr-of env)))
 				     (_pop gc-stack)
 				     (set TC 1)
 				     (comment "goto EVAL;" :prefix "")))
 				(erro "illegal func")
 				(return cnil)))))))
-		    (function initenv () -> void
+		    (function init-env () -> void
 		      (set global-env NULL)
 		      (set tee (funcall _symbol (builtin-function-name-to-number 'tee))))
 		    (decl ((fn_ptr_type
@@ -922,8 +928,8 @@ and throws error when string is not a builtin."
 					(builtin-function-ptr-clist)
 					)))
 		    (function main () -> int
-		      (funcall initworkspace)
-		      (funcall initenv)
+		      (funcall init-workspace)
+		      (funcall init-env)
 		      (return 0))) 
        do
 	 (simple-print e))))
