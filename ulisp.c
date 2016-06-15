@@ -499,6 +499,7 @@ cons_object *_eval(cons_object *form, cons_object *env)
 				TC = 1;
 				goto EVAL;
 			}
+			//process LAMBDA
 			if (3 == name) {
 				if (NULL == env) {
 					return form;
@@ -517,8 +518,36 @@ cons_object *_eval(cons_object *form, cons_object *env)
 				}
 				return _cons(_symbol(5), _cons(envcopy, args));
 			}
+			if ((6 < name) && (name < 16)) {
+				//process SPECIAL form
+				return ((fn_ptr_type)lookupfn(name))(args, env);
+			}
+			if ((16 < name) && (name < 23)) {
+				//process TAIL CALL form
+				form = ((fn_ptr_type)lookupfn(name))(args, env);
+				TC = 1;
+				goto EVAL;
+			}
 		}
 	}
+	//evaluate the parameters - result in head
+	cons_object *fname = ((cons_object*)form)->car;
+	int TCstart = TC;
+	cons_object *head = _cons(_eval(((cons_object*)form)->car, env), NULL);
+	gc_stack = _cons(head, gc_stack);
+	//don't gc the result list
+	cons_object *tail = head;
+	form = ((cons_object*)head)->cdr;
+	int nargs = 0;
+	while (NULL != form) {
+		cons_object *obj = _cons(_eval(((cons_object*)form)->car, env), NULL);
+		((cons_object*)tail)->cdr = obj;
+		tail = obj;
+		form = ((cons_object*)form)->cdr;
+		nargs++;
+	}
+	function = ((cons_object*)head)->car;
+	args = ((cons_object*)head)->cdr;
 }
 
 int main(void)

@@ -584,6 +584,7 @@
 				     (set form (funcall tf_progn forms env))
 				     (set TC 1)
 				     (comment "goto EVAL;" :prefix "")))
+			       (comment "process LAMBDA")
 			       (if (== (builtin-function-name-to-number 'lambda) name)
 				   (progn
 				     (if (== NULL env)
@@ -605,7 +606,44 @@
 						 _symbol
 						 (builtin-function-name-to-number
 						  'closure))
-						(funcall _cons envcopy args)))))))))))
+						(funcall _cons envcopy args))))))
+			       
+			       (if (and (< (builtin-function-name-to-number 'f_spec) name)
+					(< name (builtin-function-name-to-number 'f_tail)))
+				   (progn
+				     (comment "process SPECIAL form")
+				     (return (funcall (cast 'fn_ptr_type (funcall lookupfn name))
+						      args env))))
+			       (if (and (< (builtin-function-name-to-number 'f_tail) name)
+					(< name (builtin-function-name-to-number 'f_fun)))
+				   (progn
+				     (comment "process TAIL CALL form")
+				     (set form (funcall (cast 'fn_ptr_type (funcall lookupfn name))
+							args env))
+				     (set TC 1)
+				     (comment "goto EVAL;" :prefix "")))))
+			 (comment "evaluate the parameters - result in head")
+			 (decl ((cons_object* fname (cons-car form))
+				(int TCstart TC)
+				(cons_object* head (funcall _cons
+							    (funcall _eval
+								     (cons-car form)
+								     env)
+							    NULL)))
+			   (_push head gc-stack) (comment "don't gc the result list")
+			   (decl ((cons_object* tail head))
+			     (set form (cons-cdr head))
+			     (decl ((int nargs 0))
+			       (while (!= NULL form)
+				 (decl ((cons_object* obj (funcall _cons
+								   (funcall _eval (cons-car form) env)
+								   NULL)))
+				   (set (cons-cdr tail) obj)
+				   (set tail obj)
+				   (set form (cons-cdr form))
+				   nargs++))
+			       (set function (cons-car head))
+			       (set args (cons-cdr head))))))))
 		   (function main () -> int
 		     (return 0))) 
       do
