@@ -156,7 +156,7 @@
   `(if (!= *symbol* (cons-type ,var))
        (erro "not a symbol")))
 
-#+nil
+
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
@@ -337,15 +337,15 @@
 			   (erro "not number"))
 		       (return (cons-integer obj)))
 		   (function issymbol ((cons_object* obj) (uintgr n)) -> int
-		       (return (&& (== *symbol* (cons-type obj))
+		       (return (and (== *symbol* (cons-type obj))
 				   (cons-name n))))
 		   (function _eq ((cons_object* a) (cons_object* b)) -> int
-		     (return (\|\|
+		     (return (or
 			      (== a b)
-			      (&& (== *symbol* (cons-type a))
+			      (and (== *symbol* (cons-type a))
 				  (== *symbol* (cons-type b))
 				  (== (cons-name a) (cons-name b)))
-			      (&& (== *number* (cons-type a))
+			      (and (== *number* (cons-type a))
 				  (== *number* (cons-type b))
 				  (== (cons-integer a) (cons-integer b))))))
 		   (function value ((uintgr n) (cons_object* env)) -> cons_object*
@@ -386,7 +386,7 @@
 			       (_push item *env))
 			   (set state (cons-cdr state))))
 		       (comment "add arguments to environment")
-		       (while (&& (!= NULL params)
+		       (while (and (!= NULL params)
 				  (!= NULL args))
 			 (decl ((object_cons* var (cons-car params))
 				(object_cons* value (cons-car args)))
