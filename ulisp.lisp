@@ -64,6 +64,8 @@
 (defmacro cons-integer (x)
   `(pref (cast '(struct cons_number*) ,x) integer))
 
+(defmacro _second (x)
+  `(cons-car (cons-cdr ,x)))
 
 (defparameter *builtin-function*
   '((symbols)
@@ -416,7 +418,7 @@
 				   result
 				   (funcall closure 0
 					    NULL NULL function args env)))
-			     (return (funcall eval result *env)))))
+			     (return (funcall _eval result *env)))))
 		     (if (and (funcall listp function)
 			      (funcall issymbol (cons-car function)
 				       (builtin-function-name-to-number
@@ -430,7 +432,7 @@
 					    (cons-car function)
 					    (cons-cdr function)
 					    args env)))
-			     (return (funcall eval result *env)))))
+			     (return (funcall _eval result *env)))))
 		     (erro "illegal function")
 		     (return NULL))
 		   (comment "checked car and cdr")
@@ -471,7 +473,17 @@
 			 (return var))))
 		   (defspecial defvar
 		     (decl ((cons_object* var (cons-car args)))
-		       (ensure-symbol var)))
+		       (ensure-symbol var)
+		       (decl ((cons_object* val (funcall _eval (_second args)
+							 env))
+			      (cons_object* pair (funcall value (cons-name var)
+							  global-env)))
+			 (if (!= NULL pair)
+			     (set (cons-cdr pair) val)
+			     (return var))
+			 (funcall _push (funcall _cons var val)
+				  global-env)
+			 (return var))))
 		   (function main () -> int
 		    
 		     (return 0))) 
