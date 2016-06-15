@@ -117,6 +117,23 @@
    when (eql name (builtin-function-name e))
    return i))
 
+(defun builtin-special-function-list ()
+  (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_spec))
+     below (builtin-function-name-to-number 'f_tail)
+     collect (first (elt *builtin-function* i))))
+(defun builtin-tail-function-list ()
+  (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_tail))
+     below (builtin-function-name-to-number 'f_fun)
+     collect (first (elt *builtin-function* i))))
+
+(defun builtin-normal-function-list ()
+  (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_fun))
+     below (cl:length *builtin-function*)
+     collect (first (elt *builtin-function* i))))
+
+#+nil
+(builtin-normal-function-list)
+
 (defmacro builtin-symbol ()
   `(builtin-function-name-to-number 'f_sym))
 (defmacro builtin-special ()
@@ -542,8 +559,8 @@
 			  (set args more)
 			  (set more (cons-cdr args)))
 			(return (cons-car args))))
-		    (function lookupfn ((uintgr name))
-			(return ))
+		    (function lookupfn ((uintgr name)) -> uintgr
+			(return 0))
 		    (function _eval ((cons_object* form)
 				     (cons_object* env)) -> cons_object*
 		      (decl ((int TC 0))
