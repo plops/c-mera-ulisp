@@ -296,6 +296,7 @@ and throws error when string is not a builtin."
 			   (jmp_buf exception)
 			   (char return-flag 0)
 			   (char (aref buffer (+ buflen 1)))
+			   (char last-char)
 			   ))
 		    
 		    (use-variables freelist
@@ -310,7 +311,8 @@ and throws error when string is not a builtin."
 				   return-flag
 				   NULL
 				   EVAL
-				   EOF)
+				   EOF
+				   last-char)
 		    (comment "forward declarations")
 		    (deftailrec progn) (comment ";" :prefix "")
 		    (function _eval ((cons_object* form)(cons_object* env)) -> cons_object*) (comment ";" :prefix "")
@@ -935,16 +937,22 @@ and throws error when string is not a builtin."
 			   (aref builtin-fptr (cl:length *builtin-function*))
 					(builtin-function-ptr-clist)
 					)))
+		    (function getc () -> int
+		      (if last-char
+			  (decl ((int temp last-char))
+			    (set last-char 0)
+			    (return temp)))
+		      (return (funcall getchar)))
 		    (function nextitem () -> o
-		      (decl ((int ch (funcall getchar)))
+		      (decl ((int ch (funcall _getc)))
 			(while (funcall isspace ch)
-			  (set ch (funcall getchar)))
+			  (set ch (funcall _getc)))
 			(if (== #\; ch)
 			    (while (!= #\( ch)
-			      (set ch (funcall getchar)))
+			      (set ch (funcall _getc)))
 			    (set ch #\())
 			(if (== #\newline ch)
-			    (set ch (funcall getchar)))
+			    (set ch (funcall _getc)))
 			(if (== EOF ch)
 			    (funcall exit 0))
 			(if (== #\) ch)
@@ -963,13 +971,13 @@ and throws error when string is not a builtin."
 			  (if (== #\+ ch)
 			      (progn
 				(set (aref buffer index++) ch)
-				(set ch (funcall getchar)))
+				(set ch (funcall _getc)))
 			      (if (== #\- ch)
 				  (progn (set sign -1)
 					 (set (aref buffer index++) ch)
-					 (set ch (funcall getchar)))
+					 (set ch (funcall _getc)))
 				  (if (== #\# ch)
-				      (progn (set ch (\| (funcall getchar) #x20))
+				      (progn (set ch (\| (funcall _getc) #x20))
 					     (if (== #\b ch)
 						 (set base 2)
 						 (if (== #\o ch)
@@ -977,12 +985,31 @@ and throws error when string is not a builtin."
 						     (if (== #\x ch)
 							 (set base 16)
 							 (erro "illegal char after #"))))
-					     (set ch (funcall getchar))))))
+					     (set ch (funcall _getc))))))
 			  (decl ((intgr isnumber (< (funcall digitvalue ch) base)))
 			    (comment "in case var is one letter")
-			    (set (aref buffer 2) 0))
-			  
-			  )))
+			    (set (aref buffer 2) 0)
+			    (while (and (== 0 (funcall isspace ch))
+					(== #\) ch)
+					(< index buflen))
+			      (set (aref buffer index++) ch)
+			      (decl ((intgr temp (funcall digitvalue ch)))
+				(set result (+ temp (* result base)))
+				(set isnumber (and isnumber
+						   (< (funcall digitvalue ch) base)))
+				(set ch (funcall _getc))))
+			    (set (aref buffer index) 0)
+			    (if (== #\) ch)
+				(set last-char #\)))
+			    (if isnumber
+				(progn (if (and (== base 10)
+						(< (+ (cast 'uintgr 32767)
+						      (/ (- 1 sign)
+							 2))
+						   result))
+					   (erro "num out of range"))
+				       (return (funcall _number (* sign result)))))
+			    (decl ((intgr x (funcall builtin buffer))))))))
 		    (function _read () -> o
 		      (decl ((o item ))))
 		    (function repl ((o env)) -> void
