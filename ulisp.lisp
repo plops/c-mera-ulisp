@@ -230,7 +230,7 @@ and throws error when string is not a builtin."
 (defmacro dec (x)
   `(set ,x (- ,x 1)))
 
-
+#+nil
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
@@ -595,8 +595,20 @@ and throws error when string is not a builtin."
 		      (set return-flag 0)
 		      (decl ((cons_object* start args))
 			(for (() () ())
-			  (set args start))))
-		    (defspecial push)
+			  (set args start)
+			  (while (!= NULL args)
+			    (decl ((cons_object* form (cons-car args))
+				   (cons_object* result (funcall _eval form env)))
+			      (if (== 1 return-flag)
+				  (set return-flag 0)
+				  (return result)))
+			    (set args (cons-cdr args))))))
+		    (defspecial push
+		      (decl ((cons_object* item (funcall _eval (cons-car args) env))
+			     (cons_object* pair (funcall findvalue (_second args)
+							 env)))
+			(_push item (cons-cdr pair))
+			(return (cons-cdr pair))))
 		    (defspecial pop)
 		    (defspecial incf)
 		    (defspecial decf)
