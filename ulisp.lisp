@@ -65,7 +65,7 @@
   `(pref (cast '(struct cons_number*) ,x) integer))
 
 
-(defparameter *builtin-functions*
+(defparameter *builtin-function*
   '((symbols)
     (nil)
     (tee)
@@ -96,34 +96,39 @@
     (listp)
     (apply)))
 
-(defun builtin-functions-name (x)
+(defun builtin-function-name (x)
   (first x))
 
-(defun builtin-functions-name-maxlength ()
+(defun builtin-function-name-to-number (name)
+  (loop for i from 0 and e in *builtin-function*
+   when (eql name (builtin-function-name e))
+   return i))
+
+(defun builtin-function-name-maxlength ()
  (reduce #'cl:max
-	 (mapcar #'(lambda (x) (cl:length (format nil "~a" (builtin-functions-name x))))
-		 *builtin-functions*)))
+	 (mapcar #'(lambda (x) (cl:length (format nil "~a" (builtin-function-name x))))
+		 *builtin-function*)))
 
 (defmacro builtin-function-name-clist ()
-  `(clist ,@(mapcar #'(lambda (x) (format nil "~a" (builtin-functions-name x)))
-		    *builtin-functions*)))
+  `(clist ,@(mapcar #'(lambda (x) (format nil "~a" (builtin-function-name x)))
+		    *builtin-function*)))
 
 #+nil
 (builtin-function-name-clist)
 
 (defmacro gen-builtin-table-string ()
-  `(decl ,(loop for (e) in *builtin-functions* and i from 0 collect
+  `(decl ,(loop for (e) in *builtin-function* and i from 0 collect
 	       `(const char
 		       ,(cl:intern (cl:format nil "STRING~3,'0d" i))
 		       ,(cl:format nil "~a" e)))))
 
 (defmacro gen-builtin-table-string-variables ()
-  `(use-variables ,@(loop for (e) in *builtin-functions* and i from 0 collect
+  `(use-variables ,@(loop for (e) in *builtin-function* and i from 0 collect
 			(cl:intern (cl:format nil "STRING~3,'0d" i)))))
 
 #+nil
 (let ((workspace-size 315)
-      (buflen (builtin-functions-name-maxlength)) ;; length of longest symbol 
+      (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
   (with-open-file (*standard-output* "ulisp.c"
 				    :direction :output
@@ -148,7 +153,7 @@
 		     (decl ((uintgr type) 
 			    (intgr integer))))
 		   (decl ((const char (aref builtin-name
-					(cl:length *builtin-functions*)
+					(cl:length *builtin-function*)
 					buflen)
 				 (builtin-function-name-clist))))
 		   (decl ((cons_object* freelist)
@@ -289,7 +294,7 @@
 		     (if (!= *symbol* (cons-type obj))
 			 (erro "name"))
 		     (decl ((uintgr x (cons-name obj)))
-		       (if (< x (cl:length *builtin-functions*))
+		       (if (< x (cl:length *builtin-function*))
 			   (return (funcall lookupstring x)))
 		       (for ((int n 2) (<= 0 n) --n)
 			 (set (aref buffer n) (funcall fromradix40 (% x 40)))
@@ -381,7 +386,7 @@
 		     (if (== *symbol* (cons-type function))
 			 (decl ((uintgr name (cons-name function))
 				(int nargs (funcall listlength args)))
-			   (if (<= (cl:length *builtin-functions*) name)
+			   (if (<= (cl:length *builtin-function*) name)
 			       (erro "not a function"))
 			   (if (< nargs (funcall lookupmin name))
 			       (erro "too few args"))
@@ -390,8 +395,18 @@
 			   (return (funcall
 				    (cast 'fn_ptr_type
 					  (funcall lookupfn name))
-				    args *env)
-				   ))))
+				    args *env))))
+		     (if (and (funcall listp function)
+			      (funcall issymbol (cons-car function)
+				       (builtin-function-name-to-number
+					'lambda)))
+			 (progn
+			   (set function (cons-cdr function))
+			   (decl ((cons_object*
+				   result
+				   (funcall closure 0
+					    NULL NULL function args env)))
+			     (return (funcall eval result *env))))))
 		   (function main () -> int
 		    
 		     (return 0))) 
