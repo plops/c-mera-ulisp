@@ -117,10 +117,16 @@
    when (eql name (builtin-function-name e))
    return i))
 
+(defun builtin-symbol-list ()
+  (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_sym))
+     below (builtin-function-name-to-number 'f_spec)
+     collect (first (elt *builtin-function* i))))
+
 (defun builtin-special-function-list ()
   (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_spec))
      below (builtin-function-name-to-number 'f_tail)
      collect (first (elt *builtin-function* i))))
+
 (defun builtin-tail-function-list ()
   (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_tail))
      below (builtin-function-name-to-number 'f_fun)
@@ -130,6 +136,15 @@
   (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_fun))
      below (cl:length *builtin-function*)
      collect (first (elt *builtin-function* i))))
+
+(defun builtin-function-name-type (name)
+  (cl:cond ((member name (builtin-symbol-list)) :sym)
+	   ((member name (builtin-special-function-list)) :spec)
+	   ((member name (builtin-tail-function-list)) :tail)
+	   ((member name (builtin-normal-function-list)) :fun)))
+
+#+nil
+(builtin-function-name-type 'not)
 
 #+nil
 (builtin-normal-function-list)
