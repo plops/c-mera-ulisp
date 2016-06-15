@@ -248,6 +248,12 @@ and throws error when string is not a builtin."
      (set ,e (cons-cdr ,e))))
 
 
+(defparameter *unused* 0)
+(defparameter *bra* 1)
+(defparameter *ket* 2)
+(defparameter *quo* 3)
+(defparameter *dot* 4)
+
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
@@ -258,7 +264,8 @@ and throws error when string is not a builtin."
     (loop for e in (list
 		    (include <setjmp.h>)
 		    (include <stdio.h>)
-		    (include <stdint.h>)
+		    (include <stdint.h>) ;; uintptr_t
+		    (include <ctype.h>) ;; isschar
 		    (comment "I use integers that have the same size as a pointer")
 		    (typedef uintptr_t uintgr)
 		    (typedef intptr_t intgr)
@@ -302,7 +309,8 @@ and throws error when string is not a builtin."
 				   builtin-fptr
 				   return-flag
 				   NULL
-				   EVAL)
+				   EVAL
+				   EOF)
 		    (comment "forward declarations")
 		    (deftailrec progn) (comment ";" :prefix "")
 		    (function _eval ((cons_object* form)(cons_object* env)) -> cons_object*) (comment ";" :prefix "")
@@ -927,10 +935,62 @@ and throws error when string is not a builtin."
 			   (aref builtin-fptr (cl:length *builtin-function*))
 					(builtin-function-ptr-clist)
 					)))
+		    (function nextitem () -> o
+		      (decl ((int ch (funcall getchar)))
+			(while (funcall isspace ch)
+			  (set ch (funcall getchar)))
+			(if (== #\; ch)
+			    (while (!= #\( ch)
+			      (set ch (funcall getchar)))
+			    (set ch #\())
+			(if (== #\newline ch)
+			    (set ch (funcall getchar)))
+			(if (== EOF ch)
+			    (funcall exit 0))
+			(if (== #\) ch)
+			    (return (cast 'o *ket*)))
+			(if (== #\( ch)
+			    (return (cast 'o *bra*)))
+			(if (== #\' ch)
+			    (return (cast 'o *quo*)))
+			(if (== #\. ch)
+			    (return (cast 'o *dot*)))
+			(comment "parse var or number")
+			(decl ((intgr index 0)
+			       (intgr base 10)
+			       (intgr sign 1)
+			       (uintgr result 0))
+			  (if (== #\+ ch)
+			      (progn
+				(set (aref buffer index++) ch)
+				(set ch (funcall getchar)))
+			      (if (== #\- ch)
+				  (progn (set sign -1)
+					 (set (aref buffer index++) ch)
+					 (set ch (funcall getchar)))
+				  (if (== #\# ch)
+				      (progn (set ch (\| (funcall getchar) #x20))
+					     (if (== #\b ch)
+						 (set base 2)
+						 (if (== #\o ch)
+						     (set base 8)
+						     (if (== #\x ch)
+							 (set base 16)
+							 (erro "illegal char after #"))))
+					     (set ch (funcall getchar))))))
+			  (decl ((intgr isnumber (< (funcall digitvalue ch) base)))
+			    (comment "in case var is one letter")
+			    (set (aref buffer 2) 0))
+			  
+			  )))
+		    (function _read () -> o
+		      (decl ((o item ))))
 		    (function repl ((o env)) -> void
 		      (for (() () ())
 			(funcall gc NULL env)
-			(funcall printf "freespace: %lu\\n" freespace)))
+			(funcall printf "freespace: %lu\\n" freespace)
+			(funcall printf "> ")
+			))
 		    (function main () -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
