@@ -290,6 +290,7 @@ and throws error when string is not a builtin."
 			   (char return-flag 0)
 			   (char (aref buffer (+ buflen 1)))
 			   ))
+		    
 		    (use-variables freelist
 				   freespace
 				   workspace
@@ -302,6 +303,9 @@ and throws error when string is not a builtin."
 				   return-flag
 				   NULL
 				   EVAL)
+		    (comment "forward declarations")
+		    (deftailrec progn) (comment ";" :prefix "")
+		    (function _eval ((cons_object* form)(cons_object* env)) -> cons_object*) (comment ";" :prefix "")
 		    (function init-workspace () -> void
 		      (set freelist 0)
 		      (for ((intgr i (- workspace-size 1))
@@ -467,7 +471,7 @@ and throws error when string is not a builtin."
 			      (return item))
 			  (set env (cons-cdr env))))
 		      (return cnil))
-		    (deftailrec progn) (comment ";" :prefix "")
+		    
 		    (function closure ((int tail)
 				       (cons_object* fname)
 				       (cons_object* state)
@@ -509,8 +513,16 @@ and throws error when string is not a builtin."
 			  (set list (cons-cdr list))
 			  (inc len))
 			(return len)))
-		    
-		    
+		    (function lookupmin ((uintgr name)) -> int
+		      (comment "(void) name;" :prefix "")
+		      (return 0))
+		    (function lookupmax ((uintgr name)) -> int
+		      (comment "(void) name;" :prefix "")
+		      (return 3))
+		    (decl ((fn_ptr_type
+			   (aref builtin-fptr (cl:length *builtin-function*)))))
+		    (function lookupfn ((uintgr name)) -> fn_ptr_type
+		      (return (aref builtin-fptr name)))
 		    (function _apply ((cons_object* function)
 				      (cons_object* args)
 				      (cons_object** env)) -> cons_object*
@@ -751,8 +763,7 @@ and throws error when string is not a builtin."
 						    (cons-cdr args)
 						    (addr-of env))))
 			    (erro "last arg not list"))))
-		    (function lookupfn ((uintgr name)) -> uintgr
-		      (return (aref builtin-fptr name)))
+		    
 		    (function _eval ((cons_object* form)
 				     (cons_object* env)) -> cons_object*
 		      (decl ((int TC 0))
@@ -871,7 +882,7 @@ and throws error when string is not a builtin."
 		    (function initenv () -> void
 		      (set global-env NULL)
 		      (set tee (funcall _symbol (builtin-function-name-to-number 'tee))))
-		    (decl ((uintgr ;fn_ptr_type
+		    (decl ((fn_ptr_type
 			   (aref builtin-fptr (cl:length *builtin-function*))
 					(builtin-function-ptr-clist)
 					)))
