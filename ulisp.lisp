@@ -76,10 +76,16 @@
 (defmacro _pop (y)
   `(set ,y (cons-cdr ,y)))
 
+(defmacro _listp (x)
+  `(and (!= *number* (cons-type ,x))
+	(!= *symbol* (cons-type ,x))))
+
 (defmacro _consp (x)
   `(and (!= *number* (cons-type ,x))
 	(!= *symbol* (cons-type ,x))
 	(!= NULL ,x)))
+
+
 
 (defparameter *builtin-function*
   '((f_sym)
@@ -110,6 +116,9 @@
     (cons)
     (atom)
     (listp)
+    (eq)
+    (car)
+    (cdr)
     (apply)))
 
 ;; (let ((a 1)
@@ -515,7 +524,7 @@ and throws error when string is not a builtin."
 				     (cast 'fn_ptr_type
 					   (funcall lookupfn name))
 				     args *env))))
-		      (if (and (funcall listp function)
+		      (if (and (_listp function)
 			       (funcall issymbol (cons-car function)
 					(builtin-function-name-to-number
 					 'lambda)))
@@ -526,7 +535,7 @@ and throws error when string is not a builtin."
 				    (funcall closure 0
 					     NULL NULL function args env)))
 			      (return (funcall _eval result *env)))))
-		      (if (and (funcall listp function)
+		      (if (and (_listp function)
 			       (funcall issymbol (cons-car function)
 					(builtin-function-name-to-number
 					 'closure)))
@@ -544,13 +553,13 @@ and throws error when string is not a builtin."
 		      (return NULL))
 		    (comment "checked car and cdr")
 		    (function carx ((cons_object* arg)) -> cons_object*
-		      (if (== 0 (funcall listp arg))
+		      (if (== 0 (_listp arg))
 			  (erro "can't take car"))
 		      (if (== cnil arg)
 			  (return cnil))
 		      (return (cons-car arg)))
 		    (function cdrx ((cons_object* arg)) -> cons_object*
-		      (if (== 0 (funcall listp arg))
+		      (if (== 0 (_listp arg))
 			  (erro "can't take cdr"))
 		      (if (== cnil arg)
 			  (return cnil))
@@ -693,13 +702,54 @@ and throws error when string is not a builtin."
 			  (set args more)
 			  (set more (cons-cdr args)))
 			(return (cons-car args))))
-		    (deffunction not)
-		    (deffunction cons)
-		    (deffunction atom)
-		    (deffunction listp)
-		    (deffunction apply)
+		    (deffunction not
+		      (comment "(void) env;" :prefix "")
+		      (if (== cnil (cons-car args))
+			  (return tee)
+			  (return cnil)))
+		    (deffunction cons
+		      (comment "(void) env;" :prefix "")
+		      (return (funcall _cons (cons-car args)
+				       (_second args))))
+		    (deffunction atom
+		      (comment "(void) env;" :prefix "")
+		      (decl ((o arg1 (cons-car args)))
+			(if (_consp arg1)
+			    (return cnil)
+			    (return tee))))
+		    (deffunction listp
+		      (comment "(void) env;" :prefix "")
+		      (decl ((o arg1 (cons-car args)))
+			(if (_listp arg1)
+			    (return tee)
+			    (return cnil))))
+		    (deffunction eq
+		      (comment "(void) env;" :prefix "")
+		      (decl ((o arg1 (cons-car args))
+			     (o arg2 (_second args)))
+			(if (funcall _eq arg1 arg2)
+			    (return tee)
+			    (return cnil))))
+		    (deffunction car
+		      (comment "(void) env;" :prefix "")
+		      (return (funcall carx (cons-car args))))
+		    (deffunction cdr
+		      (comment "(void) env;" :prefix "")
+		      (return (funcall cdrx (cons-car args))))
+		    (deffunction apply
+		      (decl ((o previous NULL)
+			     (o last args))
+			(while (!= NULL (cons-cdr last))
+			  (set previous last)
+			  (set last (cons-cdr last)))
+			(if (_listp (cons-car last))
+			    (progn (set (cons-cdr previous) (cons-car last))
+				   (return (funcall _apply (cons-car args)
+						    (cons-cdr args)
+						    (addr-of env))))
+			    (erro "last arg not list"))))
 		    (function lookupfn ((uintgr name)) -> uintgr
-			(return 0))
+		      (return 0))
 		    (function _eval ((cons_object* form)
 				     (cons_object* env)) -> cons_object*
 		      (decl ((int TC 0))
@@ -815,7 +865,8 @@ and throws error when string is not a builtin."
 				    (inc nargs)))
 				(set function (cons-car head))
 				(set args (cons-cdr head))))))))
-		    (decl ((fn_ptr_type (aref builtin-fptr (cl:length *builtin-function*))
+		    (decl ((uintgr ;fn_ptr_type
+			   (aref builtin-fptr (cl:length *builtin-function*))
 					(builtin-function-ptr-clist)
 					)))
 		    (function main () -> int
