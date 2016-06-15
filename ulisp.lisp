@@ -247,7 +247,7 @@ and throws error when string is not a builtin."
      ,@body
      (set ,e (cons-cdr ,e))))
 
-
+#+nil
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
@@ -776,10 +776,10 @@ and throws error when string is not a builtin."
 			(if (== *number* (cons-type form))
 			    (return form))
 			(if (== *symbol* (cons-type form))
-			    (decl ((cons_object* name (cons-name form)))
+			    (decl ((uintgr name (cons-name form)))
 			      (if (== (builtin-function-name-to-number 'nil)
 				      name)
-				  (return nil))
+				  (return cnil))
 			      (decl ((cons_object* pair (funcall value name env)))
 				(if (!= NULL pair)
 				    (return (cons-cdr pair)))
@@ -878,7 +878,42 @@ and throws error when string is not a builtin."
 				    (set form (cons-cdr form))
 				    (inc nargs)))
 				(set function (cons-car head))
-				(set args (cons-cdr head))))))))
+				(set args (cons-cdr head))
+				(if (== *symbol* (cons-type function))
+				    (decl ((uintgr name (cons-name function)))
+				      (if (<= (cl:length *builtin-function*) name)
+					  (err "not a function"))
+				      (if (< nargs (funcall lookupmin name))
+					  (err "too few args"))
+				      (if (< (funcall lookupmax name) nargs)
+					  (err "too many args"))
+				      (decl ((o result (funcall
+							(cast 'fn_ptr_type
+							      (funcall lookupfn name))
+							args env)))
+					(_pop gc-stack)
+					(return result))))
+				(if (and (_listp function)
+					 (funcall issymbol (cons-car function)
+						  (builtin-function-name-to-number 'lambda)))
+				    (progn
+				     (set form (funcall closure TCstart fname NULL
+							(cons-cdr function) args (addr-of env)))
+				     (_pop gc-stack)
+				     (set TC 1)
+				     (comment "goto EVAL;" :prefix "")))
+				(if (and (_listp function)
+					 (funcall issymbol (cons-car function)
+						  (builtin-function-name-to-number 'closure)))
+				    (progn
+				      (set function (cons-cdr function))
+				      (set form (funcall closure TCstart (cons-car function)
+							 (cons-cdr function) args (addr-of env)))
+				     (_pop gc-stack)
+				     (set TC 1)
+				     (comment "goto EVAL;" :prefix "")))
+				(erro "illegal func")
+				(return cnil)))))))
 		    (function initenv () -> void
 		      (set global-env NULL)
 		      (set tee (funcall _symbol (builtin-function-name-to-number 'tee))))
