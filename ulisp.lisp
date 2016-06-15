@@ -373,8 +373,8 @@
 			 (set list (cons-cdr list))
 			 len++)
 		       (return len)))
-		   (typedef cons_object* (funcall *fn_ptr_type ((cons_object*)
-								(cons_object*))))
+		   
+		   (comment "typedef object *(*fn_ptr_type)(object *, object *);" :prefix "")
 		   (function _apply ((cons_object* function)
 				    (cons_object* args)
 				    (cons_object** env)) -> cons_object*
@@ -388,10 +388,7 @@
 			   (if (< (funcall lookupmin name) nargs)
 			       (erro "too many args"))
 			   (return (funcall
-				    (cast '(cons_object*
-					    (funcall *fn_ptr_type
-					     ((cons_object* a)
-					      (cons_object* b))))
+				    (cast 'fn_ptr_type
 					  (funcall lookupfn name))
 				    args *env)
 				   ))))
