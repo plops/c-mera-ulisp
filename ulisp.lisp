@@ -147,7 +147,6 @@
 		   (deftstruct cons_number
 		     (decl ((uintgr type) 
 			    (intgr integer))))
-		   (typedef cons_object* (funcall *fn_ptr_type (cons_object*) (cons_object*)))
 		   (decl ((const char (aref builtin-name
 					(cl:length *builtin-functions*)
 					buflen)
@@ -374,25 +373,30 @@
 			 (set list (cons-cdr list))
 			 len++)
 		       (return len)))
-		   (function apply ((cons_object* function)
+		   (typedef cons_object* (funcall *fn_ptr_type ((cons_object*)
+								(cons_object*))))
+		   (function _apply ((cons_object* function)
 				    (cons_object* args)
 				    (cons_object** env)) -> cons_object*
 		     (if (== *symbol* (cons-type function))
 			 (decl ((uintgr name (cons-name function))
 				(int nargs (funcall listlength args)))
-			   (if (<= (length *builtin-functions*) name)
+			   (if (<= (cl:length *builtin-functions*) name)
 			       (erro "not a function"))
 			   (if (< nargs (funcall lookupmin name))
 			       (erro "too few args"))
 			   (if (< (funcall lookupmin name) nargs)
 			       (erro "too many args"))
 			   (return (funcall
-				    (cast 'fn_ptr_type
+				    (cast '(cons_object*
+					    (funcall *fn_ptr_type
+					     ((cons_object* a)
+					      (cons_object* b))))
 					  (funcall lookupfn name))
 				    args *env)
 				   ))))
 		   (function main () -> int
-		     (funcall printf "%lx\\n" *mark-bit*)
+		    
 		     (return 0))) 
       do
 	(simple-print e))))
