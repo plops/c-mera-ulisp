@@ -247,7 +247,7 @@ and throws error when string is not a builtin."
      ,@body
      (set ,e (cons-cdr ,e))))
 
-#+nil
+
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
@@ -262,11 +262,12 @@ and throws error when string is not a builtin."
 		    (comment "I use integers that have the same size as a pointer")
 		    (typedef uintptr_t uintgr)
 		    (typedef intptr_t intgr)
-		    (comment "typedef object *(*fn_ptr_type)(object *, object *);" :prefix "")
+		    
 		    (comment "C-mera doesn't support unions")
 		    (deftstruct cons_object
 		      (decl ((cons_object* car)
 			     (cons_object* cdr))))
+		    (comment "typedef cons_object *(*fn_ptr_type)(cons_object *, cons_object *);" :prefix "")
 		    (deftstruct cons_symbol
 		      (decl ((uintgr type)
 			     (uintgr name))))
@@ -466,12 +467,14 @@ and throws error when string is not a builtin."
 			      (return item))
 			  (set env (cons-cdr env))))
 		      (return cnil))
+		    (deftailrec progn) (comment ";" :prefix "")
 		    (function closure ((int tail)
 				       (cons_object* fname)
 				       (cons_object* state)
 				       (cons_object* function)
 				       (cons_object* args)
 				       (cons_object** env)) -> cons_object*
+		      (comment "(void) fname;" :prefix "")
 		      (decl ((cons_object* params (cons-car function)))
 			(set function (cons-cdr function))
 			(comment "push state if not already in env")
@@ -484,8 +487,8 @@ and throws error when string is not a builtin."
 			(comment "add arguments to environment")
 			(while (and (!= NULL params)
 				    (!= NULL args))
-			  (decl ((object_cons* var (cons-car params))
-				 (object_cons* value (cons-car args)))
+			  (decl ((o var (cons-car params))
+				 (o value (cons-car args)))
 			    (if tail
 				(decl ((cons_object* item (funcall findtwin var *env)))
 				  (if (!= NULL item)
@@ -749,7 +752,7 @@ and throws error when string is not a builtin."
 						    (addr-of env))))
 			    (erro "last arg not list"))))
 		    (function lookupfn ((uintgr name)) -> uintgr
-		      (return 0))
+		      (return (aref builtin-fptr name)))
 		    (function _eval ((cons_object* form)
 				     (cons_object* env)) -> cons_object*
 		      (decl ((int TC 0))
@@ -865,11 +868,16 @@ and throws error when string is not a builtin."
 				    (inc nargs)))
 				(set function (cons-car head))
 				(set args (cons-cdr head))))))))
+		    (function initenv () -> void
+		      (set global-env NULL)
+		      (set tee (funcall _symbol (builtin-function-name-to-number 'tee))))
 		    (decl ((uintgr ;fn_ptr_type
 			   (aref builtin-fptr (cl:length *builtin-function*))
 					(builtin-function-ptr-clist)
 					)))
 		    (function main () -> int
+		      (funcall initworkspace)
+		      (funcall initenv)
 		      (return 0))) 
        do
 	 (simple-print e))))
