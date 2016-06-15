@@ -73,6 +73,11 @@
 (defmacro _pop (y)
   `(set ,y (cons-cdr ,y)))
 
+(defmacro _consp (x)
+  `(and (!= *number* (cons-type ,x))
+	(!= *symbol* (cons-type ,x))
+	(!= NULL ,x)))
+
 (defparameter *builtin-function*
   '((symbols)
     (nil)
@@ -501,8 +506,7 @@
 		       (set (cons-cdr pair) arg)
 		       (return arg)))
 		   (function _eval ((cons_object* form)
-				    (cons_object* env))
-		       -> cons_object*
+				    (cons_object* env)) -> cons_object*
 		     (decl ((int TC 0))
 		       (comment "EVAL:" :prefix "") ;; FIXME this is crazy
 		       (if (< freespace 10)
@@ -540,9 +544,17 @@
 					  (cons_object* forms (cons-cdr args))
 					  (cons_object* newenv env))
 				     (while (!= NULL assigns)
-				       (decl ((cons_object* assign (cons-car assigns))))))))))))
+				       (decl ((cons_object* assign (cons-car assigns)))
+					 (if (_consp assign)
+					     (_push (_cons (cons-car assign)
+							   (funcall _eval
+								    (_second assign)
+								    env))
+						    newenv)
+					     (_push (_cons assign cnil)
+						    newenv)))
+				       (set assigns (cons-cdr assigns))))))))))
 		   (function main () -> int
-		    
 		     (return 0))) 
       do
 	(simple-print e))))

@@ -472,6 +472,13 @@ cons_object *_eval(cons_object *form, cons_object *env)
 				cons_object *newenv = env;
 				while (NULL != assigns) {
 					cons_object *assign = ((cons_object*)assigns)->car;
+					if ((2 != ((cons_symbol*)assign)->type) && (1 != ((cons_symbol*)assign)->type) && (NULL != assign)) {
+						newenv = _cons(_cons(((cons_object*)assign)->car, _eval(((cons_object*)((cons_object*)assign)->cdr)->car, env)), newenv);
+					}
+					else {
+						newenv = _cons(_cons(assign, NULL), newenv);
+					}
+					assigns = ((cons_object*)assigns)->cdr;
 				}
 			}
 		}
