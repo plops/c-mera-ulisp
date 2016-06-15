@@ -1096,6 +1096,9 @@ and throws error when string is not a builtin."
 				     (return)))
 			  (funcall printf "\\n")
 			  (_push line gc-stack)
+			  (funcall _print-object (funcall _eval line env))
+			  (_pop gc-stack)
+			  (funcall printf "\\n\\n")
 			  )
 			))
 		    (function main () -> int
