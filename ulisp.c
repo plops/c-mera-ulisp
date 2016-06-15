@@ -26,7 +26,7 @@ struct cons_number
 	uintgr type;
 	intgr integer;
 };
-const char builtin_name[29][9] = { "symbols", "nil", "tee", "lambda", "let", "letstar", "closure", "specfrms", "quote", "defun", "defvar", "setq", "loop", "push", "pop", "incf", "decf", "progn", "return", "if", "cond", "and", "or", "functions", "not", "cons", "atom", "listp", "apply" };
+const char builtin_name[29][7] = { "f_sym", "nil", "tee", "lambda", "let", "closure", "f_spec", "quote", "defun", "defvar", "setq", "loop", "push", "pop", "incf", "decf", "f_tail", "progn", "return", "if", "cond", "and", "or", "f_fun", "not", "cons", "atom", "listp", "apply" };
 cons_object *freelist;
 cons_object *tee;
 cons_object *global_env;
@@ -34,7 +34,7 @@ cons_object *gc_stack;
 uintgr freespace;
 cons_object workspace[315];
 jmp_buf exception;
-char buffer[9 + 1];
+char buffer[7 + 1];
 
 void init_workspace(void)
 {
@@ -191,7 +191,7 @@ intgr digitvalue(char d)
 
 char *lookupstring(uintgr name)
 {
-	for(int i = 0; i < 9; ++i){
+	for(int i = 0; i < 7; ++i){
 		buffer[i] = builtin_name[name][i];
 	}
 	return buffer;
@@ -204,7 +204,7 @@ char *name(cons_object *obj)
 		erro("name");
 	}
 	uintgr x = ((cons_symbol*)obj)->name;
-	if (x < 29) {
+	if (x < 23) {
 		return lookupstring(x);
 	}
 	for(int n = 2; 0 <= n; --n){
@@ -328,7 +328,7 @@ cons_object *_apply(cons_object *function, cons_object *args, cons_object **env)
 	if (1 == ((cons_symbol*)function)->type) {
 		uintgr name = ((cons_symbol*)function)->name;
 		int nargs = listlength(args);
-		if (29 <= name) {
+		if (23 <= name) {
 			erro("not a function");
 		}
 		if (nargs < lookupmin(name)) {
@@ -344,7 +344,7 @@ cons_object *_apply(cons_object *function, cons_object *args, cons_object **env)
 		cons_object *result = closure(0, NULL, NULL, function, args, env);
 		return _eval(result, *env);
 	}
-	if (listp(function) && issymbol(((cons_object*)function)->car, 6)) {
+	if (listp(function) && issymbol(((cons_object*)function)->car, 5)) {
 		function = ((cons_object*)function)->cdr;
 		{
 			cons_object *result = closure(0, NULL, ((cons_object*)function)->car, ((cons_object*)function)->cdr, args, env);
@@ -467,7 +467,7 @@ cons_object *_eval(cons_object *form, cons_object *env)
 		if (NULL != pair) {
 			return ((cons_object*)pair)->cdr;
 		}
-		else if (name <= 29) 
+		else if (name <= 23) 
 		{
 			return form;
 		}
@@ -515,7 +515,7 @@ cons_object *_eval(cons_object *form, cons_object *env)
 						env = ((cons_object*)env)->cdr;
 					}
 				}
-				return _cons(_symbol(6), _cons(envcopy, args));
+				return _cons(_symbol(5), _cons(envcopy, args));
 			}
 		}
 	}
