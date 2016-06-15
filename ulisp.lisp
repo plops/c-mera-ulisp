@@ -109,6 +109,12 @@
     (listp)
     (apply)))
 
+;; (let ((a 1)
+;;       (b 2))
+;;   (+ a b))
+;; (car '(+ a b))
+;; (cdr '(+ a b))
+
 (defun builtin-function-name (x)
   (first x))
 
@@ -148,8 +154,16 @@ and throws error when string is not a builtin."
 	   ((member name (builtin-tail-function-list)) :tail)
 	   ((member name (builtin-normal-function-list)) :fun)))
 
-(mapcar #'builtin-function-name-type (mapcar #'first *builtin-function*)
- )
+(defmacro builtin-function-ptr-clist ()
+  `(clist ,@(mapcar #'(lambda (x) (case (builtin-function-name-type x)
+				    (:spec (intern (string-upcase (format nil "sp_~a" x))))
+				    (:tail (intern (string-upcase (format nil "tf_~a" x))))
+				    (:fun (intern (string-upcase (format nil "fn_~a" x))))
+				    (t 0)))
+		    (mapcar #'first *builtin-function*))))
+
+#+nil
+(builtin-function-ptr-clist)
 
 #+nil
 (builtin-function-name-type 'not)
@@ -216,7 +230,7 @@ and throws error when string is not a builtin."
 (defmacro dec (x)
   `(set ,x (- ,x 1)))
 
-#+nil
+
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
@@ -231,7 +245,7 @@ and throws error when string is not a builtin."
 		    (comment "I use integers that have the same size as a pointer")
 		    (typedef uintptr_t uintgr)
 		    (typedef intptr_t intgr)
-		    
+		    (comment "typedef object *(*fn_ptr_type)(object *, object *);" :prefix "")
 		    (comment "C-mera doesn't support unions")
 		    (deftstruct cons_object
 		      (decl ((cons_object* car)
@@ -245,7 +259,8 @@ and throws error when string is not a builtin."
 		    (decl ((const char (aref builtin-name
 					 (cl:length *builtin-function*)
 					 buflen)
-				  (builtin-function-name-clist))))
+				  (builtin-function-name-clist))
+			   ))
 		    (decl ((cons_object* freelist)
 			   (cons_object* tee)
 			   (cons_object* global-env)
@@ -263,6 +278,7 @@ and throws error when string is not a builtin."
 				   buffer
 				   UINTPTR_MAX
 				   builtin-name
+				   builtin-fptr
 				   NULL
 				   EVAL)
 		    (function init-workspace () -> void
@@ -471,7 +487,7 @@ and throws error when string is not a builtin."
 			  (inc len))
 			(return len)))
 		    
-		    (comment "typedef object *(*fn_ptr_type)(object *, object *);" :prefix "")
+		    
 		    (function _apply ((cons_object* function)
 				      (cons_object* args)
 				      (cons_object** env)) -> cons_object*
@@ -615,6 +631,7 @@ and throws error when string is not a builtin."
 			  (comment "list starting with symbol?")
 			  (if (== *symbol* (cons-type function))
 			      (decl ((uintgr name (cons-name function)))
+				(comment "process LET")
 				(if (== (builtin-function-name-to-number 'let)
 					name)
 				    ;; FIXME leaving out LETSTAR
@@ -683,7 +700,8 @@ and throws error when string is not a builtin."
 								      (cons-car form)
 								      env)
 							     NULL)))
-			    (_push head gc-stack) (comment "don't gc the result list")
+			    (comment "don't gc the result list")
+			    (_push head gc-stack) 
 			    (decl ((cons_object* tail head))
 			      (set form (cons-cdr head))
 			      (decl ((int nargs 0))
@@ -697,6 +715,10 @@ and throws error when string is not a builtin."
 				    (inc nargs)))
 				(set function (cons-car head))
 				(set args (cons-cdr head))))))))
+		    (decl ((fn_ptr_type (aref builtin-fptr (cl:length *builtin-function*))
+					(clist 0 0 0 0 0 0 0 sp_quote sp_defun)
+					;(builtin-function-ptr-clist)
+					)))
 		    (function main () -> int
 		      (return 0))) 
        do
