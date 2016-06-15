@@ -1009,7 +1009,34 @@ and throws error when string is not a builtin."
 						   result))
 					   (erro "num out of range"))
 				       (return (funcall _number (* sign result)))))
-			    (decl ((intgr x (funcall builtin buffer))))))))
+			    (decl ((intgr x (funcall builtin buffer)))
+			      (if (== x cnil)
+				  (return cnil))
+			      (if (< x (cl:length *builtin-function*))
+				  (return (funcall _symbol x))
+				  (return (funcall _symbol (funcall pack40 buffer)))))))))
+		    (function read-rest () -> o
+		      (decl ((o item (funcall nextitem)))
+			(if (== (cast 'o *ket*) item)
+			    (return NULL))
+			(if (== (cast 'o *dot*) item)
+			    (decl ((o arg1 (funcall _read)))
+			      (if (!= NULL (funcall read-rest))
+				  (erro "malformed list"))
+			      (return arg1)))
+			(if (== (cast 'o *quo*) item)
+			    (decl ((o arg1 (funcall read)))
+			      (return (funcall
+				       _cons
+				       (funcall
+					_cons
+					(funcall _symbol
+						 (builtin-function-name-to-number 'quote))
+					(funcall _cons arg1 NULL))
+				       (funcall read-rest)))))
+			(if (== (cast 'o *bra*) item)
+			    (set item (funcall read-rest)))
+			(return (funcall _cons item (funcall read-rest)))))
 		    (function _read () -> o
 		      (decl ((o item ))))
 		    (function repl ((o env)) -> void
