@@ -268,6 +268,7 @@ and throws error when string is not a builtin."
 			   (uintgr freespace)
 			   (cons_object (aref workspace workspace-size))
 			   (jmp_buf exception)
+			   (char return-flag 0)
 			   (char (aref buffer (+ buflen 1)))
 			   ))
 		    (use-variables freelist
@@ -279,6 +280,7 @@ and throws error when string is not a builtin."
 				   UINTPTR_MAX
 				   builtin-name
 				   builtin-fptr
+				   return-flag
 				   NULL
 				   EVAL)
 		    (function init-workspace () -> void
@@ -589,6 +591,11 @@ and throws error when string is not a builtin."
 							 env)))
 			(set (cons-cdr pair) arg)
 			(return arg)))
+		    (defspecial loop
+		      (set return-flag 0)
+		      (decl ((cons_object* start args))
+			(for (() () ())
+			  (set args start))))
 		    (deftailrec progn
 		      (if (== NULL args)
 			  (return cnil))
@@ -716,8 +723,7 @@ and throws error when string is not a builtin."
 				(set function (cons-car head))
 				(set args (cons-cdr head))))))))
 		    (decl ((fn_ptr_type (aref builtin-fptr (cl:length *builtin-function*))
-					(clist 0 0 0 0 0 0 0 sp_quote sp_defun)
-					;(builtin-function-ptr-clist)
+					(builtin-function-ptr-clist)
 					)))
 		    (function main () -> int
 		      (return 0))) 
