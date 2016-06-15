@@ -132,6 +132,10 @@
        -> cons_object*
      ,@body))
 
+(defmacro ensure-symbol (var)
+  `(if (!= *symbol* (cons-type ,var))
+       (erro "not a symbol")))
+
 #+nil
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
@@ -448,8 +452,7 @@
 		   (defspecial defun
 		     (comment "(void) env;" :prefix "")
 		     (decl ((cons_object* var (cons-car args)))
-		       (if (!= *symbol* (cons-type var))
-			   (erro "not a symbol"))
+		       (ensure-symbol var)
 		       (decl ((cons_object*
 			       val
 			       (funcall
@@ -466,10 +469,14 @@
 				    (return var)))
 			 (funcall _push (funcall _cons var val) global-env)
 			 (return var))))
+		   (defspecial defvar
+		     (decl ((cons_object* var (cons-car args)))
+		       (ensure-symbol var)))
 		   (function main () -> int
 		    
 		     (return 0))) 
       do
 	(simple-print e))))
+
 
 
