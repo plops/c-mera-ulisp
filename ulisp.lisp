@@ -609,7 +609,12 @@ and throws error when string is not a builtin."
 							 env)))
 			(_push item (cons-cdr pair))
 			(return (cons-cdr pair))))
-		    (defspecial pop)
+		    (defspecial pop
+		      (decl ((cons_object* pair (funcall findvalue (_second args)
+							 env))
+			     (cons_object* result (cons-car (cons-cdr pair))))
+			(_pop (cons-cdr pair))
+			(return result)))
 		    (defspecial incf)
 		    (defspecial decf)
 		    (deftailrec progn
