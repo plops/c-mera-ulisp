@@ -148,20 +148,12 @@
   `(use-variables ,@(loop for (e) in *builtin-function* and i from 0 collect
 			 (cl:intern (cl:format nil "STRING~3,'0d" i)))))
 
-
-(defparameter *special-function-ptr* nil)
-(defparameter *tail-function-ptr* nil)
-(defparameter *normal-function-ptr* nil)
-
 (defmacro defspecial (name &body body)
-  (let ((s (string-upcase (format nil "sp_~a" name))))
-    `(progn
-       (cl:push ,s *special-function-ptr*)
-       (function ,(intern s)
-	 ((cons_object* args)
-	  (cons_object* env))
-	 -> cons_object*
-       ,@body))))
+  `(function ,(intern (string-upcase (format nil "sp_~a" name)))
+       ((cons_object* args)
+	(cons_object* env))
+       -> cons_object*
+     ,@body))
 
 (defmacro deftailrec (name &body body)
   `(function ,(intern (string-upcase (format nil "tf_~a" name))) ((cons_object* args)
@@ -178,13 +170,16 @@
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
        (erro "not a symbol")))
+
+(defmacro inc (x)
+  `(set ,x (+ 1 ,x)))
+(defmacro dec (x)
+  `(set ,x (- ,x 1)))
+
 #+nil
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
-  (defparameter *special-function-ptr* nil)
-  (defparameter *tail-function-ptr* nil)
-  (defparameter *normal-function-ptr* nil)
   (with-open-file (*standard-output* "ulisp.c"
 				     :direction :output
 				     :if-exists :supersede
@@ -233,12 +228,12 @@
 		    (function init-workspace () -> void
 		      (set freelist 0)
 		      (for ((intgr i (- workspace-size 1))
-			    (<= 0 i) --i)
+			    (<= 0 i) (dec i))
 			(decl ((struct cons_object* obj (+ workspace i)))
 			  (set (cons-car obj) 0)
 			  (set (cons-cdr obj) freelist)
 			  (set freelist obj)
-			  freespace++)))
+			  (inc freespace))))
 		    (function erro ((const char* string)) -> void
 		      (funcall printf "Error: %s\\n" string)
 		      (set gc-stack 0)
@@ -253,7 +248,7 @@
 		    (function myfree ((cons_object* obj)) -> void
 		      (set (cons-cdr obj) freelist)
 		      (set freelist obj)
-		      freespace++)
+		      (inc freespace))
 		    (function  _number ((intgr n)) -> cons_object*
 		      (decl ((cons_number* ptr
 					   (cast 
@@ -294,7 +289,7 @@
 		    (function sweep () -> void
 		      (set freelist 0)
 		      (set freespace 0)
-		      (for ((int i (- workspace-size 1)) (<= 0 i) --i)
+		      (for ((int i (- workspace-size 1)) (<= 0 i) (dec i))
 			(decl ((cons_object* obj (+ workspace i)))
 			  (if (== 1 (marked obj))
 			      (unmark obj)
@@ -302,7 +297,7 @@
 				(set (cons-car obj) (cast 'cons_object* 0))
 				(set (cons-cdr obj) freelist)
 				(set freelist obj)
-				freespace++)))))
+				(inc freespace))))))
 		    (function gc ((cons_object* form) (cons_object* env)) -> void
 		      (mark-object tee)
 		      (mark-object global-env)
@@ -343,7 +338,7 @@
 			  (return (+ 10 (- d #\a ))))
 		      (return 16))
 		    (function lookupstring ((uintgr name)) -> char*
-		      (for ((int i 0) (< i buflen) ++i)
+		      (for ((int i 0) (< i buflen) (inc i))
 			(set (aref buffer i) (aref builtin-name name i)))
 		      (return buffer))
 		    (function name ((cons_object* obj)) -> char*
@@ -353,7 +348,7 @@
 		      (decl ((uintgr x (cons-name obj)))
 			(if (< x (builtin-function))
 			    (return (funcall lookupstring x)))
-			(for ((int n 2) (<= 0 n) --n)
+			(for ((int n 2) (<= 0 n) (dec n))
 			  (set (aref buffer n) (funcall fromradix40 (% x 40)))
 			  (set x (/ x 40))))
 		      (return buffer))
@@ -433,7 +428,7 @@
 		      (decl ((int len 0))
 			(while (!= NULL list)
 			  (set list (cons-cdr list))
-			  len++)
+			  (inc len))
 			(return len)))
 		    
 		    (comment "typedef object *(*fn_ptr_type)(object *, object *);" :prefix "")
@@ -659,7 +654,7 @@
 				    (set (cons-cdr tail) obj)
 				    (set tail obj)
 				    (set form (cons-cdr form))
-				    nargs++))
+				    (inc nargs)))
 				(set function (cons-car head))
 				(set args (cons-cdr head))))))))
 		    (function main () -> int
