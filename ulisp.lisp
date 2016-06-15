@@ -927,9 +927,14 @@ and throws error when string is not a builtin."
 			   (aref builtin-fptr (cl:length *builtin-function*))
 					(builtin-function-ptr-clist)
 					)))
+		    (function repl ((o env)) -> void
+		      (for (() () ())
+			(funcall gc NULL env)
+			(funcall printf "freespace: %lu\\n" freespace)))
 		    (function main () -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
+		      (repl NULL)
 		      (return 0))) 
        do
 	 (simple-print e))))
