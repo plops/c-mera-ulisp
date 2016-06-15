@@ -1025,7 +1025,7 @@ and throws error when string is not a builtin."
 				  (erro "malformed list"))
 			      (return arg1)))
 			(if (== (cast 'o *quo*) item)
-			    (decl ((o arg1 (funcall read)))
+			    (decl ((o arg1 (funcall _read)))
 			      (return (funcall
 				       _cons
 				       (funcall
@@ -1038,7 +1038,17 @@ and throws error when string is not a builtin."
 			    (set item (funcall read-rest)))
 			(return (funcall _cons item (funcall read-rest)))))
 		    (function _read () -> o
-		      (decl ((o item ))))
+		      (decl ((o item (funcall nextitem)))
+			(if (== (cast 'o *bra*) item)
+			    (return (funcall read-rest)))
+			(if (== (cast 'o *dot*) item)
+			    (return (funcall _read)))
+			(if (== (cast 'o *quo*) item)
+			    (return (funcall _cons
+					     (funcall _symbol
+						      (builtin-function-name-to-number 'quote))
+					     (funcall _cons (funcall _read) NULL))))
+			(return item)))
 		    (function repl ((o env)) -> void
 		      (for (() () ())
 			(funcall gc NULL env)
