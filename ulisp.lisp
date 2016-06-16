@@ -133,6 +133,12 @@
 (defun builtin-function-name (x)
   (second (assoc :name x)))
 
+(defun builtin-function-max (x)
+  (second (assoc :max x)))
+
+(defun builtin-function-min (x)
+  (second (assoc :min x)))
+
 (defun builtin-function-name-to-number (name)
   (loop for i from 0 and e in *builtin-function*
    when (eql name (builtin-function-name e))
@@ -204,6 +210,16 @@ and throws error when string is not a builtin."
   `(clist ,@(mapcar #'(lambda (x) (format nil "~a" (builtin-function-name x)))
 		    *builtin-function*)))
 
+(defmacro builtin-function-max-clist ()
+  `(clist ,@(mapcar #'(lambda (x) (cl:let ((y (builtin-function-max x)))
+				    (cl:if y y 0)))
+		    *builtin-function*)))
+
+(defmacro builtin-function-min-clist ()
+  `(clist ,@(mapcar #'(lambda (x) (cl:let ((y (builtin-function-min x)))
+				    (cl:if y y 0)))
+		    *builtin-function*)))
+
 #+nil
 (builtin-function-name-clist)
 
@@ -228,12 +244,13 @@ and throws error when string is not a builtin."
 	      -> o)
 	  (comment ";" :prefix "")))
 
-(defmacro def-with-prefix ((prefix name &optional (min 1) (max min)) &body body)
+(defmacro def-with-prefix ((type name &optional (min 1) (max min)) &body body)
   `(cl:progn
-     (cl:let ((l (cl:elt *builtin-function* (builtin-function-name-to-number ',name))))
-       (cl:push '(:min ,min) l)
-       (cl:push '(:max ,max) l))
-     (function ,(intern (string-upcase (format nil "~a_~a" prefix name)))
+     (cl:progn
+       (cl:push '(:min ,min) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
+       (cl:push '(:max ,max) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
+       (cl:push '(:type ,type) (cl:elt *builtin-function* (builtin-function-name-to-number ',name))))
+     (function ,(intern (string-upcase (format nil "~a_~a" type name)))
 	 ((o args)
 	  (o env))
 	 -> o
@@ -241,13 +258,13 @@ and throws error when string is not a builtin."
       ,@body)))
 
 (defmacro defspecial ((name &optional (min 1) (max min)) &body body)
-  `(def-with-prefix ("sp" ,name ,min ,max) ,@body))
+  `(def-with-prefix (sp ,name ,min ,max) ,@body))
 
-(defmacro deftail ((name &optional (min 1) (max min)) &body body)
-  `(def-with-prefix ("tf" ,name ,min ,max) ,@body))
+(defmacro deftailrec ((name &optional (min 1) (max min)) &body body)
+  `(def-with-prefix (tf ,name ,min ,max) ,@body))
 
 (defmacro deffunction ((name &optional (min 1) (max min)) &body body)
-  `(def-with-prefix ("fn" ,name ,min ,max) ,@body))
+  `(def-with-prefix (fn ,name ,min ,max) ,@body))
 
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
@@ -271,10 +288,13 @@ and throws error when string is not a builtin."
 (defparameter *dot* 4)
 
 #+nil
+*builtin-function*
+
+#+nil
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
-  (reset-builtin)
+					;; (reset-builtin)
   (with-open-file (*standard-output* "ulisp.c"
 				     :direction :output
 				     :if-exists :supersede
@@ -306,7 +326,10 @@ and throws error when string is not a builtin."
 					 (cl:length *builtin-function*)
 					 buflen)
 				  (builtin-function-name-clist))
-			   ))
+			   (const uintgr (aref builtin-par-min
+					 (cl:length *builtin-function*)))
+			   (const uintgr (aref builtin-par-max
+					     (cl:length *builtin-function*)))))
 		    (decl ((o freelist)
 			   (o tee)
 			   (o global-env)
@@ -328,6 +351,8 @@ and throws error when string is not a builtin."
 				   UINTPTR_MAX
 				   builtin-name
 				   builtin-fptr
+				   builtin-par-min
+				   builtin-par-max
 				   return-flag
 				   NULL
 				   EVAL
@@ -1123,6 +1148,8 @@ and throws error when string is not a builtin."
 			  (funcall printf "\\n\\n")
 			  )
 			))
+		    (decl ((const uintgr builtin-par-min (builtin-function-min-clist))
+			   (const uintgr builtin-par-max (builtin-function-max-clist))))
 		    (function main () -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
