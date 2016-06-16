@@ -961,9 +961,10 @@ and throws error when string is not a builtin."
 			(while (funcall isspace ch)
 			  (set ch (funcall _getc)))
 			(if (== #\; ch)
-			    (while (!= #\( ch)
-			      (set ch (funcall _getc)))
-			    (set ch #\())
+			    (progn
+			     (while (!= #\( ch)
+			       (set ch (funcall _getc)))
+			     (set ch #\()))
 			(if (== #\newline ch)
 			    (set ch (funcall _getc)))
 			(if (== EOF ch)
