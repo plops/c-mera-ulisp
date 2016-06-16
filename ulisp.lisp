@@ -1030,7 +1030,6 @@ and throws error when string is not a builtin."
 				  (return (funcall _symbol x))
 				  (return (funcall _symbol (funcall pack40 buffer)))))))))
 		    (function read-rest () -> o
-		      (funcall printf "read-rest\\n")
 		      (decl ((o item (funcall nextitem)))
 			(if (== (cast 'o *ket*) item)
 			    (return NULL))
@@ -1101,7 +1100,7 @@ and throws error when string is not a builtin."
 				     (return)))
 			  (funcall printf "\\n")
 			  (_push line gc-stack)
-			  (funcall printf "push line gc-stack\\n")
+			  ;;(funcall printf "push line gc-stack\\n")
 			  (funcall _print-object (funcall _eval line env))
 			  (_pop gc-stack)
 			  (funcall printf "\\n\\n")
