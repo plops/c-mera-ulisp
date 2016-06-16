@@ -294,7 +294,7 @@ and throws error when string is not a builtin."
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
-					;; (reset-builtin)
+  ;; (reset-builtin)
   (with-open-file (*standard-output* "ulisp.c"
 				     :direction :output
 				     :if-exists :supersede
@@ -303,7 +303,7 @@ and throws error when string is not a builtin."
 		    (include <setjmp.h>)
 		    (include <stdio.h>)
 		    (include <stdint.h>) ;; uintptr_t
-		    (include <ctype.h>) ;; isschar
+		    (include <ctype.h>)  ;; isschar
 		    (include <unistd.h>) ;; exit
 		    (include <string.h>) ;; strcmp
 		    (comment "I use integers that have the same size as a pointer")
@@ -327,9 +327,9 @@ and throws error when string is not a builtin."
 					 buflen)
 				  (builtin-function-name-clist))
 			   (const uintgr (aref builtin-par-min
-					 (cl:length *builtin-function*)))
+					   (cl:length *builtin-function*)))
 			   (const uintgr (aref builtin-par-max
-					     (cl:length *builtin-function*)))))
+					   (cl:length *builtin-function*)))))
 		    (decl ((o freelist)
 			   (o tee)
 			   (o global-env)
@@ -374,7 +374,8 @@ and throws error when string is not a builtin."
 		    (function erro ((const char* string)) -> void
 		      (funcall printf "Error: %s\\n" string)
 		      (set gc-stack 0)
-		      (funcall longjmp exception 1))
+		      ;; (funcall longjmp exception 1)
+		      )
 		    (function _alloc () -> o
 		      (if (== 0 freespace)
 			  (funcall erro "No room"))
@@ -396,8 +397,7 @@ and throws error when string is not a builtin."
 			(return (cast o ptr))))
 		    (function _cons ((o arg1)
 				     (o arg2)) -> o
-		      (decl ((o ptr (cast 'o
-						     (funcall _alloc))))
+		      (decl ((o ptr (cast 'o (funcall _alloc))))
 			(set (pref ptr car) arg1)
 			(set (pref ptr cdr) arg2)
 			(return ptr)))
@@ -583,7 +583,7 @@ and throws error when string is not a builtin."
 		      (comment "(void) name;" :prefix "")
 		      (return (aref builtin-par-max name)))
 		    (decl ((fn_ptr_type
-			   (aref builtin-fptr (cl:length *builtin-function*)))))
+			    (aref builtin-fptr (cl:length *builtin-function*)))))
 		    (function lookupfn ((uintgr name)) -> fn_ptr_type
 		      (return (aref builtin-fptr name)))
 		    (function _apply ((o function)
@@ -658,8 +658,8 @@ and throws error when string is not a builtin."
 				  (builtin-function-name-to-number 'lambda))
 				 (cons-cdr args)))
 			       (o pair
-					     (funcall value (cons-name var)
-						      global-env)))
+				  (funcall value (cons-name var)
+					   global-env)))
 			  (if (!= NULL pair)
 			      (progn (set (cons-cdr pair) val)
 				     (return var)))
@@ -669,9 +669,9 @@ and throws error when string is not a builtin."
 		      (decl ((o var (cons-car args)))
 			(ensure-symbol var)
 			(decl ((o val (funcall _eval (_second args)
-							  env))
+					       env))
 			       (o pair (funcall value (cons-name var)
-							   global-env)))
+						global-env)))
 			  (if (!= NULL pair)
 			      (set (cons-cdr pair) val)
 			      (return var))
@@ -680,11 +680,11 @@ and throws error when string is not a builtin."
 			  (return var))))
 		    (defspecial (setq 2 2)
 		      (decl ((o arg (funcall _eval
-							(_second args)
-							env))
+					     (_second args)
+					     env))
 			     (o pair (funcall findvalue
-							 (cons-car args)
-							 env)))
+					      (cons-car args)
+					      env)))
 			(set (cons-cdr pair) arg)
 			(return arg)))
 		    (defspecial (loop 0 127)
@@ -702,47 +702,47 @@ and throws error when string is not a builtin."
 		    (defspecial (push 2)
 		      (decl ((o item (funcall _eval (cons-car args) env))
 			     (o pair (funcall findvalue (_second args)
-							 env)))
+					      env)))
 			(_push item (cons-cdr pair))
 			(return (cons-cdr pair))))
 		    (defspecial (pop 1)
 		      (decl ((o pair (funcall findvalue (_second args)
-							 env))
+					      env))
 			     (o result (cons-car (cons-cdr pair))))
 			(_pop (cons-cdr pair))
 			(return result)))
 		    (defspecial (incf 1 2)
 		      (decl ((o var (cons-car args))
-		    	     (o pair (funcall findvalue var env))
-		    	     (int result (funcall _integer (funcall _eval var env)))
-		    	     (int temp 1))
-		    	(if (!= NULL (cons-cdr args))
-		    	    (set temp (funcall _integer (funcall _eval (_second args) env))))
-		    	(set result (+ result temp))
-		    	(set var (funcall _number result))
-		    	(set (cons-cdr pair) var)
-		    	(return var)))
+			     (o pair (funcall findvalue var env))
+			     (int result (funcall _integer (funcall _eval var env)))
+			     (int temp 1))
+			(if (!= NULL (cons-cdr args))
+			    (set temp (funcall _integer (funcall _eval (_second args) env))))
+			(set result (+ result temp))
+			(set var (funcall _number result))
+			(set (cons-cdr pair) var)
+			(return var)))
 		    (defspecial (decf 1 2)
 		      (decl ((o var (cons-car args))
-		    	     (o pair (funcall findvalue var env))
-		    	     (int result (funcall _integer (funcall _eval var env)))
-		    	     (int temp 1))
-		    	(if (!= NULL (cons-cdr args))
-		    	    (set temp (funcall _integer
+			     (o pair (funcall findvalue var env))
+			     (int result (funcall _integer (funcall _eval var env)))
+			     (int temp 1))
+			(if (!= NULL (cons-cdr args))
+			    (set temp (funcall _integer
 					       (funcall _eval (_second args) env))))
-		    	(set result (- result temp))
-		    	(set var (funcall _number result))
-		    	(set (cons-cdr pair) var)
-		    	(return var)))
+			(set result (- result temp))
+			(set var (funcall _number result))
+			(set (cons-cdr pair) var)
+			(return var)))
 		    (deftailrec (progn 0 127)
 		      (if (== NULL args)
-		    	  (return cnil))
+			  (return cnil))
 		      (decl ((o more (cons-cdr args)))
-		    	(while (!= NULL more)
-		    	  (funcall _eval (cons-car args) env)
-		    	  (set args more)
-		    	  (set more (cons-cdr args)))
-		    	(return (cons-car args))))
+			(while (!= NULL more)
+			  (funcall _eval (cons-car args) env)
+			  (set args more)
+			  (set more (cons-cdr args)))
+			(return (cons-car args))))
 		    (deftailrec (return 0 127)
 		      (set return-flag 1)
 		      (return (funcall tf_progn args env)))
@@ -776,7 +776,7 @@ and throws error when string is not a builtin."
 			(while (!= NULL more)
 			  (decl ((o result (funcall _eval (cons-car args) env)))
 			    (if (!= NULL result)
-			       (return result)))
+				(return result)))
 			  (set args more)
 			  (set more (cons-cdr args)))
 			(return (cons-car args))))
@@ -927,10 +927,10 @@ and throws error when string is not a builtin."
 			  (decl ((o fname (cons-car form))
 				 (int TCstart TC)
 				 (o head (funcall _cons
-							     (funcall _eval
-								      (cons-car form)
-								      env)
-							     NULL)))
+						  (funcall _eval
+							   (cons-car form)
+							   env)
+						  NULL)))
 			    (comment "don't gc the result list")
 			    (_push head gc-stack) 
 			    (decl ((o tail head))
@@ -938,8 +938,8 @@ and throws error when string is not a builtin."
 			      (decl ((int nargs 0))
 				(while (!= NULL form)
 				  (decl ((o obj (funcall _cons
-								    (funcall _eval (cons-car form) env)
-								    NULL)))
+							 (funcall _eval (cons-car form) env)
+							 NULL)))
 				    (set (cons-cdr tail) obj)
 				    (set tail obj)
 				    (set form (cons-cdr form))
@@ -967,9 +967,9 @@ and throws error when string is not a builtin."
 				      (set form (funcall closure TCstart
 							 fname NULL (cons-cdr function) args
 							 (addr-of env)))
-				     (_pop gc-stack)
-				     (set TC 1)
-				     (comment "goto EVAL;" :prefix "")))
+				      (_pop gc-stack)
+				      (set TC 1)
+				      (comment "goto EVAL;" :prefix "")))
 				(if (and (_listp function)
 					 (funcall issymbol (cons-car function)
 						  (builtin-function-name-to-number 'closure)))
@@ -978,18 +978,18 @@ and throws error when string is not a builtin."
 				      (set form (funcall closure TCstart
 							 fname (cons-car function) (cons-cdr function) args
 							 (addr-of env)))
-				     (_pop gc-stack)
-				     (set TC 1)
-				     (comment "goto EVAL;" :prefix "")))
+				      (_pop gc-stack)
+				      (set TC 1)
+				      (comment "goto EVAL;" :prefix "")))
 				(erro "illegal func")
 				(return cnil)))))))
 		    (function init-env () -> void
 		      (set global-env NULL)
 		      (set tee (funcall _symbol (builtin-function-name-to-number 'tee))))
 		    (decl ((fn_ptr_type
-			   (aref builtin-fptr (cl:length *builtin-function*))
-					(builtin-function-ptr-clist)
-					)))
+			    (aref builtin-fptr (cl:length *builtin-function*))
+			    (builtin-function-ptr-clist)
+			    )))
 		    (function _getc () -> int
 		      (if last-char
 			  (decl ((int temp last-char))
@@ -1004,9 +1004,9 @@ and throws error when string is not a builtin."
 			  (set ch (funcall _getc)))
 			(if (== #\; ch)
 			    (progn
-			     (while (!= #\( ch)
-			       (set ch (funcall _getc)))
-			     (set ch #\()))
+			      (while (!= #\( ch)
+				(set ch (funcall _getc)))
+			      (set ch #\()))
 			(if (== #\newline ch)
 			    (set ch (funcall _getc)))
 			(if (== EOF ch)
