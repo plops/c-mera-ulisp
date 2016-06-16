@@ -692,7 +692,7 @@ and throws error when string is not a builtin."
 		    	(set var (funcall _number result))
 		    	(set (cons-cdr pair) var)
 		    	(return var)))
-		    (deftailrec progn
+		    (deftailrec (progn 0 127)
 		      (if (== NULL args)
 		    	  (return cnil))
 		      (decl ((o more (cons-cdr args)))
@@ -701,14 +701,14 @@ and throws error when string is not a builtin."
 		    	  (set args more)
 		    	  (set more (cons-cdr args)))
 		    	(return (cons-car args))))
-		    (deftailrec return
+		    (deftailrec (return 0 127)
 		      (set return-flag 1)
 		      (return (funcall tf_progn args env)))
 		    (deftailrec if
 		      (if (!= cnil (funcall _eval (cons-car args) env))
 			  (return (_second args)))
 		      (return (_third args)))
-		    (deftailrec cond
+		    (deftailrec (cond 0 127)
 		      (while (!= NULL args)
 			(decl ((o clause (cons-car args))
 			       (o test (funcall _eval (cons-car clause) env))
@@ -719,7 +719,7 @@ and throws error when string is not a builtin."
 				  (return (funcall tf_progn forms env)))))
 			(set args (cons-cdr args)))
 		      (return cnil))
-		    (deftailrec and
+		    (deftailrec (and 0 127)
 		      (if (== NULL args)
 			  (return tee))
 		      (decl ((o more (cons-cdr args)))
@@ -729,7 +729,7 @@ and throws error when string is not a builtin."
 			  (set args more)
 			  (set more (cons-cdr args)))
 			(return (cons-car args))))
-		    (deftailrec or
+		    (deftailrec (or 0 127)
 		      (decl ((o more (cons-cdr args)))
 			(while (!= NULL more)
 			  (decl ((o result (funcall _eval (cons-car args) env)))
@@ -738,7 +738,7 @@ and throws error when string is not a builtin."
 			  (set args more)
 			  (set more (cons-cdr args)))
 			(return (cons-car args))))
-		    (deffunction not
+		    (deffunction (not 1)
 		      (comment "(void) env;" :prefix "")
 		      (if (== cnil (cons-car args))
 			  (return tee)
