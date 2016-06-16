@@ -214,20 +214,20 @@ and throws error when string is not a builtin."
   `(use-variables ,@(loop for (e) in *builtin-function* and i from 0 collect
 			 (cl:intern (cl:format nil "STRING~3,'0d" i)))))
 
-(defmacro defspecial (name &body body)
+(defmacro defspecial ((name &optional (min 1) (max min)) &body body)
   `(function ,(intern (string-upcase (format nil "sp_~a" name)))
        ((o args)
 	(o env))
        -> o
      ,@body))
 
-(defmacro deftailrec (name &body body)
+(defmacro deftailrec ((name &optional (min 1) (max min)) &body body)
   `(function ,(intern (string-upcase (format nil "tf_~a" name))) ((o args)
 								  (o env))
        -> o
      ,@body))
 
-(defmacro deffunction (name &body body)
+(defmacro deffunction ((name &optional (min 1) (max min)) &body body)
   `(function ,(intern (string-upcase (format nil "fn_~a" name))) ((o args)
 								  (o env))
        -> o
@@ -600,10 +600,10 @@ and throws error when string is not a builtin."
 		      (if (== cnil arg)
 			  (return cnil))
 		      (return (cons-cdr arg)))
-		    (defspecial quote
+		    (defspecial (quote 1 1)
 		      (comment "(void) env;" :prefix "")
 		      (return (cons-car args)))
-		    (defspecial defun
+		    (defspecial (defun 0 127) 
 		      (comment "(void) env;" :prefix "")
 		      (decl ((o var (cons-car args)))
 			(ensure-symbol var)
@@ -623,7 +623,7 @@ and throws error when string is not a builtin."
 				     (return var)))
 			  (_push (funcall _cons var val) global-env)
 			  (return var))))
-		    (defspecial defvar
+		    (defspecial (defvar 0 127)
 		      (decl ((o var (cons-car args)))
 			(ensure-symbol var)
 			(decl ((o val (funcall _eval (_second args)
@@ -636,7 +636,7 @@ and throws error when string is not a builtin."
 			  (_push (funcall _cons var val)
 				 global-env)
 			  (return var))))
-		    (defspecial setq
+		    (defspecial (setq 2 2)
 		      (decl ((o arg (funcall _eval
 							(_second args)
 							env))
@@ -645,7 +645,7 @@ and throws error when string is not a builtin."
 							 env)))
 			(set (cons-cdr pair) arg)
 			(return arg)))
-		    (defspecial loop
+		    (defspecial (loop 0 127)
 		      (set return-flag 0)
 		      (decl ((o start args))
 			(for (() () ())
@@ -657,19 +657,19 @@ and throws error when string is not a builtin."
 				  (set return-flag 0)
 				  (return result)))
 			    (set args (cons-cdr args))))))
-		    (defspecial push
+		    (defspecial (push 2)
 		      (decl ((o item (funcall _eval (cons-car args) env))
 			     (o pair (funcall findvalue (_second args)
 							 env)))
 			(_push item (cons-cdr pair))
 			(return (cons-cdr pair))))
-		    (defspecial pop
+		    (defspecial (pop 1)
 		      (decl ((o pair (funcall findvalue (_second args)
 							 env))
 			     (o result (cons-car (cons-cdr pair))))
 			(_pop (cons-cdr pair))
 			(return result)))
-		    (defspecial incf
+		    (defspecial (incf 1 2)
 		      (decl ((o var (cons-car args))
 		    	     (o pair (funcall findvalue var env))
 		    	     (int result (funcall _integer (funcall _eval var env)))
@@ -680,7 +680,7 @@ and throws error when string is not a builtin."
 		    	(set var (funcall _number result))
 		    	(set (cons-cdr pair) var)
 		    	(return var)))
-		    (defspecial decf
+		    (defspecial (decf 1 2)
 		      (decl ((o var (cons-car args))
 		    	     (o pair (funcall findvalue var env))
 		    	     (int result (funcall _integer (funcall _eval var env)))
