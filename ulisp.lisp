@@ -227,6 +227,13 @@ and throws error when string is not a builtin."
        -> o
      ,@body))
 
+(defmacro deftailrec-fw (name)
+  `(progn (function ,(intern (string-upcase (format nil "tf_~a" name))) ((o args)
+								   (o env))
+	      -> o)
+	  (comment ";" :prefix "")))
+
+
 (defmacro deffunction ((name &optional (min 1) (max min)) &body body)
   `(function ,(intern (string-upcase (format nil "fn_~a" name))) ((o args)
 								  (o env))
@@ -317,7 +324,7 @@ and throws error when string is not a builtin."
 				   EOF
 				   last-char)
 		    (comment "forward declarations")
-		    (deftailrec progn) (comment ";" :prefix "")
+		    (deftailrec-fw progn)
 		    (function _eval ((o form)(o env)) -> o) (comment ";" :prefix "")
 		    (function _read () -> o) (comment ";" :prefix "")
 		    (function init-workspace () -> void
@@ -704,7 +711,7 @@ and throws error when string is not a builtin."
 		    (deftailrec (return 0 127)
 		      (set return-flag 1)
 		      (return (funcall tf_progn args env)))
-		    (deftailrec if
+		    (deftailrec (if 2 3)
 		      (if (!= cnil (funcall _eval (cons-car args) env))
 			  (return (_second args)))
 		      (return (_third args)))
@@ -743,36 +750,36 @@ and throws error when string is not a builtin."
 		      (if (== cnil (cons-car args))
 			  (return tee)
 			  (return cnil)))
-		    (deffunction cons
+		    (deffunction (cons 2)
 		      (comment "(void) env;" :prefix "")
 		      (return (funcall _cons (cons-car args)
 				       (_second args))))
-		    (deffunction atom
+		    (deffunction (atom 1)
 		      (comment "(void) env;" :prefix "")
 		      (decl ((o arg1 (cons-car args)))
 			(if (_consp arg1)
 			    (return cnil)
 			    (return tee))))
-		    (deffunction listp
+		    (deffunction (listp 1)
 		      (comment "(void) env;" :prefix "")
 		      (decl ((o arg1 (cons-car args)))
 			(if (_listp arg1)
 			    (return tee)
 			    (return cnil))))
-		    (deffunction eq
+		    (deffunction (eq 2)
 		      (comment "(void) env;" :prefix "")
 		      (decl ((o arg1 (cons-car args))
 			     (o arg2 (_second args)))
 			(if (funcall _eq arg1 arg2)
 			    (return tee)
 			    (return cnil))))
-		    (deffunction car
+		    (deffunction (car 1)
 		      (comment "(void) env;" :prefix "")
 		      (return (funcall carx (cons-car args))))
-		    (deffunction cdr
+		    (deffunction (cdr 1)
 		      (comment "(void) env;" :prefix "")
 		      (return (funcall cdrx (cons-car args))))
-		    (deffunction apply
+		    (deffunction (apply 2 127)
 		      (decl ((o previous NULL)
 			     (o last args))
 			(while (!= NULL (cons-cdr last))
