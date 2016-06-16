@@ -392,14 +392,14 @@ and throws error when string is not a builtin."
 					   (cast 
 					    'cons_number*
 					    (funcall _alloc))))
-			(set (pref ptr type) *number*)
-			(set (pref ptr integer) n)
+			(set (cons-type ptr) *number*)
+			(set (cons-integer ptr) n)
 			(return (cast o ptr))))
 		    (function _cons ((o arg1)
 				     (o arg2)) -> o
 		      (decl ((o ptr (cast 'o (funcall _alloc))))
-			(set (pref ptr car) arg1)
-			(set (pref ptr cdr) arg2)
+			(set (cons-car ptr) arg1)
+			(set (cons-cdr ptr) arg2)
 			(return ptr)))
 		    (function _symbol ((uintgr name)) -> o
 		      (decl ((cons_symbol* ptr
@@ -415,8 +415,7 @@ and throws error when string is not a builtin."
 		      (if (marked obj)
 			  (return))
 		      (decl ((o arg (cons-car obj))
-			     (intgr type (pref (cast 'cons_number* obj)
-					       type)))
+			     (intgr type (cons-type obj)))
 			(mark obj)
 			(if (and (!= *symbol* type)
 				 (!= *number* type))
