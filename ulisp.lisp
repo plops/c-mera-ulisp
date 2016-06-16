@@ -85,41 +85,42 @@
 	(!= *symbol* (cons-type ,x))
 	(!= NULL ,x)))
 
-
-
-(defparameter *builtin-function*
-  '(((:name f_sym))
-    ((:name nil))
-    ((:name tee))
-    ((:name lambda))
-    ((:name let))
-    ((:name closure))
-    ((:name f_spec))
-    ((:name quote))
-    ((:name defun))
-    ((:name defvar))
-    ((:name setq))
-    ((:name loop))
-    ((:name push))
-    ((:name pop))
-    ((:name incf))
-    ((:name decf))
-    ((:name f_tail))
-    ((:name progn))
-    ((:name return))
-    ((:name if))
-    ((:name cond))
-    ((:name and))
-    ((:name or))
-    ((:name f_fun))
-    ((:name not))
-    ((:name cons))
-    ((:name atom))
-    ((:name listp))
-    ((:name eq))
-    ((:name car))
-    ((:name cdr))
-    ((:name apply))))
+(eval-when (:compile-toplevel)
+  (defun reset-builtin ()
+ (defparameter *builtin-function*
+   '(((:name f_sym))
+     ((:name nil))
+     ((:name tee))
+     ((:name lambda))
+     ((:name let))
+     ((:name closure))
+     ((:name f_spec))
+     ((:name quote))
+     ((:name defun))
+     ((:name defvar))
+     ((:name setq))
+     ((:name loop))
+     ((:name push))
+     ((:name pop))
+     ((:name incf))
+     ((:name decf))
+     ((:name f_tail))
+     ((:name progn))
+     ((:name return))
+     ((:name if))
+     ((:name cond))
+     ((:name and))
+     ((:name or))
+     ((:name f_fun))
+     ((:name not))
+     ((:name cons))
+     ((:name atom))
+     ((:name listp))
+     ((:name eq))
+     ((:name car))
+     ((:name cdr))
+     ((:name apply)))))
+ (reset-builtin))
 
 ;; (let ((a 1)
 ;;       (b 2))
@@ -140,28 +141,28 @@
 (defun builtin-symbol-list ()
   (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_sym))
      below (builtin-function-name-to-number 'f_spec)
-     collect (first (elt *builtin-function* i))))
+     collect (builtin-function-name (elt *builtin-function* i))))
 
 (defun builtin-special-function-list ()
   (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_spec))
      below (builtin-function-name-to-number 'f_tail)
-     collect (first (elt *builtin-function* i))))
+     collect (builtin-function-name (elt *builtin-function* i))))
 
 (defun builtin-tail-function-list ()
   (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_tail))
      below (builtin-function-name-to-number 'f_fun)
-     collect (first (elt *builtin-function* i))))
+     collect (builtin-function-name (elt *builtin-function* i))))
 
 (defun builtin-normal-function-list ()
   (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_fun))
      below (cl:length *builtin-function*)
-     collect (first (elt *builtin-function* i))))
+     collect (builtin-function-name (elt *builtin-function* i))))
 
 (defun builtin-function-name-type (name)
   "find in which class NAME is. It can be either :sym, :spec, :tail
 or :fun. Returns nil for the delimeters F_SYM F_SPEC, F_TAIL and F_FUN
 and throws error when string is not a builtin."
-  (unless (member name (mapcar #'first *builtin-function*))
+  (unless (member name (mapcar #'builtin-function-name *builtin-function*))
     (error "~a not a builtin" name))
   (cl:cond ((member name (builtin-symbol-list)) :sym)
 	   ((member name (builtin-special-function-list)) :spec)
@@ -174,7 +175,7 @@ and throws error when string is not a builtin."
 				    (:tail (intern (string-upcase (format nil "tf_~a" x))))
 				    (:fun (intern (string-upcase (format nil "fn_~a" x))))
 				    (t 0)))
-		    (mapcar #'first *builtin-function*))))
+		    (mapcar #'builtin-function-name *builtin-function*))))
 
 #+nil
 (builtin-function-ptr-clist)
@@ -207,44 +208,55 @@ and throws error when string is not a builtin."
 (builtin-function-name-clist)
 
 (defmacro gen-builtin-table-string ()
-  `(decl ,(loop for (e) in *builtin-function* and i from 0 collect
+  `(decl ,(loop for e in *builtin-function* and i from 0 collect
 	       `(const char
 		       ,(cl:intern (cl:format nil "STRING~3,'0d" i))
-		       ,(cl:format nil "~a" e)))))
+		       ,(cl:format nil "~a" (builtin-function-name e))))))
 
 (defmacro gen-builtin-table-string-variables ()
-  `(use-variables ,@(loop for (e) in *builtin-function* and i from 0 collect
+  `(use-variables ,@(loop for e in *builtin-function* and i from 0 collect
 			 (cl:intern (cl:format nil "STRING~3,'0d" i)))))
 
 (defmacro defspecial ((name &optional (min 1) (max min)) &body body)
   `(progn
+     (cl:let ((l (cl:elt *builtin-function* (builtin-function-name-to-number ,name))))
+       (cl:push `(:min ,min) l)
+       (cl:push `(:max ,max) l))
      (function ,(intern (string-upcase (format nil "sp_~a" name)))
 	 ((o args)
 	  (o env))
 	 -> o
        ,@body)))
 
-(push '(:min 1) (elt *builtin-function* (builtin-function-name-to-number 'incf)))
+
 
 (defmacro deftailrec ((name &optional (min 1) (max min)) &body body)
   `(progn
+     (cl:let ((l (cl:elt *builtin-function* (builtin-function-name-to-number ,name))))
+       (cl:push `(:min ,min) l)
+       (cl:push `(:max ,max) l))
      (function ,(intern (string-upcase (format nil "tf_~a" name))) ((o args)
 								    (o env))
 	-> o
       ,@body)))
 
 (defmacro deftailrec-fw (name)
-  `(progn (function ,(intern (string-upcase (format nil "tf_~a" name))) ((o args)
+  `(progn
+     (function ,(intern (string-upcase (format nil "tf_~a" name))) ((o args)
 									 (o env))
 	      -> o)
 	  (comment ";" :prefix "")))
 
 
 (defmacro deffunction ((name &optional (min 1) (max min)) &body body)
-  `(function ,(intern (string-upcase (format nil "fn_~a" name))) ((o args)
-								  (o env))
-       -> o
-     ,@body))
+  `(progn
+     (cl:let ((l (cl:elt *builtin-function* (builtin-function-name-to-number ,name))))
+       (cl:push `(:min ,min) l)
+       (cl:push `(:max ,max) l))
+     (function ,(intern (string-upcase (format nil "fn_~a" name))) ((o args)
+								    (o env))
+	 -> o
+       ,@body)))
 
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
@@ -271,6 +283,7 @@ and throws error when string is not a builtin."
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
+  (reset-builtin)
   (with-open-file (*standard-output* "ulisp.c"
 				     :direction :output
 				     :if-exists :supersede
