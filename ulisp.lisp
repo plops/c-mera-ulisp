@@ -578,10 +578,10 @@ and throws error when string is not a builtin."
 			(return (cl:length *builtin-function*))))
 		    (function lookupmin ((uintgr name)) -> int
 		      (comment "(void) name;" :prefix "") ;; FIXME
-		      (return 0))
+		      (return (aref builtin-par-min name)))
 		    (function lookupmax ((uintgr name)) -> int
 		      (comment "(void) name;" :prefix "")
-		      (return 3))
+		      (return (aref builtin-par-max name)))
 		    (decl ((fn_ptr_type
 			   (aref builtin-fptr (cl:length *builtin-function*)))))
 		    (function lookupfn ((uintgr name)) -> fn_ptr_type
@@ -1148,8 +1148,8 @@ and throws error when string is not a builtin."
 			  (funcall printf "\\n\\n")
 			  )
 			))
-		    (decl ((const uintgr builtin-par-min (builtin-function-min-clist))
-			   (const uintgr builtin-par-max (builtin-function-max-clist))))
+		    (decl ((const uintgr (aref builtin-par-min (cl:length *builtin-function*)) (builtin-function-min-clist))
+			   (const uintgr (aref builtin-par-max (cl:length *builtin-function*)) (builtin-function-max-clist))))
 		    (function main () -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
