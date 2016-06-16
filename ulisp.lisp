@@ -952,7 +952,9 @@ and throws error when string is not a builtin."
 			  (decl ((int temp last-char))
 			    (set last-char 0)
 			    (return temp)))
-		      (return (funcall getchar)))
+		      (decl ((int temp (funcall getchar)))
+			(funcall printf "%c" temp)
+			(return temp)))
 		    (function nextitem () -> o
 		      (decl ((int ch (funcall _getc)))
 			(while (funcall isspace ch)
