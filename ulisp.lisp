@@ -237,6 +237,7 @@ and throws error when string is not a builtin."
 	 ((o args)
 	  (o env))
 	 -> o
+       (comment ,(format nil "minimum number of parameters: ~a, max. nr. of parameters: ~a" min max))
       ,@body)))
 
 (defmacro defspecial ((name &optional (min 1) (max min)) &body body)
