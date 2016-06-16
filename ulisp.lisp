@@ -88,38 +88,38 @@
 
 
 (defparameter *builtin-function*
-  '((f_sym)
-    (nil)
-    (tee)
-    (lambda)
-    (let)
-    (closure)
-    (f_spec)
-    (quote)
-    (defun)
-    (defvar)
-    (setq)
-    (loop)
-    (push)
-    (pop)
-    (incf)
-    (decf)
-    (f_tail)
-    (progn)
-    (return)
-    (if)
-    (cond)
-    (and)
-    (or)
-    (f_fun)
-    (not)
-    (cons)
-    (atom)
-    (listp)
-    (eq)
-    (car)
-    (cdr)
-    (apply)))
+  '(((:name f_sym))
+    ((:name nil))
+    ((:name tee))
+    ((:name lambda))
+    ((:name let))
+    ((:name closure))
+    ((:name f_spec))
+    ((:name quote))
+    ((:name defun))
+    ((:name defvar))
+    ((:name setq))
+    ((:name loop))
+    ((:name push))
+    ((:name pop))
+    ((:name incf))
+    ((:name decf))
+    ((:name f_tail))
+    ((:name progn))
+    ((:name return))
+    ((:name if))
+    ((:name cond))
+    ((:name and))
+    ((:name or))
+    ((:name f_fun))
+    ((:name not))
+    ((:name cons))
+    ((:name atom))
+    ((:name listp))
+    ((:name eq))
+    ((:name car))
+    ((:name cdr))
+    ((:name apply))))
 
 ;; (let ((a 1)
 ;;       (b 2))
@@ -127,8 +127,10 @@
 ;; (car '(+ a b))
 ;; (cdr '(+ a b))
 
+
+
 (defun builtin-function-name (x)
-  (first x))
+  (second (assoc :name x)))
 
 (defun builtin-function-name-to-number (name)
   (loop for i from 0 and e in *builtin-function*
@@ -215,21 +217,25 @@ and throws error when string is not a builtin."
 			 (cl:intern (cl:format nil "STRING~3,'0d" i)))))
 
 (defmacro defspecial ((name &optional (min 1) (max min)) &body body)
-  `(function ,(intern (string-upcase (format nil "sp_~a" name)))
-       ((o args)
-	(o env))
-       -> o
-     ,@body))
+  `(progn
+     (function ,(intern (string-upcase (format nil "sp_~a" name)))
+	 ((o args)
+	  (o env))
+	 -> o
+       ,@body)))
+
+(push '(:min 1) (elt *builtin-function* (builtin-function-name-to-number 'incf)))
 
 (defmacro deftailrec ((name &optional (min 1) (max min)) &body body)
-  `(function ,(intern (string-upcase (format nil "tf_~a" name))) ((o args)
-								  (o env))
-       -> o
-     ,@body))
+  `(progn
+     (function ,(intern (string-upcase (format nil "tf_~a" name))) ((o args)
+								    (o env))
+	-> o
+      ,@body)))
 
 (defmacro deftailrec-fw (name)
   `(progn (function ,(intern (string-upcase (format nil "tf_~a" name))) ((o args)
-								   (o env))
+									 (o env))
 	      -> o)
 	  (comment ";" :prefix "")))
 
