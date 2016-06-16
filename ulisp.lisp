@@ -1046,7 +1046,7 @@ and throws error when string is not a builtin."
 			    (comment "in case var is one letter")
 			    (set (aref buffer 2) 0)
 			    (while (and (== 0 (funcall isspace ch))
-					(== #\) ch)
+					(!= #\) ch)
 					(< index buflen))
 			      (set (aref buffer index++) ch)
 			      (decl ((intgr temp (funcall digitvalue ch)))
@@ -1148,8 +1148,12 @@ and throws error when string is not a builtin."
 			  (funcall printf "\\n\\n")
 			  )
 			))
-		    (decl ((const uintgr (aref builtin-par-min (cl:length *builtin-function*)) (builtin-function-min-clist))
-			   (const uintgr (aref builtin-par-max (cl:length *builtin-function*)) (builtin-function-max-clist))))
+		    (decl ((const uintgr (aref builtin-par-min
+					   (cl:length *builtin-function*))
+				  (builtin-function-min-clist))
+			   (const uintgr (aref builtin-par-max
+					   (cl:length *builtin-function*))
+				  (builtin-function-max-clist))))
 		    (function main () -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
@@ -1160,3 +1164,4 @@ and throws error when string is not a builtin."
 
 
 
+(code-char 10)
