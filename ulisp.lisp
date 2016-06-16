@@ -217,28 +217,9 @@ and throws error when string is not a builtin."
   `(use-variables ,@(loop for e in *builtin-function* and i from 0 collect
 			 (cl:intern (cl:format nil "STRING~3,'0d" i)))))
 
-(defmacro defspecial ((name &optional (min 1) (max min)) &body body)
-  `(progn
-     (cl:let ((l (cl:elt *builtin-function* (builtin-function-name-to-number ,name))))
-       (cl:push `(:min ,min) l)
-       (cl:push `(:max ,max) l))
-     (function ,(intern (string-upcase (format nil "sp_~a" name)))
-	 ((o args)
-	  (o env))
-	 -> o
-       ,@body)))
 
 
 
-(defmacro deftailrec ((name &optional (min 1) (max min)) &body body)
-  `(progn
-     (cl:let ((l (cl:elt *builtin-function* (builtin-function-name-to-number ,name))))
-       (cl:push `(:min ,min) l)
-       (cl:push `(:max ,max) l))
-     (function ,(intern (string-upcase (format nil "tf_~a" name))) ((o args)
-								    (o env))
-	-> o
-      ,@body)))
 
 (defmacro deftailrec-fw (name)
   `(progn
@@ -247,16 +228,25 @@ and throws error when string is not a builtin."
 	      -> o)
 	  (comment ";" :prefix "")))
 
+(defmacro def-with-prefix ((prefix name &optional (min 1) (max min)) &body body)
+  `(cl:progn
+     (cl:let ((l (cl:elt *builtin-function* (builtin-function-name-to-number ',name))))
+       (cl:push '(:min ,min) l)
+       (cl:push '(:max ,max) l))
+     (function ,(intern (string-upcase (format nil "~a_~a" prefix name)))
+	 ((o args)
+	  (o env))
+	 -> o
+      ,@body)))
+
+(defmacro defspecial ((name &optional (min 1) (max min)) &body body)
+  `(def-with-prefix ("sp" ,name ,min ,max) ,@body))
+
+(defmacro deftail ((name &optional (min 1) (max min)) &body body)
+  `(def-with-prefix ("tf" ,name ,min ,max) ,@body))
 
 (defmacro deffunction ((name &optional (min 1) (max min)) &body body)
-  `(progn
-     (cl:let ((l (cl:elt *builtin-function* (builtin-function-name-to-number ,name))))
-       (cl:push `(:min ,min) l)
-       (cl:push `(:max ,max) l))
-     (function ,(intern (string-upcase (format nil "fn_~a" name))) ((o args)
-								    (o env))
-	 -> o
-       ,@body)))
+  `(def-with-prefix ("fn" ,name ,min ,max) ,@body))
 
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
