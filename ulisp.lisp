@@ -1,4 +1,4 @@
-(ql:quickload :cgen)
+(eval-when (:compile-toplevel) (ql:quickload :cgen))
 (in-package :cg-user)
 (switch-reader)
 
@@ -317,7 +317,7 @@ and throws error when string is not a builtin."
 #+nil
 *builtin-function*
 
-#+nil
+
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
@@ -348,7 +348,11 @@ and throws error when string is not a builtin."
 		    (deftstruct cons_number
 		      (decl ((uintgr type) 
 			     (intgr integer))))
+		    
 		    (typedef cons_object* o)
+		    (decl ((cons_object o1 (clist (cast 'o #x12) (cast 'o #x32)))
+			   (cons_symbol o2 (clist *symbol* #x123))
+			   (cons_number o3 (clist *number* #x324))))
 		    (decl ((const char (aref builtin-name
 					 (cl:length *builtin-function*)
 					 buflen)
@@ -1193,5 +1197,3 @@ and throws error when string is not a builtin."
 	 (simple-print e))))
 
 
-
-(code-char 10)
