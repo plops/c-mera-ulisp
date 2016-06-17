@@ -9,14 +9,17 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <ctype.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <string.h>
 // Compile options
 
 //#define checkoverflow
 //#define resetautorun
 
+
 // C Macros
+
+#define F(x) (x)
 
 #define nil                NULL
 #define car(x)             (((object *) (x))->car)
@@ -45,8 +48,8 @@
 // Constants
 
 //#if defined(__AVR_ATmega328P__)
-const int workspacesize = 317;
-const int EEPROMsize = 1024;
+enum { workspacesize = 317 } ;
+//const int EEPROMsize = 1024;
 /* #elif defined(__AVR_ATmega32U4__) */
 /* const int workspacesize = 421; */
 /* const int EEPROMsize = 1024; */
@@ -61,7 +64,7 @@ const int EEPROMsize = 1024;
 /* const int EEPROMsize = 1024; */
 /* #endif */
 
-const int buflen = 17;  // Length of longest symbol + 1
+enum {buflen = 17};  // Length of longest symbol + 1
 enum type {NONE, SYMBOL, NUMBER};
 enum token { UNUSED, BRA, KET, QUO, DOT};
 
@@ -74,6 +77,8 @@ EVAL, LOCALS, GLOBALS, MAKUNBOUND, BREAK, PRINT, PRINC, GC, SAVEIMAGE, LOADIMAGE
 ANALOGWRITE, DELAY, MILLIS, SHIFTOUT, SHIFTIN, NOTE, ENDFUNCTIONS };
 
 // Typedefs
+
+typedef struct sobject sobject;
 
 typedef struct sobject {
   union {
@@ -141,7 +146,7 @@ void initworkspace () {
 }
 
 object *myalloc() {
-  if (freespace == 0) error(F("No room"));
+  if (freespace == 0) _error(F("No room"));
   object *temp = freelist;
   freelist = cdr(freelist);
   freespace--;
@@ -280,7 +285,7 @@ int compactimage (object **arg) {
 /*   unsigned int imagesize = compactimage(&arg); */
 /*   // Save to EEPROM */
 /*   if ((imagesize*4+8) > EEPROMsize) { */
-/*     Serial.print(F("Error: Image size too large: ")); */
+/*     Serial.print(F("_Error: Image size too large: ")); */
 /*     Serial.println(imagesize+2); */
 /*     GCStack = NULL; */
 /*     longjmp(exception, 1); */
@@ -295,7 +300,7 @@ int compactimage (object **arg) {
 
 /* int loadimage () { */
 /*   unsigned int imagesize = eeprom_read_word(&image.datasize); */
-/*   if (imagesize == 0 || imagesize == 0xFFFF) error(F("No saved image")); */
+/*   if (imagesize == 0 || imagesize == 0xFFFF) _error(F("No saved image")); */
 /*   GlobalEnv = (object *)eeprom_read_word(&image.globalenv); */
 /*   tee = (object *)eeprom_read_word(&image.tee) ; */
 /*   eeprom_read_block(workspace, image.data, imagesize*4); */
@@ -303,16 +308,16 @@ int compactimage (object **arg) {
 /*   return imagesize+2; */
 /* } */
 
-// Error handling
+// _Error handling
 
-void error (const __FlashStringHelper *string) {
-  printf("Error: %s\\n" string));
+void _error (const __FlashStringHelper *string) {
+  printf("_Error: %s\\n" string));
   GCStack = NULL;
   longjmp(exception, 1);
 }
 
-void error2 (object *symbol, const __FlashStringHelper *string) {
-  Serial.print(F("Error: '"));
+void _error2 (object *symbol, const __FlashStringHelper *string) {
+  Serial.print(F("_Error: '"));
   printobject(symbol);
   Serial.print("' ");
   Serial.println(string);
@@ -327,7 +332,7 @@ int toradix40 (int ch) {
   if (ch >= '0' && ch <= '9') return ch-'0'+30;
   ch = ch | 0x20;
   if (ch >= 'a' && ch <= 'z') return ch-'a'+1;
-  error(F("Illegal character in symbol"));
+  _error(F("Illegal character in symbol"));
   return 0;
 }
 
@@ -351,7 +356,7 @@ int digitvalue (char d) {
 
 char *name(object *obj){
   buffer[3] = '\0';
-  if(obj->type != SYMBOL) error(F("Error in name"));
+  if(obj->type != SYMBOL) _error(F("_Error in name"));
   unsigned int x = obj->name;
   if (x < ENDFUNCTIONS) return lookupstring(x);
   for (int n=2; n>=0; n--) {
@@ -362,7 +367,7 @@ char *name(object *obj){
 }
 
 int integer(object *obj){
-  if(obj->type != NUMBER) error(F("not a number"));
+  if(obj->type != NUMBER) _error(F("not a number"));
   return obj->integer;
 }
 
@@ -392,7 +397,7 @@ object *findvalue (object *var, object *env) {
   unsigned int varname = var->name;
   object *pair = value(varname, env);
   if (pair == NULL) pair = value(varname, GlobalEnv);
-  if (pair == NULL) error2(var,F("unknown variable"));
+  if (pair == NULL) _error2(var,F("unknown variable"));
   return pair;
 }
 
@@ -426,8 +431,8 @@ object *closure (int tail, object *fname, object *state, object *function, objec
     params = cdr(params);
     args = cdr(args);
   }
-  if (params != NULL) error2(fname, F("has too few parameters"));
-  if (args != NULL) error2(fname, F("has too many parameters"));
+  if (params != NULL) _error2(fname, F("has too few parameters"));
+  if (args != NULL) _error2(fname, F("has too many parameters"));
   // Do an implicit progn
   return tf_progn(function, *env); 
 }
@@ -445,9 +450,9 @@ object *apply (object *function, object *args, object **env) {
   if (function->type == SYMBOL) {
     unsigned int name = function->name;
     int nargs = listlength(args);
-    if (name >= ENDFUNCTIONS) error2(function, F("is not a function"));
-    if (nargs<lookupmin(name)) error2(function, F("has too few arguments"));
-    if (nargs>lookupmax(name)) error2(function, F("has too many arguments"));
+    if (name >= ENDFUNCTIONS) _error2(function, F("is not a function"));
+    if (nargs<lookupmin(name)) _error2(function, F("has too few arguments"));
+    if (nargs>lookupmax(name)) _error2(function, F("has too many arguments"));
     return ((fn_ptr_type)lookupfn(name))(args, *env);
   }
   if (listp(function) && issymbol(car(function), LAMBDA)) {
@@ -460,20 +465,20 @@ object *apply (object *function, object *args, object **env) {
     object *result = closure(0, NULL, car(function), cdr(function), args, env);
     return eval(result, *env);
   }
-  error2(function, F("illegal function"));
+  _error2(function, F("illegal function"));
   return NULL;
 }
 
 // Checked car and cdr
 
 inline object *carx (object *arg) {
-  if (!listp(arg)) error(F("Can't take car"));
+  if (!listp(arg)) _error(F("Can't take car"));
   if (arg == nil) return nil;
   return car(arg);
 }
 
 inline object *cdrx (object *arg) {
-  if (!listp(arg)) error(F("Can't take cdr"));
+  if (!listp(arg)) _error(F("Can't take cdr"));
   if (arg == nil) return nil;
   return cdr(arg);
 }
@@ -488,7 +493,7 @@ object *sp_quote (object *args, object *env) {
 object *sp_defun (object *args, object *env) {
   (void) env;
   object *var = first(args);
-  if (var->type != SYMBOL) error2(var, F("is not a symbol"));
+  if (var->type != SYMBOL) _error2(var, F("is not a symbol"));
   object *val = cons(symbol(LAMBDA), cdr(args));
   object *pair = value(var->name,GlobalEnv);
   if (pair != NULL) { cdr(pair) = val; return var; }
@@ -498,7 +503,7 @@ object *sp_defun (object *args, object *env) {
 
 object *sp_defvar (object *args, object *env) {
   object *var = first(args);
-  if (var->type != SYMBOL) error2(var, F("is not a symbol"));
+  if (var->type != SYMBOL) _error2(var, F("is not a symbol"));
   object *val = eval(second(args), env);
   object *pair = value(var->name,GlobalEnv);
   if (pair != NULL) { cdr(pair) = val; return var; }
@@ -551,8 +556,8 @@ object *sp_incf (object *args, object *env) {
   int temp = 1;
   if (cdr(args) != NULL) temp = integer(eval(second(args), env));
   #if defined(checkoverflow)
-  if (temp < 1) { if (-32768 - temp > result) error(F("'incf' arithmetic overflow")); }
-  else { if (32767 - temp < result) error(F("'incf' arithmetic overflow")); }
+  if (temp < 1) { if (-32768 - temp > result) _error(F("'incf' arithmetic overflow")); }
+  else { if (32767 - temp < result) _error(F("'incf' arithmetic overflow")); }
   #endif
   result = result + temp;
   var = number(result);
@@ -567,8 +572,8 @@ object *sp_decf (object *args, object *env) {
   int temp = 1;
   if (cdr(args) != NULL) temp = integer(eval(second(args), env));
   #if defined(checkoverflow)
-  if (temp < 1) { if (32767 + temp < result) error(F("'decf' arithmetic overflow")); }
-  else { if (-32768 + temp > result) error(F("'decf' arithmetic overflow")); }
+  if (temp < 1) { if (32767 + temp < result) _error(F("'decf' arithmetic overflow")); }
+  else { if (-32768 + temp > result) _error(F("'decf' arithmetic overflow")); }
   #endif
   result = result - temp;
   var = number(result);
@@ -580,7 +585,7 @@ object *sp_dolist (object *args, object *env) {
   object *params = first(args);
   object *var = first(params);
   object *list = eval(second(params), env);
-  if (!listp(list)) error(F("'dolist' argument is not a list"));
+  if (!listp(list)) _error(F("'dolist' argument is not a list"));
   object *pair = cons(var,nil);
   push(pair,env);
   object *result = third(params);
@@ -809,7 +814,7 @@ object *fn_cdddr (object *args, object *env) {
 object *fn_length (object *args, object *env) {
   (void) env;
   object *list = first(args);
-  if (!listp(list)) error(F("'length' argument is not a list"));
+  if (!listp(list)) _error(F("'length' argument is not a list"));
   return number(listlength(list));
 }
 
@@ -821,7 +826,7 @@ object *fn_list (object *args, object *env) {
 object *fn_reverse (object *args, object *env) {
   (void) env;
   object *list = first(args);
-  if (!listp(list)) error(F("'reverse' argument is not a list"));
+  if (!listp(list)) _error(F("'reverse' argument is not a list"));
   object *result = NULL;
   while (list != NULL) {
     push(first(list),result);
@@ -834,7 +839,7 @@ object *fn_nth (object *args, object *env) {
   (void) env;
   int n = integer(first(args));
   object *list = second(args);
-  if (!listp(list)) error(F("'nth' second argument is not a list"));
+  if (!listp(list)) _error(F("'nth' second argument is not a list"));
   while (list != NULL) {
     if (n == 0) return car(list);
     list = cdr(list);
@@ -847,7 +852,7 @@ object *fn_assoc (object *args, object *env) {
   (void) env;
   object *key = first(args);
   object *list = second(args);
-  if (!listp(list)) error(F("'assoc' second argument is not a list"));
+  if (!listp(list)) _error(F("'assoc' second argument is not a list"));
   while (list != NULL) {
     object *pair = first(list);
     if (eq(key,car(pair))) return pair;
@@ -860,7 +865,7 @@ object *fn_member (object *args, object *env) {
   (void) env;
   object *item = first(args);
   object *list = second(args);
-  if (!listp(list)) error(F("'member' second argument is not a list"));
+  if (!listp(list)) _error(F("'member' second argument is not a list"));
   while (list != NULL) {
     if (eq(item,car(list))) return list;
     list = cdr(list);
@@ -875,7 +880,7 @@ object *fn_apply (object *args, object *env) {
     previous = last;
     last = cdr(last);
   }
-  if (!listp(car(last))) error(F("'apply' last argument is not a list"));
+  if (!listp(car(last))) _error(F("'apply' last argument is not a list"));
   cdr(previous) = car(last);
   return apply(first(args), cdr(args), &env);
 }
@@ -890,7 +895,7 @@ object *fn_append (object *args, object *env) {
   object *tail = NULL;
   while (args != NULL) {
     object *list = first(args);
-    if (!listp(list)) error(F("'append' argument is not a list"));
+    if (!listp(list)) _error(F("'append' argument is not a list"));
     while (list != NULL) {
       object *obj = cons(first(list),NULL);
       if (head == NULL) {
@@ -911,9 +916,9 @@ object *fn_mapc (object *args, object *env) {
   object *function = first(args);
   object *list1 = second(args);
   object *result = list1;
-  if (!listp(list1)) error(F("'mapc' second argument is not a list"));
+  if (!listp(list1)) _error(F("'mapc' second argument is not a list"));
   object *list2 = third(args);
-  if (!listp(list2)) error(F("'mapc' third argument is not a list"));
+  if (!listp(list2)) _error(F("'mapc' third argument is not a list"));
   if (list2 != NULL) {
     while (list1 != NULL && list2 != NULL) {
       apply(function, cons(car(list1),cons(car(list2),NULL)), &env);
@@ -932,9 +937,9 @@ object *fn_mapc (object *args, object *env) {
 object *fn_mapcar (object *args, object *env) {
   object *function = first(args);
   object *list1 = second(args);
-  if (!listp(list1)) error(F("'mapcar' second argument is not a list"));
+  if (!listp(list1)) _error(F("'mapcar' second argument is not a list"));
   object *list2 = third(args);
-  if (!listp(list2)) error(F("'mapcar' third argument is not a list"));
+  if (!listp(list2)) _error(F("'mapcar' third argument is not a list"));
   object *head = NULL;
   object *tail = NULL;
   if (list2 != NULL) {
@@ -979,8 +984,8 @@ object *fn_add (object *args, object *env) {
   while (args != NULL) {
     int temp = integer(car(args));
     #if defined(checkoverflow)
-    if (temp < 1) { if (-32768 - temp > result) error(F("'+' arithmetic overflow")); }
-    else { if (32767 - temp < result) error(F("'+' arithmetic overflow")); }
+    if (temp < 1) { if (-32768 - temp > result) _error(F("'+' arithmetic overflow")); }
+    else { if (32767 - temp < result) _error(F("'+' arithmetic overflow")); }
     #endif
     result = result + temp;
     args = cdr(args);
@@ -994,15 +999,15 @@ object *fn_subtract (object *args, object *env) {
   args = cdr(args);
   if (args == NULL) {
     #if defined(checkoverflow)
-    if (result == -32768) error(F("'-' arithmetic overflow"));
+    if (result == -32768) _error(F("'-' arithmetic overflow"));
     #endif
     return number(-result);
   }
   while (args != NULL) {
     int temp = integer(car(args));
     #if defined(checkoverflow)
-    if (temp < 1) { if (32767 + temp < result) error(F("'-' arithmetic overflow")); }
-    else { if (-32768 + temp > result) error(F("'-' arithmetic overflow")); }
+    if (temp < 1) { if (32767 + temp < result) _error(F("'-' arithmetic overflow")); }
+    else { if (-32768 + temp > result) _error(F("'-' arithmetic overflow")); }
     #endif
     result = result - temp;
     args = cdr(args);
@@ -1016,7 +1021,7 @@ object *fn_multiply (object *args, object *env) {
   while (args != NULL){
     #if defined(checkoverflow)
     signed long temp = (signed long) result * integer(car(args));
-    if ((temp > 32767) || (temp < -32768)) error(F("'*' arithmetic overflow"));
+    if ((temp > 32767) || (temp < -32768)) _error(F("'*' arithmetic overflow"));
     result = temp;
     #else
     result = result * integer(car(args));
@@ -1032,9 +1037,9 @@ object *fn_divide (object *args, object *env) {
   args = cdr(args);
   while (args != NULL) {
     int arg = integer(car(args));
-    if (arg == 0) error(F("Division by zero"));
+    if (arg == 0) _error(F("Division by zero"));
     #if defined(checkoverflow)
-    if ((result == -32768) && (arg == -1)) error(F("'/' arithmetic overflow"));
+    if ((result == -32768) && (arg == -1)) _error(F("'/' arithmetic overflow"));
     #endif
     result = result / arg;
     args = cdr(args);
@@ -1046,7 +1051,7 @@ object *fn_mod (object *args, object *env) {
   (void) env;
   int arg1 = integer(first(args));
   int arg2 = integer(second(args));
-  if (arg2 == 0) error(F("Division by zero"));
+  if (arg2 == 0) _error(F("Division by zero"));
   int r = arg1 % arg2;
   if ((arg1<0) != (arg2<0)) r = r + arg2;
   return number(r);
@@ -1056,7 +1061,7 @@ object *fn_oneplus (object *args, object *env) {
   (void) env;
   int result = integer(first(args));
   #if defined(checkoverflow)
-  if (result == 32767) error(F("'1+' arithmetic overflow"));
+  if (result == 32767) _error(F("'1+' arithmetic overflow"));
   #endif
   return number(result + 1);
 }
@@ -1065,7 +1070,7 @@ object *fn_oneminus (object *args, object *env) {
   (void) env;
   int result = integer(first(args));
   #if defined(checkoverflow)
-  if (result == -32768) error(F("'1-' arithmetic overflow"));
+  if (result == -32768) _error(F("'1-' arithmetic overflow"));
   #endif
   return number(result - 1);
 }
@@ -1074,7 +1079,7 @@ object *fn_abs (object *args, object *env) {
   (void) env;
   int result = integer(first(args));
   #if defined(checkoverflow)
-  if (result == -32768) error(F("'abs' arithmetic overflow"));
+  if (result == -32768) _error(F("'abs' arithmetic overflow"));
   #endif
   return number(abs(result));
 }
@@ -1264,7 +1269,7 @@ object *fn_makunbound (object *args, object *env) {
     prev = list;
     list = cdr(list);
   }
-  error2(key, F("not found"));
+  _error2(key, F("not found"));
   return nil;
 }
 
@@ -1346,9 +1351,9 @@ object *fn_analogread (object *args, object *env) {
   (void) env;
   int pin = integer(first(args));
 #if defined(__AVR_ATmega328P__)
-  if (!(pin>=0 && pin<=5)) error(F("'analogread' invalid pin"));
+  if (!(pin>=0 && pin<=5)) _error(F("'analogread' invalid pin"));
 #elif defined(__AVR_ATmega2560__)
-  if (!(pin>=0 && pin<=15)) error(F("'analogread' invalid pin"));
+  if (!(pin>=0 && pin<=15)) _error(F("'analogread' invalid pin"));
 #endif
   return number(analogRead(pin));
 }
@@ -1357,9 +1362,9 @@ object *fn_analogwrite (object *args, object *env) {
   (void) env;
   int pin = integer(first(args));
 #if defined(__AVR_ATmega328P__)
-  if (!(pin>=3 && pin<=11 && pin!=4 && pin!=7 && pin!=8)) error(F("'analogwrite' invalid pin"));
+  if (!(pin>=3 && pin<=11 && pin!=4 && pin!=7 && pin!=8)) _error(F("'analogwrite' invalid pin"));
 #elif defined(__AVR_ATmega2560__)
-  if (!((pin>=2 && pin<=13) || (pin>=44 && pin <=46))) error(F("'analogwrite' invalid pin"));
+  if (!((pin>=2 && pin<=13) || (pin>=44 && pin <=46))) _error(F("'analogwrite' invalid pin"));
 #endif
   object *value = second(args);
   analogWrite(pin, integer(value));
@@ -1378,7 +1383,7 @@ object *fn_millis (object *args, object *env) {
   (void) args;
   unsigned long temp = millis();
   #if defined(checkoverflow)
-  if (temp > 32767) error(F("'millis' arithmetic overflow"));
+  if (temp > 32767) _error(F("'millis' arithmetic overflow"));
   #endif
   return number(temp);
 }
@@ -1416,11 +1421,11 @@ object *fn_note (object *args, object *env) {
     } else if (pin == 11) {
       DDRB = DDRB | 1<<DDB3; // PB3 (Arduino D11) as output
       TCCR2A = 1<<COM2A0 | 0<<COM2B0 | 2<<WGM20; // Toggle OC2A on match
-    } else error(F("'note' pin not supported"));
+    } else _error(F("'note' pin not supported"));
     int prescaler = 0;
     if (cdr(cdr(args)) != NULL) prescaler = integer(third(args));
     prescaler = 9 - prescaler - note/12;
-    if (prescaler<3 || prescaler>6) error(F("'note' octave out of range"));
+    if (prescaler<3 || prescaler>6) _error(F("'note' octave out of range"));
     OCR2A = pgm_read_byte(&scale[note%12]);
     TCCR2B = 0<<WGM22 | prescaler<<CS20;
   } else TCCR2B = 0<<WGM22 | 0<<CS20;
@@ -1435,11 +1440,11 @@ object *fn_note (object *args, object *env) {
     } else if (pin == 10) {
       DDRB = DDRB | 1<<DDB4; // PB4 (Arduino D10) as output
       TCCR2A = 1<<COM2A0 | 0<<COM2B0 | 2<<WGM20; // Toggle OC2A on match
-    } else error(F("'note' pin not supported"));
+    } else _error(F("'note' pin not supported"));
     int prescaler = 0;
     if (cdr(cdr(args)) != NULL) prescaler = integer(third(args));
     prescaler = 9 - prescaler - note/12;
-    if (prescaler<3 || prescaler>6) error(F("'note' octave out of range"));
+    if (prescaler<3 || prescaler>6) _error(F("'note' octave out of range"));
     OCR2A = pgm_read_byte(&scale[note%12]);
     TCCR2B = 0<<WGM22 | prescaler<<CS20;
   } else TCCR2B = 0<<WGM22 | 0<<CS20;
@@ -1454,11 +1459,11 @@ object *fn_note (object *args, object *env) {
     } else if (pin == 15) {
       DDRD = DDRD | 1<<DDD7; // PD7 (Arduino D15) as output
       TCCR2A = 1<<COM2A0 | 0<<COM2B0 | 2<<WGM20; // Toggle OC2A on match
-    } else error(F("'note' pin not supported"));
+    } else _error(F("'note' pin not supported"));
     int prescaler = 0;
     if (cdr(cdr(args)) != NULL) prescaler = integer(third(args));
     prescaler = 9 - prescaler - note/12;
-    if (prescaler<3 || prescaler>6) error(F("'note' octave out of range"));
+    if (prescaler<3 || prescaler>6) _error(F("'note' octave out of range"));
     OCR2A = pgm_read_byte(&scale[note%12]);
     TCCR2B = 0<<WGM22 | prescaler<<CS20;
   } else TCCR2B = 0<<WGM22 | 0<<CS20;
@@ -1733,9 +1738,9 @@ object *eval (object *form, object *env) {
   EVAL:
   // Enough space?
   if (freespace < 10) gc(form, env);
-  if (_end != 0xA5) error(F("Error: Stack overflow"));
+  if (_end != 0xA5) _error(F("_Error: Stack overflow"));
   // Break
-  if (Serial.read() == '~') error(F("Break!"));
+  if (Serial.read() == '~') _error(F("Break!"));
   
   if (form == NULL) return nil;
 
@@ -1749,7 +1754,7 @@ object *eval (object *form, object *env) {
     pair = value(name, GlobalEnv);
     if (pair != NULL) return cdr(pair);
     else if (name <= ENDFUNCTIONS) return form;
-    error2(form, F("undefined"));
+    _error2(form, F("undefined"));
   }
   
   // It's a list
@@ -1823,9 +1828,9 @@ object *eval (object *form, object *env) {
  
   if (function->type == SYMBOL) {
     unsigned int name = function->name;
-    if (name >= ENDFUNCTIONS) error2(fname, F("is not a function"));
-    if (nargs<lookupmin(name)) error2(fname, F("has too few arguments"));
-    if (nargs>lookupmax(name)) error2(fname, F("has too many arguments"));
+    if (name >= ENDFUNCTIONS) _error2(fname, F("is not a function"));
+    if (nargs<lookupmin(name)) _error2(fname, F("has too few arguments"));
+    if (nargs>lookupmax(name)) _error2(fname, F("has too many arguments"));
     object *result = ((fn_ptr_type)lookupfn(name))(args, env);
     pop(GCStack);
     return result;
@@ -1846,7 +1851,7 @@ object *eval (object *form, object *env) {
     goto EVAL;
   }    
   
-  error2(fname, F("is an illegal function")); return nil;
+  _error2(fname, F("is an illegal function")); return nil;
 }
 
 // Input/Output
@@ -1876,7 +1881,7 @@ void printobject(object *form){
   } else if (form->type == SYMBOL){
     printf("%s",name(form));
   } else
-    error(F("Error in print."));
+    _error(F("_Error in print."));
 }
 
 int Getc () {
@@ -1928,7 +1933,7 @@ object *nextitem() {
     if (ch == 'b') base = 2;
     else if (ch == 'o') base = 8;
     else if (ch == 'x') base = 16;
-    else error(F("Illegal character after #"));
+    else _error(F("Illegal character after #"));
     ch = Getc();
   }
   int isnumber = (digitvalue(ch)<base);
@@ -1948,7 +1953,7 @@ object *nextitem() {
   if (isnumber) {
     if (base == 10 && result > ((unsigned int)32767+(1-sign)/2)) {
       Serial.println();
-      error(F("Number out of range"));
+      _error(F("Number out of range"));
     }
     return number(result*sign);
   }
@@ -1966,7 +1971,7 @@ object *readrest() {
   
   if(item == (object *)DOT) {
     object *arg1 = read();
-    if (readrest() != NULL) error(F("Malformed list"));
+    if (readrest() != NULL) _error(F("Malformed list"));
     return arg1;
   }
 

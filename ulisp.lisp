@@ -144,7 +144,10 @@
 (defun builtin-function-name-to-number (name)
   (loop for i from 0 and e in *builtin-function*
    when (eql name (builtin-function-name e))
-   return i))
+     return i))
+
+#+nil
+(builtin-function-name-to-number 'add)
 
 (defun builtin-symbol-list ()
   (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_sym))
@@ -324,6 +327,10 @@ and throws error when string is not a builtin."
 		  ,cmd-s)))))
 
 
+(defmacro when (clause &body body)
+  `(if ,clause
+       (progn
+	 ,@body)))
 
 #+nil
 (let ((workspace-size 315)
@@ -344,7 +351,7 @@ and throws error when string is not a builtin."
 		    (comment "I use integers that have the same size as a pointer")
 		    (typedef uintptr_t uintgr)
 		    (typedef intptr_t intgr)
-		    (gen-cmd (let ((x 1)) (add x 2)))
+		    (gen-cmd (add 123 456))
 		    (comment "C-mera doesn't support unions")
 		    (deftstruct cons_object
 		      (decl ((cons_object* car)
@@ -419,7 +426,7 @@ and throws error when string is not a builtin."
 		      )
 		    (function _alloc () -> o
 		      (dcomment "alloc")
-		      (if (== 0 freespace)
+		      (when (== 0 freespace)
 			  (err "No room"))
 		      (decl ((o temp freelist))
 			(set freelist (cons-cdr freelist))
@@ -456,18 +463,17 @@ and throws error when string is not a builtin."
 			(set (cons-name ptr) name)
 			(return (cast o ptr))))
 		    (function mark-object ((o obj)) -> void
-		      (if (== 0 obj)
+		      (when (== 0 obj)
 			  (return))
-		      (if (marked obj)
+		      (when (marked obj)
 			  (return))
 		      (decl ((o arg (cons-car obj))
 			     (intgr type (cons-type obj)))
 			(mark obj)
-			(if (and (!= *symbol* type)
-				 (!= *number* type))
-			    (progn
-			      (funcall mark-object arg)
-			      (funcall mark-object (cons-cdr obj))))))
+			(when (and (!= *symbol* type)
+				   (!= *number* type))
+			    (funcall mark-object arg)
+			    (funcall mark-object (cons-cdr obj)))))
 		    (function sweep () -> void
 		      (set freelist 0)
 		      (set freespace 0)
@@ -489,35 +495,35 @@ and throws error when string is not a builtin."
 		      (funcall sweep))
 		    
 		    (function toradix40 ((intgr ch)) -> intgr
-		      (if (== 0 ch)
-			  (return 0))
-		      (if (and (<= #\0 ch) (<= ch #\9))
-			  (return (+ 30 (- ch #\0))))
+		      (when (== 0 ch)
+			(return 0))
+		      (when (and (<= #\0 ch) (<= ch #\9))
+			(return (+ 30 (- ch #\0))))
 		      (set ch (\| ch #x20))
-		      (if (and (<= #\a ch) (<= ch #\z))
-			  (return (+ 1 (- ch #\a))))
+		      (when (and (<= #\a ch) (<= ch #\z))
+			(return (+ 1 (- ch #\a))))
 		      (err "ill. char in sym")
 		      (return 0))
 		    (function fromradix40 ((intgr n)) -> intgr
-		      (if (and (<= 1 n) (<= n 26))
-			  (return (+ n #\a -1)))
-		      (if (and (<= 1 30) (<= n 39))
-			  (return (+ n #\0 -30)))
-		      (if (== 27 n)
-			  (return #\-))
+		      (when (and (<= 1 n) (<= n 26))
+			(return (+ n #\a -1)))
+		      (when (and (<= 1 30) (<= n 39))
+			(return (+ n #\0 -30)))
+		      (when (== 27 n)
+			(return #\-))
 		      (return 0))
 		    (function pack40 ((char* c)) -> uintgr
 		      (return (+ (* 40 (+ (* 40 (toradix40 (aref c 0)))
 					  (toradix40 (aref c 1))))
 				 (toradix40 (aref c 2)))))
 		    (function digitvalue ((char d)) -> intgr
-		      (if (and (<= #\0 d)
-			       (<= d #\9))
-			  (return (- d #\0)))
+		      (when (and (<= #\0 d)
+				 (<= d #\9))
+			(return (- d #\0)))
 		      (set d (\| d #x20))
-		      (if (and (<= #\a d)
-			       (<= d #\f))
-			  (return (+ 10 (- d #\a ))))
+		      (when (and (<= #\a d)
+				 (<= d #\f))
+			(return (+ 10 (- d #\a ))))
 		      (return 16))
 		    (function lookupstring ((uintgr name)) -> char*
 		      (for ((int i 0) (< i buflen) (inc i))
@@ -889,9 +895,9 @@ and throws error when string is not a builtin."
 				(if (!= NULL pair)
 				    (progn (dcomment "sym cdr pair2")
 				     (return (cons-cdr pair)))
-				    (if (<= name (builtin-function))
+				    (if (<= name (cl:length *builtin-function*))
 					(progn (dcomment "form") (return form))
-					(err "undefined"))))
+					(err "undefined variable"))))
 			      ))
 			(comment "it's a list")
 			(decl ((o function (cons-car form))
