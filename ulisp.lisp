@@ -317,7 +317,14 @@ and throws error when string is not a builtin."
 #+nil
 *builtin-function*
 
+(defmacro gen-cmd (cmd)
+  (cl:let* ((cmd-s (substitute #\space #\newline (cl:format nil "~a" cmd))))
+    `(decl ((char (aref cmd ,(cl:length cmd-s))
+		  ,cmd-s)))))
 
+
+
+#+nil
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
       (cnil 'NULL))
@@ -336,7 +343,7 @@ and throws error when string is not a builtin."
 		    (comment "I use integers that have the same size as a pointer")
 		    (typedef uintptr_t uintgr)
 		    (typedef intptr_t intgr)
-		    
+		    (gen-cmd (let ((x 1)) (add x 2)))
 		    (comment "C-mera doesn't support unions")
 		    (deftstruct cons_object
 		      (decl ((cons_object* car)
@@ -388,12 +395,14 @@ and throws error when string is not a builtin."
 				   NULL
 				   EVAL
 				   EOF
-				   last-char)
+				   last-char
+				   cmd)
 		    (comment "forward declarations")
 		    (deftailrec-fw progn)
 		    (function _eval ((o form)(o env)) -> o) (comment ";" :prefix "")
 		    (function _read () -> o) (comment ";" :prefix "")
 		    (function init-workspace () -> void
+		      (dcomment "init-workspace")
 		      (set freelist 0)
 		      (for ((intgr i (- workspace-size 1))
 			    (<= 0 i) (dec i))
@@ -408,17 +417,20 @@ and throws error when string is not a builtin."
 		      ;; (funcall longjmp exception 1)
 		      )
 		    (function _alloc () -> o
+		      (dcomment "alloc")
 		      (if (== 0 freespace)
 			  (err "No room"))
 		      (decl ((o temp freelist))
 			(set freelist (cons-cdr freelist))
 			(set freespace (- freespace 1))
 			(return temp)))
-		    (function myfree ((o obj)) -> void
-		      (set (cons-cdr obj) freelist)
-		      (set freelist obj)
-		      (inc freespace))
+		    ;; (function myfree ((o obj)) -> void
+		    ;;   (dcomment "free")
+		    ;;   (set (cons-cdr obj) freelist)
+		    ;;   (set freelist obj)
+		    ;;   (inc freespace))
 		    (function  _number ((intgr n)) -> o
+		      (dcomment "number")
 		      (decl ((cons_number* ptr
 					   (cast 
 					    'cons_number*
@@ -428,11 +440,13 @@ and throws error when string is not a builtin."
 			(return (cast o ptr))))
 		    (function _cons ((o arg1)
 				     (o arg2)) -> o
+		      (dcomment "cons")
 		      (decl ((o ptr (cast 'o (funcall _alloc))))
 			(set (cons-car ptr) arg1)
 			(set (cons-cdr ptr) arg2)
 			(return ptr)))
 		    (function _symbol ((uintgr name)) -> o
+		      (dcomment "symbol")
 		      (decl ((cons_symbol* ptr
 					   (cast 
 					    'cons_symbol*
@@ -921,13 +935,14 @@ and throws error when string is not a builtin."
 					    (_push (funcall _cons (cons-car pair)
 							    val)
 						   envcopy)))
-					(return (funcall
-						 _cons
-						 (funcall
-						  _symbol
-						  (builtin-function-name-to-number
-						   'closure))
-						 (funcall _cons envcopy args))))))
+					(progn (dcomment "call lambda")
+					 (return (funcall
+						  _cons
+						  (funcall
+						   _symbol
+						   (builtin-function-name-to-number
+						    'closure))
+						  (funcall _cons envcopy args)))))))
 				
 				(if (and (< (builtin-function-name-to-number 'f_spec) name)
 					 (< name (builtin-function-name-to-number 'f_tail)))
@@ -1004,7 +1019,8 @@ and throws error when string is not a builtin."
 				      (dcomment "goto eval3")
 				      (comment "goto EVAL;" :prefix "")))
 				(erro "illegal func")
-				(return cnil)))))))
+				(progn (dcomment "eval returns nil")
+				 (return cnil))))))))
 		    (function init-env () -> void
 		      (set global-env NULL)
 		      (set tee (funcall _symbol (builtin-function-name-to-number 'tee))))
@@ -1012,14 +1028,20 @@ and throws error when string is not a builtin."
 			    (aref builtin-fptr (cl:length *builtin-function*))
 			    (builtin-function-ptr-clist)
 			    )))
+		    
 		    (function _getc () -> int
 		      (if last-char
 			  (decl ((int temp last-char))
 			    (set last-char 0)
 			    (return temp)))
-		      (decl ((int temp (funcall getchar)))
+		      (decl ((static int idx 0)
+			     (int temp (aref cmd (inc idx))))
 			(funcall printf "%c" temp)
-			(return temp)))
+			(return temp))
+		       ;; (decl ((int temp (funcall getchar)))
+		       ;; 	      (funcall printf "%c" temp)
+		       ;; 	      (return temp))
+		      )
 		    (function nextitem () -> o
 		      (dcomment "nextitem")
 		      (decl ((int ch (funcall _getc)))
@@ -1126,6 +1148,7 @@ and throws error when string is not a builtin."
 			    (set item (funcall read-rest)))
 			(return (funcall _cons item (funcall read-rest)))))
 		    (function _print-object ((o form)) -> void
+		      (dcomment "print-object")
 		      (if (== NULL form)
 			  (funcall printf "nil")
 			  (if (and (_listp form)
@@ -1188,10 +1211,12 @@ and throws error when string is not a builtin."
 			   (const uintgr (aref builtin-par-max
 					   (cl:length *builtin-function*))
 				  (builtin-function-max-clist))))
-		    (function main () -> int
+		    (function main ((int argc) (char** argv)) -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
 		      (repl NULL)
+		      ;; (decl ((o line (funcall _read)))
+		      ;;  (funcall _print-object (funcall _eval line env)))
 		      (return 0))) 
        do
 	 (simple-print e))))
