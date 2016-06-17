@@ -406,8 +406,8 @@ and throws error when string is not a builtin."
 					   (cast 
 					    'cons_symbol*
 					    (funcall _alloc))))
-			(set (pref ptr type) *symbol*)
-			(set (pref ptr name) name)
+			(set (cons-type ptr) *symbol*)
+			(set (cons-name ptr) name)
 			(return (cast o ptr))))
 		    (function mark-object ((o obj)) -> void
 		      (if (== 0 obj)
