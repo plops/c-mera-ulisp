@@ -276,9 +276,10 @@ and throws error when string is not a builtin."
 (defmacro dec (x)
   `(set ,x (- ,x 1)))
 
-(defmacro %dolist (e &body body)
+(defmacro %dolist ((item e) &body body)
   `(while (!= NULL ,e)
-     ,@body
+     (decl ((o ,item (cons-car ,e)))
+       ,@body)
      (set ,e (cons-cdr ,e))))
 
 
@@ -506,11 +507,9 @@ and throws error when string is not a builtin."
 				     (== *number* (cons-type b))
 				     (== (cons-integer a) (cons-integer b))))))
 		    (function value ((uintgr n) (o env)) -> o
-		      (while (!= NULL env)
-			(decl ((o item (cons-car env)))
-			  (if (== n (cons-name (cons-car item)))
-			      (return item))
-			  (set env (cons-cdr env))))
+		      (%dolist (item env)
+			(if (== n (cons-name (cons-car item)))
+			    (return item)))
 		      (return cnil))
 		    (function findvalue ((o var) (o env)) -> o
 		      (decl ((uintgr varname (cons-name var))
@@ -833,8 +832,8 @@ and throws error when string is not a builtin."
 		    (deffunction (add 0 127)
 		      (comment "(void) env;" :prefix "")
 		      (decl ((intgr result 0))
-			(%dolist args
-			  (decl ((intgr temp (funcall _integer (cons-car args))))
+			(%dolist (item args)
+			  (decl ((intgr temp (funcall _integer item)))
 			    (set result (+ result temp))))
 			(return (funcall _number result))))
 		    (function _eval ((o form)
