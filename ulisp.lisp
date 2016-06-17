@@ -119,7 +119,8 @@
      ((:name eq))
      ((:name car))
      ((:name cdr))
-     ((:name apply)))))
+     ((:name apply))
+     ((:name add)))))
  (reset-builtin))
 
 ;; (let ((a 1)
@@ -494,7 +495,7 @@ and throws error when string is not a builtin."
 		      (return (cons-integer obj)))
 		    (function issymbol ((o obj) (uintgr n)) -> int
 		      (return (and (== *symbol* (cons-type obj))
-				   (cons-name n))))
+				   (== n (cons-name obj)))))
 		    (function _eq ((o a) (o b)) -> int
 		      (return (or
 				(== a b)
@@ -829,7 +830,13 @@ and throws error when string is not a builtin."
 			(return (funcall _apply (cons-car args)
 					 (cons-cdr args)
 					 (addr-of env)))))
-		    
+		    (deffunction (add 0 127)
+		      (comment "(void) env;" :prefix "")
+		      (decl ((intgr result 0))
+			(%dolist args
+			  (decl ((intgr temp (funcall _integer (cons-car args))))
+			    (set result (+ result temp))))
+			(return (funcall _number result))))
 		    (function _eval ((o form)
 				     (o env)) -> o
 		      (decl ((int TC 0))
