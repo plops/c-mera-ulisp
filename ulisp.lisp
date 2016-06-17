@@ -531,18 +531,18 @@ and throws error when string is not a builtin."
 		      (return buffer))
 		    (function name ((o obj)) -> char*
 		      (set (aref buffer 3) (cast 'char 0))
-		      (if (!= *symbol* (cons-type obj))
-			  (err "name"))
+		      (when (!= *symbol* (cons-type obj))
+			(err "name"))
 		      (decl ((uintgr x (cons-name obj)))
-			(if (< x (builtin-function))
-			    (return (funcall lookupstring x)))
+			(when (< x (builtin-function))
+			  (return (funcall lookupstring x)))
 			(for ((int n 2) (<= 0 n) (dec n))
 			  (set (aref buffer n) (funcall fromradix40 (% x 40)))
 			  (set x (/ x 40))))
 		      (return buffer))
 		    (function _integer ((o obj)) -> intgr
-		      (if (!= *number* (cons-type obj))
-			  (err "not number"))
+		      (when (!= *number* (cons-type obj))
+			(err "not number"))
 		      (return (cons-integer obj)))
 		    (function issymbol ((o obj) (uintgr n)) -> int
 		      (return (and (== *symbol* (cons-type obj))
@@ -558,21 +558,21 @@ and throws error when string is not a builtin."
 				     (== (cons-integer a) (cons-integer b))))))
 		    (function value ((uintgr n) (o env)) -> o
 		      (%dolist (item env)
-			(if (== n (cons-name (cons-car item)))
+			(when (== n (cons-name (cons-car item)))
 			    (return item)))
 		      (return cnil))
 		    (function findvalue ((o var) (o env)) -> o
 		      (decl ((uintgr varname (cons-name var))
 			     (o pair (funcall value varname env)))
-			(if (== NULL pair)
-			    (set pair (funcall value varname global-env)))
-			(if (== NULL pair)
-			    (err "unknown var"))
+			(when (== NULL pair)
+			  (set pair (funcall value varname global-env)))
+			(when (== NULL pair)
+			  (err "unknown var"))
 			(return pair)))
 		    (function findtwin ((o var) (o env)) -> o
 		      (%dolist (item env)
-			(if (== var (cons-car item))
-			    (return item)))
+			(when (== var (cons-car item))
+			  (return item)))
 		      (return cnil))
 		    
 		    (function closure ((int tail)
@@ -586,8 +586,8 @@ and throws error when string is not a builtin."
 			(set function (cons-cdr function))
 			(comment "push state if not already in env")
 			(%dolist (pair state)
-			  (if (== NULL (funcall findtwin (cons-car pair) *env))
-			      (_push pair *env)))
+			  (when (== NULL (funcall findtwin (cons-car pair) *env))
+			    (_push pair *env)))
 			(comment "add arguments to environment")
 			(%dolist2 ((var params) (value args)) 
 			  (if tail
@@ -596,10 +596,10 @@ and throws error when string is not a builtin."
 				    (set (cons-cdr pair) value)
 				    (_push (funcall _cons var value) *env)))
 			      (_push (funcall _cons var value) *env)))
-			(if (!= NULL params)
-			    (err "too few params"))
-			(if (!= NULL args)
-			    (err "too many params"))
+			(when (!= NULL params)
+			  (err "too few params"))
+			(when (!= NULL args)
+			  (err "too many params"))
 			(comment "do implicit progn")
 			(return (funcall tf-progn function *env))))
 		    (function listlength ((o list)) -> int
@@ -610,8 +610,8 @@ and throws error when string is not a builtin."
 		    (function builtin ((char* n)) -> int
 		      (decl ((intgr entry 0))
 			(while (< entry (cl:length *builtin-function*))
-			  (if (== 0 (funcall strcmp n (aref builtin-name entry)))
-			      (return entry))
+			  (when (== 0 (funcall strcmp n (aref builtin-name entry)))
+			    (return entry))
 			  (inc entry))
 			(return (cl:length *builtin-function*))))
 		    (function lookupmin ((uintgr name)) -> int
@@ -627,58 +627,56 @@ and throws error when string is not a builtin."
 		    (function _apply ((o function)
 				      (o args)
 				      (o* env)) -> o
-		      (if (== *symbol* (cons-type function))
+		      (when (== *symbol* (cons-type function))
 			  (decl ((uintgr name (cons-name function))
 				 (int nargs (funcall listlength args)))
-			    (if (<= (builtin-function) name)
-				(err "not a function"))
-			    (if (< nargs (funcall lookupmin name))
-				(err "too few args"))
-			    (if (< (funcall lookupmin name) nargs)
-				(err "too many args"))
+			    (when (<= (builtin-function) name)
+			      (err "not a function"))
+			    (when (< nargs (funcall lookupmin name))
+			      (err "too few args"))
+			    (when (< (funcall lookupmin name) nargs)
+			      (err "too many args"))
 			    (return (funcall
 				     (cast 'fn_ptr_type
 					   (funcall lookupfn name))
 				     args *env))))
-		      (if (and (_listp function)
-			       (funcall issymbol (cons-car function)
-					(builtin-function-name-to-number
-					 'lambda)))
-			  (progn
-			    (set function (cons-cdr function))
-			    (decl ((o
-				    result
-				    (funcall closure 0
-					     NULL NULL function args env)))
-			      (return (funcall _eval result *env)))))
-		      (if (and (_listp function)
+		      (when (and (_listp function)
+				 (funcall issymbol (cons-car function)
+					  (builtin-function-name-to-number
+					   'lambda)))
+			(set function (cons-cdr function))
+			(decl ((o
+				result
+				(funcall closure 0
+					 NULL NULL function args env)))
+			  (return (funcall _eval result *env))))
+		      (when (and (_listp function)
 			       (funcall issymbol (cons-car function)
 					(builtin-function-name-to-number
 					 'closure)))
-			  (progn
-			    (set function (cons-cdr function))
-			    (decl ((o
-				    result
-				    (funcall closure 0
-					     NULL
-					     (cons-car function)
-					     (cons-cdr function)
-					     args env)))
-			      (return (funcall _eval result *env)))))
+			  (set function (cons-cdr function))
+			  (decl ((o
+				  result
+				  (funcall closure 0
+					   NULL
+					   (cons-car function)
+					   (cons-cdr function)
+					   args env)))
+			    (return (funcall _eval result *env))))
 		      (err "illegal function")
 		      (return NULL))
 		    (comment "checked car and cdr")
 		    (function carx ((o arg)) -> o
-		      (if (== 0 (_listp arg))
-			  (err "can't take car"))
-		      (if (== cnil arg)
-			  (return cnil))
+		      (when (== 0 (_listp arg))
+			(err "can't take car"))
+		      (when (== cnil arg)
+			(return cnil))
 		      (return (cons-car arg)))
 		    (function cdrx ((o arg)) -> o
-		      (if (== 0 (_listp arg))
-			  (err "can't take cdr"))
-		      (if (== cnil arg)
-			  (return cnil))
+		      (when (== 0 (_listp arg))
+			(err "can't take cdr"))
+		      (when (== cnil arg)
+			(return cnil))
 		      (return (cons-cdr arg)))
 		    (defspecial (quote 1 1)
 		      (comment "(void) env;" :prefix "")
@@ -698,9 +696,9 @@ and throws error when string is not a builtin."
 			       (o pair
 				  (funcall value (cons-name var)
 					   global-env)))
-			  (if (!= NULL pair)
-			      (progn (set (cons-cdr pair) val)
-				     (return var)))
+			  (when (!= NULL pair)
+			    (set (cons-cdr pair) val)
+			    (return var))
 			  (_push (funcall _cons var val) global-env)
 			  (return var))))
 		    (defspecial (defvar 0 127)
@@ -710,9 +708,9 @@ and throws error when string is not a builtin."
 					       env))
 			       (o pair (funcall value (cons-name var)
 						global-env)))
-			  (if (!= NULL pair)
-			      (set (cons-cdr pair) val)
-			      (return var))
+			  (when (!= NULL pair)
+			    (set (cons-cdr pair) val)
+			    (return var))
 			  (_push (funcall _cons var val)
 				 global-env)
 			  (return var))))
