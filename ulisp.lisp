@@ -48,7 +48,9 @@
 		 ))))
 
 (defmacro err (&rest rest)
-  `(funcall erro ,(cl:substitute #\space #\newline (cl:format nil "~a" rest))))
+  `(progn (funcall erro ,(cl:substitute #\space #\newline (cl:format nil "~a" rest)))
+	  (funcall printf "EXIT\\n")
+	  (funcall exit 0)))
 
 (defparameter *none* 0)
 (defparameter *symbol* 1)
@@ -346,6 +348,7 @@ and throws error when string is not a builtin."
 		    (include <stdio.h>)
 		    (include <stdint.h>) ;; uintptr_t
 		    (include <ctype.h>)  ;; isschar
+		    (include <stdlib.h>) ;; exit
 		    (include <unistd.h>) ;; exit
 		    (include <string.h>) ;; strcmp
 		    (comment "I use integers that have the same size as a pointer")
@@ -1054,7 +1057,7 @@ and throws error when string is not a builtin."
 			(when (== #\newline ch)
 			  (set ch (funcall _getc)))
 			(when (== EOF ch)
-			  (funcall _exit 0))
+			  (funcall exit 0))
 			(when (== #\) ch)
 			    (dcomment "ket")
 			    (return (cast 'o *ket*)))
@@ -1125,15 +1128,15 @@ and throws error when string is not a builtin."
 					 (return (funcall _symbol (funcall pack40 buffer))))))))))
 		    (function read-rest () -> o
 		      (decl ((o item (funcall nextitem)))
-			(if (== (cast 'o *ket*) item)
-			    (return NULL))
-			(if (== (cast 'o *dot*) item)
+			(when (== (cast 'o *ket*) item)
+			  (return NULL))
+			(when (== (cast 'o *dot*) item)
 			    (decl ((o arg1 (funcall _read)))
 			      (if (!= NULL (funcall read-rest))
 				  (err "malformed list"))
 			      (return arg1)))
-			(if (== (cast 'o *quo*) item)
-			    (decl ((o arg1 (funcall _read)))
+			(when (== (cast 'o *quo*) item)
+			  (decl ((o arg1 (funcall _read)))
 			      (return (funcall
 				       _cons
 				       (funcall
@@ -1142,8 +1145,8 @@ and throws error when string is not a builtin."
 						 (builtin-function-name-to-number 'quote))
 					(funcall _cons arg1 NULL))
 				       (funcall read-rest)))))
-			(if (== (cast 'o *bra*) item)
-			    (set item (funcall read-rest)))
+			(when (== (cast 'o *bra*) item)
+			  (set item (funcall read-rest)))
 			(return (funcall _cons item (funcall read-rest)))))
 		    (function _print-object ((o form)) -> void
 		      (dcomment "print-object")
@@ -1175,15 +1178,15 @@ and throws error when string is not a builtin."
 		    (function _read () -> o
 		      (dcomment "read")
 		      (decl ((o item (funcall nextitem)))
-			(if (== (cast 'o *bra*) item)
-			    (return (funcall read-rest)))
-			(if (== (cast 'o *dot*) item)
-			    (return (funcall _read)))
-			(if (== (cast 'o *quo*) item)
-			    (return (funcall _cons
-					     (funcall _symbol
-						      (builtin-function-name-to-number 'quote))
-					     (funcall _cons (funcall _read) NULL))))
+			(when (== (cast 'o *bra*) item)
+			  (return (funcall read-rest)))
+			(when (== (cast 'o *dot*) item)
+			  (return (funcall _read)))
+			(when (== (cast 'o *quo*) item)
+			  (return (funcall _cons
+					   (funcall _symbol
+						    (builtin-function-name-to-number 'quote))
+					   (funcall _cons (funcall _read) NULL))))
 			(return item)))
 		    (function repl ((o env)) -> void
 		      (dcomment "repl")
@@ -1192,17 +1195,15 @@ and throws error when string is not a builtin."
 			(funcall printf "freespace: %lu\\n" freespace)
 			(funcall printf "> ")
 			(decl ((o line (funcall _read)))
-			  (if (== cnil line)
-			      (progn (funcall printf "\\n")
-				     (return)))
+			  (when (== cnil line)
+			      (funcall printf "\\n")
+			      (return))
 			  (funcall printf "\\n")
 			  (_push line gc-stack)
 			  ;;(funcall printf "push line gc-stack\\n")
 			  (funcall _print-object (funcall _eval line env))
 			  (_pop gc-stack)
-			  (funcall printf "\\n\\n")
-			  )
-			))
+			  (funcall printf "\\n\\n"))))
 		    (decl ((const uintgr (aref builtin-par-min
 					   (cl:length *builtin-function*))
 				  (builtin-function-min-clist))
