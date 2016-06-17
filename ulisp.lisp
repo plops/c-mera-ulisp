@@ -973,7 +973,7 @@ and throws error when string is not a builtin."
 			    (comment "don't gc the result list")
 			    (_push head gc-stack) 
 			    (decl ((o tail head))
-			      (set form (cons-cdr head))
+			      (set form (cons-cdr form))
 			      (decl ((int nargs 0))
 				(%dolist (e form)
 				  (decl ((o obj (funcall _cons
