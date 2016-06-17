@@ -245,6 +245,9 @@ and throws error when string is not a builtin."
 	      -> o)
 	  (comment ";" :prefix "")))
 
+(defmacro dcomment (x)
+  `(funcall printf "%s\\n",x))
+
 (defmacro def-with-prefix ((type name &optional (min 1) (max min)) &body body)
   `(cl:progn
      (cl:progn
@@ -256,7 +259,9 @@ and throws error when string is not a builtin."
 	  (o env))
 	 -> o
        (comment ,(format nil "minimum number of parameters: ~a, max. nr. of parameters: ~a" min max))
-      ,@body)))
+       (funcall printf ,(format nil "~a\\n" name))
+       ,@body
+       )))
 
 (defmacro defspecial ((name &optional (min 1) (max min)) &body body)
   `(def-with-prefix (sp ,name ,min ,max) ,@body))
@@ -840,6 +845,7 @@ and throws error when string is not a builtin."
 			(return (funcall _number result))))
 		    (function _eval ((o form)
 				     (o env)) -> o
+		      (dcomment "eval")
 		      (decl ((int TC 0))
 			(comment "EVAL:" :prefix "") ;; FIXME this is crazy
 			(if (< freespace 10)
@@ -1001,6 +1007,7 @@ and throws error when string is not a builtin."
 			(funcall printf "%c" temp)
 			(return temp)))
 		    (function nextitem () -> o
+		      (dcomment "nextitem")
 		      (decl ((int ch (funcall _getc)))
 			(while (funcall isspace ch)
 			  (set ch (funcall _getc)))
@@ -1122,6 +1129,7 @@ and throws error when string is not a builtin."
 					  (funcall printf "%s" (funcall name form))
 					  (err "print err")))))))
 		    (function _read () -> o
+		      (dcomment "read")
 		      (decl ((o item (funcall nextitem)))
 			(if (== (cast 'o *bra*) item)
 			    (return (funcall read-rest)))
@@ -1134,6 +1142,7 @@ and throws error when string is not a builtin."
 					     (funcall _cons (funcall _read) NULL))))
 			(return item)))
 		    (function repl ((o env)) -> void
+		      (dcomment "repl")
 		      (for (() () ())
 			(funcall gc NULL env)
 			(funcall printf "freespace: %lu\\n" freespace)
