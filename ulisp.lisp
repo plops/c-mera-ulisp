@@ -252,7 +252,8 @@ and throws error when string is not a builtin."
 	  (comment ";" :prefix "")))
 
 (defmacro dcomment (x)
-  `(funcall printf "%s\\n",x))
+  ;`(funcall printf "%s\\n",x)
+  )
 
 (defmacro def-with-prefix ((type name &optional (min 1) (max min)) &body body)
   `(cl:progn
@@ -265,7 +266,7 @@ and throws error when string is not a builtin."
 	  (o env))
 	 -> o
        (comment ,(format nil "minimum number of parameters: ~a, max. nr. of parameters: ~a" min max))
-       (funcall printf ,(format nil "~a\\n" name))
+       (dcomment ,(format nil "~a\\n" name))
        ,@body
        )))
 
@@ -354,7 +355,7 @@ and throws error when string is not a builtin."
 		    (comment "I use integers that have the same size as a pointer")
 		    (typedef uintptr_t uintgr)
 		    (typedef intptr_t intgr)
-		    (gen-cmd (add 123 456))
+		    ;; (gen-cmd (add 123 456))
 		    (comment "C-mera doesn't support unions")
 		    (deftstruct cons_object
 		      (decl ((cons_object* car)
@@ -407,7 +408,8 @@ and throws error when string is not a builtin."
 				   EVAL
 				   EOF
 				   last-char
-				   cmd)
+				   ;;cmd
+				   )
 		    (comment "forward declarations")
 		    (deftailrec-fw progn)
 		    (function _eval ((o form)(o env)) -> o) (comment ";" :prefix "")
@@ -1036,14 +1038,14 @@ and throws error when string is not a builtin."
 			(decl ((int temp last-char))
 			  (set last-char 0)
 			  (return temp)))
-		      (decl ((static int idx 0)
-			     (int temp (aref cmd idx)))
-			(inc idx)
-			(funcall printf "%c" temp)
-			(return temp))
-		       ;; (decl ((int temp (funcall getchar)))
-		       ;; 	      (funcall printf "%c" temp)
-		       ;; 	      (return temp))
+		      ;; (decl ((static int idx 0)
+		      ;; 	     (int temp (aref cmd idx)))
+		      ;; 	(inc idx)
+		      ;; 	(funcall printf "%c" temp)
+		      ;; 	(return temp))
+		       (decl ((int temp (funcall getchar)))
+		       	      (funcall printf "%c" temp)
+		       	      (return temp))
 		      )
 		    (function nextitem () -> o
 		      (dcomment "nextitem")
