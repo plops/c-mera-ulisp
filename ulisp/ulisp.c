@@ -4,12 +4,17 @@
    Licensed under the MIT license: https://opensource.org/licenses/MIT
 */
 
-#include <setjmp.h>
 
+#include <setjmp.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <ctype.h>
+#include <unistd.h>
+#include <string.h>
 // Compile options
 
-#define checkoverflow
-#define resetautorun
+//#define checkoverflow
+//#define resetautorun
 
 // C Macros
 
@@ -39,22 +44,22 @@
 
 // Constants
 
-#if defined(__AVR_ATmega328P__)
+//#if defined(__AVR_ATmega328P__)
 const int workspacesize = 317;
 const int EEPROMsize = 1024;
-#elif defined(__AVR_ATmega32U4__)
-const int workspacesize = 421;
-const int EEPROMsize = 1024;
-#elif defined(__AVR_ATmega2560__)
-const int workspacesize = 1461;
-const int EEPROMsize = 4096;
-#elif defined(__AVR_ATmega1284P__)
-const int workspacesize = 3000;
-const int EEPROMsize = 4096;
-#else
-const int workspacesize = 317;
-const int EEPROMsize = 1024;
-#endif
+/* #elif defined(__AVR_ATmega32U4__) */
+/* const int workspacesize = 421; */
+/* const int EEPROMsize = 1024; */
+/* #elif defined(__AVR_ATmega2560__) */
+/* const int workspacesize = 1461; */
+/* const int EEPROMsize = 4096; */
+/* #elif defined(__AVR_ATmega1284P__) */
+/* const int workspacesize = 3000; */
+/* const int EEPROMsize = 4096; */
+/* #else */
+/* const int workspacesize = 317; */
+/* const int EEPROMsize = 1024; */
+/* #endif */
 
 const int buflen = 17;  // Length of longest symbol + 1
 enum type {NONE, SYMBOL, NUMBER};
@@ -109,6 +114,7 @@ object *GCStack = NULL;
 char buffer[buflen+1];
 char BreakLevel = 0;
 char LastChar = 0;
+char cmd[13] = "(add 123 456)";
 
 // Forward references
 object *tee;
@@ -270,38 +276,37 @@ int compactimage (object **arg) {
   return firstfree - workspace;
 }
   
-int saveimage (object *arg) {
-  unsigned int imagesize = compactimage(&arg);
-  // Save to EEPROM
-  if ((imagesize*4+8) > EEPROMsize) {
-    Serial.print(F("Error: Image size too large: "));
-    Serial.println(imagesize+2);
-    GCStack = NULL;
-    longjmp(exception, 1);
-  }
-  eeprom_write_word(&image.datasize, imagesize);
-  eeprom_write_word(&image.eval, (unsigned int)arg);
-  eeprom_write_word(&image.globalenv, (unsigned int)GlobalEnv);
-  eeprom_write_word(&image.tee, (unsigned int)tee);
-  eeprom_write_block(workspace, image.data, imagesize*4);
-  return imagesize+2;
-}
+/* int saveimage (object *arg) { */
+/*   unsigned int imagesize = compactimage(&arg); */
+/*   // Save to EEPROM */
+/*   if ((imagesize*4+8) > EEPROMsize) { */
+/*     Serial.print(F("Error: Image size too large: ")); */
+/*     Serial.println(imagesize+2); */
+/*     GCStack = NULL; */
+/*     longjmp(exception, 1); */
+/*   } */
+/*   eeprom_write_word(&image.datasize, imagesize); */
+/*   eeprom_write_word(&image.eval, (unsigned int)arg); */
+/*   eeprom_write_word(&image.globalenv, (unsigned int)GlobalEnv); */
+/*   eeprom_write_word(&image.tee, (unsigned int)tee); */
+/*   eeprom_write_block(workspace, image.data, imagesize*4); */
+/*   return imagesize+2; */
+/* } */
 
-int loadimage () {
-  unsigned int imagesize = eeprom_read_word(&image.datasize);
-  if (imagesize == 0 || imagesize == 0xFFFF) error(F("No saved image"));
-  GlobalEnv = (object *)eeprom_read_word(&image.globalenv);
-  tee = (object *)eeprom_read_word(&image.tee) ;
-  eeprom_read_block(workspace, image.data, imagesize*4);
-  gc(NULL, NULL);
-  return imagesize+2;
-}
+/* int loadimage () { */
+/*   unsigned int imagesize = eeprom_read_word(&image.datasize); */
+/*   if (imagesize == 0 || imagesize == 0xFFFF) error(F("No saved image")); */
+/*   GlobalEnv = (object *)eeprom_read_word(&image.globalenv); */
+/*   tee = (object *)eeprom_read_word(&image.tee) ; */
+/*   eeprom_read_block(workspace, image.data, imagesize*4); */
+/*   gc(NULL, NULL); */
+/*   return imagesize+2; */
+/* } */
 
 // Error handling
 
 void error (const __FlashStringHelper *string) {
-  Serial.print(F("Error: "));
-  Serial.println(string);
+  printf("Error: %s\\n" string));
   GCStack = NULL;
   longjmp(exception, 1);
 }
@@ -1848,28 +1853,28 @@ object *eval (object *form, object *env) {
 
 void printobject(object *form){
   #if defined(debug2)
-  Serial.print('[');Serial.print((int)form);Serial.print(']');
+  printf('[');Serial.print((int)form);Serial.print(']');
   #endif
-  if (form == NULL) Serial.print(F("nil"));
-  else if (listp(form) && issymbol(car(form), CLOSURE)) Serial.print(F("<closure>"));
+  if (form == NULL) printf("nil");
+  else if (listp(form) && issymbol(car(form), CLOSURE)) printf("<closure>");
   else if (listp(form)) {
-    Serial.print('(');
+    printf("(");
     printobject(car(form));
     form = cdr(form);
     while (form != NULL && listp(form)) {
-      Serial.print(' ');
+      printf(" ");
       printobject(car(form));
       form = cdr(form);
     }
     if (form != NULL) {
-      Serial.print(F(" . "));
+      printf(" . ");
       printobject(form);
     }
-    Serial.print(')');
+    printf(")");
   } else if (form->type == NUMBER){
-    Serial.print(integer(form));
+    printf("%d",integer(form));
   } else if (form->type == SYMBOL){
-    Serial.print(name(form));
+    printf("%s",name(form));
   } else
     error(F("Error in print."));
 }
@@ -1880,11 +1885,16 @@ int Getc () {
     LastChar = 0;
     return temp;
   }
-  while (!Serial.available());
-  int temp = Serial.read();
-  Serial.print((char)temp);
-  // if (temp == 13) Serial.println();
-  return temp;
+  /* while (!Serial.available()); */
+  /* int temp = Serial.read(); */
+  /* Serial.print((char)temp); */
+  /* // if (temp == 13) Serial.println(); */
+  /* return temp; */
+	static int idx = 0;
+		int temp = cmd[idx];
+		idx = 1 + idx;
+		printf("%c", temp);
+		return temp;
 }
 
 object *nextitem() {
@@ -1985,12 +1995,12 @@ void initenv() {
 // Setup
 
 void setup() {
-  Serial.begin(9600);
-  while (!Serial);  // wait for Serial to initialize
+  //  Serial.begin(9600);
+  //while (!Serial);  // wait for Serial to initialize
   initworkspace();
   initenv();
   _end = 0xA5;
-  Serial.println(F("uLisp 1.1"));
+  //Serial.println(F("uLisp 1.1"));
 }
 
 // Read/Evaluate/Print loop
@@ -2016,7 +2026,8 @@ void repl(object *env) {
   }
 }
 
-void loop() {
+void main() {
+  setup();
   if (!setjmp(exception)) {
     #if defined(resetautorun)
     object *autorun = (object *)eeprom_read_word(&image.eval);
