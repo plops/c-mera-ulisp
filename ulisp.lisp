@@ -16,9 +16,6 @@
 ;;  - garbage collection marks objects by setting top bit of leftmost word
 ;;    (never more than 32 kBytes of RAM)
 
-(defparameter *null* 0)
-(defparameter *NULL* 0)
-
 (defmacro deftstruct (name &body body)
   `(progn
      (typedef struct ,name ,name)
@@ -91,7 +88,7 @@
 (defmacro %consp (x)
   `(and (!= *number* (cons-type ,x))
 	(!= *symbol* (cons-type ,x))
-	(!= *NULL* ,x)))
+	(!= NULL ,x)))
 
 (eval-when (:compile-toplevel)
   (defun reset-builtin ()
@@ -130,42 +127,6 @@
      ((:name apply))
      ((:name add)))))
  (reset-builtin))
-
-;; (defparameter *builtin-symbol*
-;;   '(((:name nil))
-;;     ((:name tee))
-;;     ((:name lambda))
-;;     ((:name let))
-;;     ((:name closure))))
-
-;; (defparameter *builin-special*
-;;   '(((:max 1) (:min 1) (:name quote))
-;;     ((:max 127) (:min 0) (:name defun))
-;;     ((:max 127) (:min 0) (:name defvar))
-;;     ((:max 2) (:min 2) (:name setq))
-;;     ((:max 127) (:min 0) (:name loop))
-;;     ((:max 2) (:min 2) (:name push))
-;;     ((:max 1) (:min 1) (:name pop))
-;;     ((:max 2) (:min 1) (:name incf))
-;;     ((:max 2) (:min 1) (:name decf))))
-
-;; (defparameter *builtin-tailrec* '(((:max 127) (:min 0) (:name progn))
-;;   ((:max 127) (:min 0) (:name return))
-;;   ((:max 3) (:min 2) (:name if))
-;;   ((:max 127) (:min 0) (:name cond))
-;;   ((:max 127) (:min 0) (:name and))
-;;   ((:max 127) (:min 0) (:name or))))
-
-;; (defparameter *builtin-normalfunc* 
-;;   '(((:max 1) (:min 1) (:name not))
-;;    ((:max 2) (:min 2) (:name cons))
-;;    ((:max 1) (:min 1) (:name atom))
-;;    ((:max 1) (:min 1) (:name listp))
-;;    ((:max 2) (:min 2) (:name eq))
-;;    ((:max 1) (:min 1) (:name car))
-;;    ((:max 1) (:min 1) (:name cdr))
-;;    ((:max 127) (:min 2) (:name apply))
-;;    ((:max 127) (:min 0) (:name add))))
 
 (defparameter *boiler-func* nil)
 (defparameter *builtin-symbol* nil)
@@ -315,9 +276,6 @@ definitions, the C code and some string arrays."
 		 (dcomment ,(format nil "~a\\n" name))
 		 ,@body)))
     `(cl:progn
-       ;; (cl:push '(:min ,min) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
-       ;; (cl:push '(:max ,max) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
-       ;; (cl:push '(:type ,type) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
        (cl:push '((:name ,name)
 		  (:min ,min)
 		  (:max ,max)
@@ -382,19 +340,19 @@ definitions, the C code and some string arrays."
   (cl:let ((e (intern (format nil "~a" (gensym)))))
     (cl:if (cl:listp list)
 	`(decl ((o ,e ,list))
-	   (while (!= *NULL* ,e)
+	   (while (!= NULL ,e)
 	     (decl ((o ,item (cons-car ,e)))
 	       ,@body)
 	     (set ,e (cons-cdr ,e))))
-	`(while (!= *NULL* ,list)
+	`(while (!= NULL ,list)
 	   (decl ((o ,item (cons-car ,list)))
 	     ,@body)
 	   (set ,list (cons-cdr ,list))))))
 
 (defmacro %dolist2 (((e1 l1) (e2 l2)) &body body)
   "Go through two lists simultaneously"
-  `(while (and (!= *NULL* ,l1)
-	       (!= *NULL* ,l2))
+  `(while (and (!= NULL ,l1)
+	       (!= NULL ,l2))
      (decl ((o ,e1 (cons-car ,l1))
 	    (o ,e2 (cons-car ,l2)))
        ,@body)
@@ -434,9 +392,27 @@ definitions, the C code and some string arrays."
 	*builtin-normalfunc* nil)
   (setf *boiler-func* nil))
 
+(use-variables freelist
+	       freespace
+	       workspace
+	       tee global-env gc-stack
+	       exception
+	       buffer
+	       UINTPTR_MAX
+	       builtin-name
+	       builtin-fptr
+	       builtin-par-min
+	       builtin-par-max
+	       return-flag
+	       NULL
+	       EVALJUMP
+	       EOF
+	       last-char
+	       ;;cmd
+	       )
 
 
-(progn ;eval-when (:compile-toplevel)
+(progn 
   (load "special")
   (load "tailrec")
   (load "normfunc")
@@ -445,7 +421,7 @@ definitions, the C code and some string arrays."
 #+nil
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
-      (cnil '*NULL*))
+      (cnil 'NULL))
   ;; (reset-builtin)
   (with-open-file (*standard-output* "ulisp.c"
 				     :direction :output
@@ -496,26 +472,10 @@ definitions, the C code and some string arrays."
 			   (jmp_buf exception)
 			   (char return-flag 0)
 			   (char (aref buffer (+ buflen 1)))
-			   (char last-char)))
+			   (char last-char)
+			   (uintgr NULL 0)))
 		    
-		    (use-variables freelist
-				   freespace
-				   workspace
-				   tee global-env gc-stack
-				   exception
-				   buffer
-				   UINTPTR_MAX
-				   builtin-name
-				   builtin-fptr
-				   builtin-par-min
-				   builtin-par-max
-				   return-flag
-				   *NULL*
-				   EVAL
-				   EOF
-				   last-char
-				   ;;cmd
-				   )
+
 		    (comment "forward declarations")
 		    (gen-builtin-forward-declaration)
 		    (gen-builtin-code)
@@ -532,12 +492,11 @@ definitions, the C code and some string arrays."
 		    (function main ((int argc) (char** argv)) -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
-		      (repl *NULL*)
+		      (repl NULL)
 		      ;; (decl ((o line (funcall _read)))
 		      ;;  (funcall _print-object (funcall _eval line env)))
 		      (return 0))) 
        do
-	 (format t "~a~%" e)
 	 (simple-print e))))
 
 
