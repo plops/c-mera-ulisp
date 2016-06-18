@@ -16,6 +16,8 @@
 ;;  - garbage collection marks objects by setting top bit of leftmost word
 ;;    (never more than 32 kBytes of RAM)
 
+(defparameter *null* 0)
+(defparameter *NULL* 0)
 
 (defmacro deftstruct (name &body body)
   `(progn
@@ -89,7 +91,7 @@
 (defmacro %consp (x)
   `(and (!= *number* (cons-type ,x))
 	(!= *symbol* (cons-type ,x))
-	(!= NULL ,x)))
+	(!= *NULL* ,x)))
 
 (eval-when (:compile-toplevel)
   (defun reset-builtin ()
@@ -359,10 +361,10 @@ definitions, the C code and some string arrays."
 (defmacro gen-builtin-code ()
   `(progn
      ,@(loop for e in
-	    (list (first (append *builtin-special*
-			    *builtin-tailrec*
-			    *builtin-normalfunc*
-			    *boiler-func*))) collect
+	    (append *builtin-special*
+		    *builtin-tailrec*
+		    *builtin-normalfunc*
+		    *boiler-func*) collect
 	  (get-builtin-code e))))
 
 
@@ -380,19 +382,19 @@ definitions, the C code and some string arrays."
   (cl:let ((e (intern (format nil "~a" (gensym)))))
     (cl:if (cl:listp list)
 	`(decl ((o ,e ,list))
-	   (while (!= NULL ,e)
+	   (while (!= *NULL* ,e)
 	     (decl ((o ,item (cons-car ,e)))
 	       ,@body)
 	     (set ,e (cons-cdr ,e))))
-	`(while (!= NULL ,list)
+	`(while (!= *NULL* ,list)
 	   (decl ((o ,item (cons-car ,list)))
 	     ,@body)
 	   (set ,list (cons-cdr ,list))))))
 
 (defmacro %dolist2 (((e1 l1) (e2 l2)) &body body)
   "Go through two lists simultaneously"
-  `(while (and (!= NULL ,l1)
-	       (!= NULL ,l2))
+  `(while (and (!= *NULL* ,l1)
+	       (!= *NULL* ,l2))
      (decl ((o ,e1 (cons-car ,l1))
 	    (o ,e2 (cons-car ,l2)))
        ,@body)
@@ -432,6 +434,8 @@ definitions, the C code and some string arrays."
 	*builtin-normalfunc* nil)
   (setf *boiler-func* nil))
 
+
+
 (progn ;eval-when (:compile-toplevel)
   (load "special")
   (load "tailrec")
@@ -441,7 +445,7 @@ definitions, the C code and some string arrays."
 #+nil
 (let ((workspace-size 315)
       (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
-      (cnil 'NULL))
+      (cnil '*NULL*))
   ;; (reset-builtin)
   (with-open-file (*standard-output* "ulisp.c"
 				     :direction :output
@@ -506,7 +510,7 @@ definitions, the C code and some string arrays."
 				   builtin-par-min
 				   builtin-par-max
 				   return-flag
-				   NULL
+				   *NULL*
 				   EVAL
 				   EOF
 				   last-char
@@ -514,24 +518,8 @@ definitions, the C code and some string arrays."
 				   )
 		    (comment "forward declarations")
 		    (gen-builtin-forward-declaration)
-		    ;(gen-builtin-code)
-		    (progn
-		      (function sp_decf
-			  ((o args) (o env))
-			  ->
-			  o
-			(comment "minimum number of parameters: 1, max. nr. of parameters: 2")
-			(dcomment "DECF\\n")
-			(decl ((o var (%car args)) (o pair (funcall findvalue var env))
-			       (int result (funcall _integer (funcall _eval var env))) (int temp 1))
-			  (when (!=
-				  NULL
-				  (%cdr args))
-			    (set temp (funcall _integer (funcall _eval (%second args) env))))
-			  (set result (- result temp))
-			  (set var (funcall _number result))
-			  (set (%cdr pair) var)
-			  (return var))))
+		    (gen-builtin-code)
+		    
 		    (decl ((const uintgr (aref builtin-par-min
 					   (cl:length *builtin-function*))
 				  (builtin-function-min-clist))
@@ -544,7 +532,7 @@ definitions, the C code and some string arrays."
 		    (function main ((int argc) (char** argv)) -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
-		      (repl NULL)
+		      (repl *NULL*)
 		      ;; (decl ((o line (funcall _read)))
 		      ;;  (funcall _print-object (funcall _eval line env)))
 		      (return 0))) 

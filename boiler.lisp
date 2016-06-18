@@ -156,9 +156,9 @@
 (%function findvalue ((o var) (o env)) -> o
   (decl ((uintgr varname (cons-name var))
 	 (o pair (funcall value varname env)))
-    (when (== NULL pair)
+    (when (== *NULL* pair)
       (set pair (funcall value varname global-env)))
-    (when (== NULL pair)
+    (when (== *NULL* pair)
       (err "unknown var"))
     (return pair)))
 (%function findtwin ((o var) (o env)) -> o
@@ -178,19 +178,19 @@
     (set function (%cdr function))
     (comment "push state if not already in env")
     (%dolist (pair state)
-      (when (== NULL (funcall findtwin (%car pair) *env))
+      (when (== *NULL* (funcall findtwin (%car pair) *env))
 	(%push pair *env)))
     (comment "add arguments to environment")
     (%dolist2 ((var params) (value args)) 
       (if tail
 	  (decl ((o pair (funcall findtwin var *env)))
-	    (if (!= NULL pair)
+	    (if (!= *NULL* pair)
 		(set (%cdr pair) value)
 		(%push (funcall _cons var value) *env)))
 	  (%push (funcall _cons var value) *env)))
-    (when (!= NULL params)
+    (when (!= *NULL* params)
       (err "too few params"))
-    (when (!= NULL args)
+    (when (!= *NULL* args)
       (err "too many params"))
     (comment "do implicit progn")
     (return (funcall tf-progn function *env))))
@@ -232,7 +232,7 @@
 	       (cast 'fn_ptr_type
 		     (funcall lookupfn name))
 	       args *env))))
-  (when (and (_listp function)
+  (when (and (%listp function)
 	     (funcall issymbol (%car function)
 		      (builtin-function-name-to-number
 		       'lambda)))
@@ -240,9 +240,9 @@
     (decl ((o
 	    result
 	    (funcall closure 0
-		     NULL NULL function args env)))
+		     *NULL* *NULL* function args env)))
       (return (funcall _eval result *env))))
-  (when (and (_listp function)
+  (when (and (%listp function)
 	     (funcall issymbol (%car function)
 		      (builtin-function-name-to-number
 		       'closure)))
@@ -250,22 +250,22 @@
     (decl ((o
 	    result
 	    (funcall closure 0
-		     NULL
+		     *NULL*
 		     (%car function)
 		     (%cdr function)
 		     args env)))
       (return (funcall _eval result *env))))
   (err "illegal function")
-  (return NULL))
+  (return *NULL*))
 ;; (comment "checked car and cdr")
 (%function carx ((o arg)) -> o
-  (when (== 0 (_listp arg))
+  (when (== 0 (%listp arg))
     (err "can't take car"))
   (when (== cnil arg)
     (return cnil))
   (return (%car arg)))
 (%function cdrx ((o arg)) -> o
-  (when (== 0 (_listp arg))
+  (when (== 0 (%listp arg))
     (err "can't take cdr"))
   (when (== cnil arg)
     (return cnil))
@@ -275,11 +275,11 @@
 		 (o env)) -> o
   (dcomment "eval")
   (decl ((int TC 0))
-    (comment "EVAL:" :prefix "") FIXME this is crazy
+    (comment "EVAL:" :prefix "") ;; FIXME this is crazy
     (when (< freespace 10)
       (funcall gc form env))
-    FIXME i left out some _end stuff and serial break
-    (when (== NULL form)
+    ;; FIXME i left out some _end stuff and serial break
+    (when (== *NULL* form)
       (dcomment "nil")
       (return cnil))
     (when (== *number* (cons-type form))
@@ -292,11 +292,11 @@
 	  (dcomment "nil")
 	  (return cnil))
 	(decl ((o pair (funcall value name env)))
-	  (when (!= NULL pair)
+	  (when (!= *NULL* pair)
 	    (progn (dcomment "sym cdr pair")
 		   (return (%cdr pair))))
 	  (set pair (value name global-env))
-	  (if (!= NULL pair)
+	  (if (!= *NULL* pair)
 	      (progn (dcomment "sym cdr pair2")
 		     (return (%cdr pair)))
 	      (if (<= name (cl:length *builtin-function*))
@@ -311,7 +311,7 @@
 	  
 	  (when (== (builtin-function-name-to-number 'let)
 		    name)
-	    FIXME leaving out LETSTAR
+	    ;; FIXME leaving out LETSTAR
 	    
 	    (decl ((o assigns (%car args))
 		   (o forms (%cdr args))
@@ -321,12 +321,12 @@
 		(if (_consp assign)
 		    (%push (_cons (%car assign)
 				  (funcall _eval
-					   (_second assign)
+					   (%second assign)
 					   env))
 			   newenv)
 		    (%push (%cons assign cnil)
 			   newenv))
-		FIXME letstar
+		;; FIXME letstar
 		)
 	      (set env newenv)
 	      (set form (funcall tf_progn forms env))
@@ -335,10 +335,10 @@
 	  
 	  (when (== (builtin-function-name-to-number 'lambda) name)
 	    (dcomment "process LAMBDA")
-	    (when (== NULL env)
+	    (when (== *NULL* env)
 	      (dcomment "lambda nil env")
 	      (return form))
-	    (decl ((o envcopy NULL))
+	    (decl ((o envcopy *NULL*))
 	      (%dolist (pair env) 
 		(decl ((o val (%cdr pair)))
 		  (when (== *number* (cons-type val))
@@ -375,7 +375,7 @@
 			      (funcall _eval
 				       (%car form)
 				       env)
-			      NULL)))
+			      *NULL*)))
 	(comment "don't gc the result list")
 	(%push head gc-stack) 
 	(decl ((o tail head))
@@ -384,7 +384,7 @@
 	    (%dolist (e form)
 	      (decl ((o obj (funcall _cons
 				     (funcall _eval e env)
-				     NULL)))
+				     *NULL*)))
 		(set (%cdr tail) obj)
 		(set tail obj)
 		(inc nargs)))
@@ -409,7 +409,7 @@
 		       (funcall issymbol (%car function)
 				(builtin-function-name-to-number 'lambda)))
 	      (set form (funcall closure TCstart
-				 fname NULL (%cdr function) args
+				 fname *NULL* (%cdr function) args
 				 (addr-of env)))
 	      (%pop gc-stack)
 	      (set TC 1)
@@ -430,7 +430,7 @@
 	    (progn (dcomment "eval returns nil")
 		   (return cnil))))))))
 (%function init-env () -> void
-  (set global-env NULL)
+  (set global-env *NULL*)
   (set tee (funcall _symbol (builtin-function-name-to-number 'tee))))
 
 (%function _getc () -> int
@@ -438,11 +438,11 @@
     (decl ((int temp last-char))
       (set last-char 0)
       (return temp)))
-  (decl ((static int idx 0)
-  	     (int temp (aref cmd idx)))
-  	(inc idx)
-  	(funcall printf "%c" temp)
-  	(return temp))
+  ;; (decl ((static int idx 0)
+  ;; 	 (int temp (aref cmd idx)))
+  ;; 	(inc idx)
+  ;; 	(funcall printf "%c" temp)
+  ;; 	(return temp))
   (decl ((int temp (funcall getchar)))
     (funcall printf "%c" temp)
     (return temp))
@@ -531,10 +531,10 @@
 (%function read-rest () -> o
   (decl ((o item (funcall nextitem)))
     (when (== (cast 'o *ket*) item)
-      (return NULL))
+      (return *NULL*))
     (when (== (cast 'o *dot*) item)
       (decl ((o arg1 (funcall _read)))
-	(if (!= NULL (funcall read-rest))
+	(if (!= *NULL* (funcall read-rest))
 	    (err "malformed list"))
 	(return arg1)))
     (when (== (cast 'o *quo*) item)
@@ -545,14 +545,14 @@
 		  _cons
 		  (funcall _symbol
 			   (builtin-function-name-to-number 'quote))
-		  (funcall _cons arg1 NULL))
+		  (funcall _cons arg1 *NULL*))
 		 (funcall read-rest)))))
     (when (== (cast 'o *bra*) item)
       (set item (funcall read-rest)))
     (return (funcall _cons item (funcall read-rest)))))
 (%function _print-object ((o form)) -> void
   (dcomment "print-object")
-  (if (== NULL form)
+  (if (== *NULL* form)
       (funcall printf "nil")
       (if (and (%listp form)
 	       (funcall issymbol (%car form)
@@ -568,7 +568,7 @@
 		      (progn
 			(funcall printf " ")
 			(funcall _print-object e))))
-		(if (!= NULL form)
+		(if (!= *NULL* form)
 		    (progn (funcall printf " . ")
 			   (funcall _print-object form)))
 		(funcall printf ")"))
@@ -588,12 +588,12 @@
       (return (funcall _cons
 		       (funcall _symbol
 				(builtin-function-name-to-number 'quote))
-		       (funcall _cons (funcall _read) NULL))))
+		       (funcall _cons (funcall _read) *NULL*))))
     (return item)))
 (%function repl ((o env)) -> void
   (dcomment "repl")
   (for (() () ())
-    (funcall gc NULL env)
+    (funcall gc *NULL* env)
     (funcall printf "freespace: %lu\\n" freespace)
     (funcall printf "> ")
     (decl ((o line (funcall _read)))
