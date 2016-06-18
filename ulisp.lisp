@@ -309,8 +309,7 @@ and throws error when string is not a builtin."
 	(cl:push '(:min ,min) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
 	(cl:push '(:max ,max) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
 	(cl:push '(:type ,type) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
-	(loop for e in '((:code ,code) (:min ,min) (:max ,max) (:name ,name)) do
-	     (cl:push e ,target))))))
+	(cl:push '( (:name ,name)  (:min ,min) (:max ,max) (:code ,code)) ,target)))))
 
 #+nil
 (deftailrec (progn 0 127)
@@ -401,8 +400,7 @@ and throws error when string is not a builtin."
   (load "normfunc"))
 
 (defmacro %function (name parameters -> type &body body)
-  (let ((arrow ->))
-    `(function ,name ,parameters -> ,type ,@body)))
+  `(cl:push '((:name ,name) (:code (function ,name ,parameters -> ,type ,@body))) *boiler-func*))
 
 #+nil
 (%function cdrx ((o arg)) -> o
