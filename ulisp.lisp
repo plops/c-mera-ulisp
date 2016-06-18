@@ -384,6 +384,11 @@ const char builtin_normalfunc_name[9][5] = { 'add', 'apply', 'cdr', 'car', 'eq',
 #+nil
 (gen-builtin-strings)
 
+;; const uintgr builtin_par_min[33] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+;; const uintgr builtin_par_max[33] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+;; fn_ptr_type builtin_fptr[33] = { 0, 0, 0, 0, 0, 0, 0, sp_quote, sp_defun, sp_defvar, sp_setq, sp_loop, sp_push, sp_pop, sp_incf, sp_decf, 0, tf_progn, tf_return, tf_if, tf_cond, tf_and, tf_or, 0, fn_not, fn_cons, fn_atom, fn_listp, fn_eq, fn_car, fn_cdr, fn_apply, fn_add };
+
+
 
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
