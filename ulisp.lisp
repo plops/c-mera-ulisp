@@ -438,8 +438,12 @@ fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
 		      (let ((global (intern (string-upcase (format nil "*builtin-~a*" target)))))
 		       `(const uintgr (aref ,(intern (string-upcase (format nil "builtin-~a-par-~a" target val)))
 					(cl:length ,global))
-			       (clist (cl:funcall ,fun global)))))))))
+			       ;(clist (cl:funcall ,fun ,global))
+			       )))))))
 
+;; const uintgr builtin_special_par_min[9];
+
+#+nil
 (gen-builtin-min-max-clists)
 
 (defmacro builtin-function-min-clist ()
