@@ -414,12 +414,36 @@ fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
 
 ;; const uintgr builtin_par_max[33] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-;; (const uintgr (aref builtin-par-min
-;; 		(cl:length *builtin-function*))
-;;        (builtin-function-min-clist))
+(const uintgr (aref builtin-par-min
+		(cl:length *builtin-function*))
+       (builtin-function-min-clist))
+
+(defun calc-builtin-min (l)
+  (mapcar #'get-builtin-min l))
+
+(defun calc-builtin-max (l)
+  (mapcar #'get-builtin-max l))
+
+(defmacro gen-builtin-min-max-clists ()
+  `(cl:progn
+     (use-variables
+      builtin-special-par-min
+      builtin-tailrec-par-min
+      builtin-normalfunc-par-min
+      builtin-special-par-max
+      builtin-tailrec-par-max
+      builtin-normalfunc-par-max)
+     (decl ,(loop for target in '(special tailrec normalfunc) nconc
+		 (loop for val in '(min max) and fun in (list #'calc-builtin-min #'calc-builtin-max) collect
+		      (let ((global (intern (string-upcase (format nil "*builtin-~a*" target)))))
+		       `(const uintgr (aref ,(intern (string-upcase (format nil "builtin-~a-par-~a" target val)))
+					(cl:length ,global))
+			       (clist (cl:funcall ,fun global)))))))))
+
+(gen-builtin-min-max-clists)
 
 (defmacro builtin-function-min-clist ()
-  `(clist ,@(mapcar #'(lambda (x) (cl:let ((y (builtin-function-min x)))
+  `(clist ,@(mapcar #'(lambda (x) (cl:let ((y (get-builtin-function-min x)))
 				    (cl:if y y 0)))
 		    *builtin-function*)))
 
@@ -550,6 +574,7 @@ fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
 		    
 		    (typedef cons_object* o)
 		    (gen-builtin-strings)
+		    (gen-builtin-min-max-clists)
 		    (decl ((cons_object o1 (clist (cast 'o #x12) (cast 'o #x32)))
 			   (cons_symbol o2 (clist *symbol* #x123))
 			   (cons_number o3 (clist *number* #x324))))
