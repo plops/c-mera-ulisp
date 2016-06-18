@@ -433,13 +433,22 @@ fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
       builtin-special-par-max
       builtin-tailrec-par-max
       builtin-normalfunc-par-max)
-     (decl ,(loop for target in '(special tailrec normalfunc) nconc
-		 (loop for val in '(min max) and fun in (list #'calc-builtin-min #'calc-builtin-max) collect
-		      (let ((global (intern (string-upcase (format nil "*builtin-~a*" target)))))
-		       `(const uintgr (aref ,(intern (string-upcase (format nil "builtin-~a-par-~a" target val)))
-					(cl:length ,global))
-			       ;(clist (cl:funcall ,fun ,global))
-			       )))))))
+     (decl ,(loop for target in '(special tailrec normalfunc)
+		 and global in '(*builtin-special* *builtin-tailrec* *builtin-normalfunc*)
+	       nconc
+		 (cl:loop for val in '(min max)
+			  and func in (list #'calc-builtin-min #'calc-builtin-max)
+			  collect
+			  `(const uintgr (aref ,(intern (string-upcase (format nil "builtin-~a-par-~a" target val)))
+					   (cl:length ,global))
+				  (macroexpand #'clist (,func ,global))
+					;(clist (cl:funcall ,fun ,global))
+				  ))))))
+
+
+(macroexpand #')
+
+
 
 ;; const uintgr builtin_special_par_min[9];
 
