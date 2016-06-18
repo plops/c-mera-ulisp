@@ -293,6 +293,10 @@ and throws error when string is not a builtin."
   )
 
 (defmacro def-with-prefix ((type name &optional (min 1) (max min)) &body body)
+  "Generates macros to define special, tail-recursive and normal
+functions that are then exported to C. The output data is stored in
+global variables from where other macros later generate the forward
+definitions, the C code and some string arrays."
   (let ((target (ecase type
 		  (sp '*builtin-special*)
 		  (tf '*builtin-tailrec*)
@@ -334,11 +338,6 @@ and throws error when string is not a builtin."
 
 (defun get-builtin-fwd (alist)
   (second (assoc :fwd alist)))
-
-
-
-
-
 
 (defmacro gen-forward-declaration ()
   `(progn
