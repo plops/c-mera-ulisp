@@ -311,17 +311,6 @@ and throws error when string is not a builtin."
 	(cl:push '(:type ,type) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
 	(cl:push '( (:name ,name)  (:min ,min) (:max ,max) (:code ,code)) ,target)))))
 
-#+nil
-(deftailrec (progn 0 127)
-		      (when (== NULL args)
-			(return cnil))
-		      (decl ((o more (%cdr args)))
-			(%dolist (e more)
-			  (funcall _eval (%car args) env)
-			  (set args more))
-			
-			(return (%car args))))
-
 (defmacro defspecial ((name &optional (min 1) (max min)) &body body)
   `(def-with-prefix (sp ,name ,min ,max) ,@body))
 
@@ -330,6 +319,9 @@ and throws error when string is not a builtin."
 
 (defmacro deffunction ((name &optional (min 1) (max min)) &body body)
   `(def-with-prefix (fn ,name ,min ,max) ,@body))
+
+(defmacro %function (name parameters -> type &body body)
+  `(cl:push '((:name ,name) (:code (function ,name ,parameters -> ,type ,@body))) *boiler-func*))
 
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
@@ -399,8 +391,7 @@ and throws error when string is not a builtin."
   (load "tailrec")
   (load "normfunc"))
 
-(defmacro %function (name parameters -> type &body body)
-  `(cl:push '((:name ,name) (:code (function ,name ,parameters -> ,type ,@body))) *boiler-func*))
+
 
 #+nil
 (%function cdrx ((o arg)) -> o
