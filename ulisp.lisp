@@ -293,9 +293,9 @@ and throws error when string is not a builtin."
 
 (defmacro def-with-prefix ((type name &optional (min 1) (max min)) &body body)
   (let ((target (ecase type
-		  ('sp *builtin-special*)
-		  ('tf *builtin-tailrec*)
-		  ('fn *builtin-normalfunc*)))
+		  (sp '*builtin-special*)
+		  (tf '*builtin-tailrec*)
+		  (fn '*builtin-normalfunc*)))
 	(code `(function ,(intern (string-upcase (format nil "~a_~a" type name)))
 		   ((o args)
 		    (o env))
@@ -308,7 +308,7 @@ and throws error when string is not a builtin."
 	(cl:push '(:min ,min) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
 	(cl:push '(:max ,max) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
 	(cl:push '(:type ,type) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
-	(loop for e in ((:code ',code) (:min ,min) (:max ,max) (:name ,name)) do
+	(loop for e in '((:code ,code) (:min ,min) (:max ,max) (:name ,name)) do
 	     (cl:push e ,target))))))
 
 #+nil
