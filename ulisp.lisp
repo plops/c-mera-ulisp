@@ -463,6 +463,7 @@ definitions, the C code and some string arrays."
 					   (cl:length *builtin-function*)))
 			   (const uintgr (aref builtin-par-max
 					   (cl:length *builtin-function*)))))
+		    (comment "#undef NULL" :prefix "")
 		    (decl ((o freelist)
 			   (o tee)
 			   (o global-env)
@@ -473,7 +474,7 @@ definitions, the C code and some string arrays."
 			   (char return-flag 0)
 			   (char (aref buffer (+ buflen 1)))
 			   (char last-char)
-			   (uintgr NULL 0)))
+			   (void* NULL 0)))
 		    
 
 		    (comment "forward declarations")
