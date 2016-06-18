@@ -1,5 +1,8 @@
 (eval-when (:compile-toplevel) (ql:quickload :cgen))
 (in-package :cg-user)
+;; (defpackage :g
+;;   (:use :cgen))
+;; (in-package :g)
 (switch-reader)
 
 ;; 32 kBytes flash
@@ -363,6 +366,12 @@ and throws error when string is not a builtin."
   `(if ,clause
        (progn
 	 ,@body)))
+
+(defmacro %car (x)
+  `(cons-car ,x))
+
+(defmacro %cdr (x)
+  `(cons-cdr ,x))
 
 #+nil
 (let ((workspace-size 315)
