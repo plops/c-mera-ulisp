@@ -393,27 +393,33 @@ const char builtin_normalfunc_name[9][5] = { 'add', 'apply', 'cdr', 'car', 'eq',
 ;; 	(aref builtin-fptr (cl:length *builtin-function*))
 ;; 	(builtin-function-ptr-clist))))
 
-(defun calc-builtin-function-ptr-list (prefix l)
+(defun calc-builtin-fptr-list (prefix l)
   "PREFIX is sp_, tf_ or fn_. L is the global list with the functions,
 e.g. *builtin-special*. Example output: (sp_decf sp_incf sp_pop
 sp_push sp_loop sp_setq sp_defvar sp_defun sp_quote)"
   (mapcar #'(lambda (x) (intern (string-upcase (format nil "~a~a" prefix x))))
 	  (mapcar #'get-builtin-name l)))
 
-(defmacro gen-builtin-function-ptr-clists ()
-  )
-
-(mapcar #'(lambda (x) (intern (string-upcase (format nil "~a~a" "sp_" x))))
-		    (mapcar #'get-builtin-name *builtin-special*))
-
-
-(defmacro builtin-function-ptr-clist ()
-  `(clist ,@(mapcar #'(lambda (x) (case (builtin-function-name-type x)
-				    (:spec (intern (string-upcase (format nil "sp_~a" x))))
-				    (:tail (intern (string-upcase (format nil "tf_~a" x))))
-				    (:fun (intern (string-upcase (format nil "fn_~a" x))))
-				    (t 0)))
-		    (mapcar #'builtin-function-name *builtin-function*))))
+(defmacro gen-builtin-fptr-clists ()
+  "Create arrays of function pointers, like this:
+fn_ptr_type builtin_special_fptr[9] = { sp_decf, sp_incf, sp_pop,
+sp_push, sp_loop, sp_setq, sp_defvar, sp_defun, sp_quote };
+fn_ptr_type builtin_tailrec_fptr[6] = { tf_or, tf_and, tf_cond, tf_if,
+tf_return, tf_progn };
+fn_ptr_type builtin_normalfunc_fptr[9] = { fn_add, fn_apply, fn_cdr,
+fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
+"
+  `(cl:progn
+     (use-variables
+       builtin-special-fptr
+       builtin-tailrec-fptr
+       builtin-normalfunc-fptr)
+     (decl ((fn_ptr_type (aref builtin-special-fptr ,(cl:length *builtin-special*))
+		  (clist ,@(calc-builtin-fptr-list "sp_" *builtin-special*)))
+	   (fn_ptr_type (aref builtin-tailrec-fptr ,(cl:length *builtin-tailrec*))
+		  (clist ,@(calc-builtin-fptr-list "tf_" *builtin-tailrec*)))
+	   (fn_ptr_type (aref builtin-normalfunc-fptr ,(cl:length *builtin-normalfunc*))
+		  (clist ,@(calc-builtin-fptr-list "fn_" *builtin-normalfunc*)))))))
 
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
@@ -569,6 +575,7 @@ sp_push sp_loop sp_setq sp_defvar sp_defun sp_quote)"
 
 		    (comment "forward declarations")
 		    (gen-builtin-forward-declaration)
+		    (gen-builtin-fptr-clists)
 		    (gen-builtin-code)
 		    
 		    (decl ((const uintgr (aref builtin-par-min
