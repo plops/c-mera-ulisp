@@ -209,7 +209,7 @@ and throws error when string is not a builtin."
   `(builtin-function-name-to-number 'f_fun))
 
 (defun builtin-function-name-maxlength ()
- (reduce #'cl:max
+  (reduce #'cl:max
 	 (mapcar #'(lambda (x) (cl:length (format nil "~a" (builtin-function-name x))))
 		 *builtin-function*)))
 
@@ -334,11 +334,55 @@ definitions, the C code and some string arrays."
 ;; 	      buflen)
 ;;        (builtin-function-name-clist))
 
-(defmacro builtin-function-name-clist ()
-  `(clist ,@(mapcar #'(lambda (x) (format nil "~a" (builtin-function-name x)))
-		    *builtin-function*)))
+(defun calc-builtin-name-max-len (l)
+  "Find the longest function name. The name doesn't include the
+prefix."
+  (reduce #'cl:max
+	  (mapcar #'(lambda (x)
+		      (cl:length (format nil "~a"
+					 (get-builtin-name x))))
+		  l)))
 
-(defmacro gen-builtin-strings ())
+#+nil
+(mapcar #'calc-builtin-name-max-len (list *builtin-special*
+					  *builtin-tailrec*
+					  *builtin-normalfunc*))
+
+(defun calc-builtin-name-list (l)
+  "Generate a list of function names (without prefix) like
+this: ('decf' 'incf' 'pop' 'push' 'loop' 'setq' 'defvar' 'defun'
+'quote')"
+  (mapcar #'(lambda (x)
+	      (format () "~a" (get-builtin-name x)))
+	  l))
+
+#+nil
+(calc-builtin-name-list *builtin-special*)
+
+(defmacro gen-builtin-strings ()
+  `(cl:progn
+     (use-variables
+       builtin-special-name
+       builtin-tailrec-name
+       builtin-normalfunc-name)
+     (decl ((const char (aref builtin-special-name
+			  ,(cl:length *builtin-special*)
+			  ,(calc-builtin-name-max-len *builtin-special*)
+			  )
+		  (clist ,@(calc-builtin-name-list *builtin-special*)))
+	   (const char (aref builtin-tailrec-name
+			 ,(cl:length *builtin-tailrec*)
+			 ,(calc-builtin-name-max-len *builtin-tailrec*)
+			 )
+		  (clist ,@(calc-builtin-name-list *builtin-tailrec*)))
+	   (const char (aref builtin-normalfunc-name
+			 ,(cl:length *builtin-normalfunc*)
+			 ,(calc-builtin-name-max-len *builtin-normalfunc*))
+		  (clist ,@(calc-builtin-name-list *builtin-normalfunc*))))
+      )))
+
+#+nil
+(gen-builtin-strings)
 
 
 (defmacro ensure-symbol (var)
@@ -467,6 +511,7 @@ definitions, the C code and some string arrays."
 			     (intgr integer))))
 		    
 		    (typedef cons_object* o)
+		    (gen-builtin-strings)
 		    (decl ((cons_object o1 (clist (cast 'o #x12) (cast 'o #x32)))
 			   (cons_symbol o2 (clist *symbol* #x123))
 			   (cons_number o3 (clist *number* #x324))))
