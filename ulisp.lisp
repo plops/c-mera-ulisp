@@ -328,11 +328,6 @@ definitions, the C code and some string arrays."
 	  (get-builtin-code e))))
 
 
-;; create a string like this for special, tail and normal:
-;; (const char (aref builtin-name
-;; 	      (cl:length *builtin-function*)
-;; 	      buflen)
-;;        (builtin-function-name-clist))
 
 (defun calc-builtin-name-max-len (l)
   "Find the longest function name. The name doesn't include the
@@ -360,6 +355,11 @@ this: ('decf' 'incf' 'pop' 'push' 'loop' 'setq' 'defvar' 'defun'
 (calc-builtin-name-list *builtin-special*)
 
 (defmacro gen-builtin-strings ()
+"Create strings like this:
+const char builtin_special_name[9][6] = { 'decf', 'incf', 'pop', 'push', 'loop', 'setq', 'defvar', 'defun', 'quote' };
+const char builtin_tailrec_name[6][6] = { 'or', 'and', 'cond', 'if', 'return', 'progn' };
+const char builtin_normalfunc_name[9][5] = { 'add', 'apply', 'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not' };
+"
   `(cl:progn
      (use-variables
        builtin-special-name
