@@ -312,7 +312,11 @@ and throws error when string is not a builtin."
        ;; (cl:push '(:min ,min) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
        ;; (cl:push '(:max ,max) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
        ;; (cl:push '(:type ,type) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
-       (cl:push '( (:name ,name) (:min ,min) (:max ,max) (:fwd ,fwd) (:code ,code)) ,target))))
+       (cl:push '((:name ,name)
+		  (:min ,min)
+		  (:max ,max)
+		  (:fwd ,fwd)
+		  (:code ,code)) ,target))))
 
 (defmacro defspecial ((name &optional (min 1) (max min)) &body body)
   `(def-with-prefix (sp ,name ,min ,max) ,@body))
@@ -324,7 +328,22 @@ and throws error when string is not a builtin."
   `(def-with-prefix (fn ,name ,min ,max) ,@body))
 
 (defmacro %function (name parameters -> type &body body)
-  `(cl:push '((:name ,name) (:code (function ,name ,parameters -> ,type ,@body))) *boiler-func*))
+  `(cl:push '((:name ,name)
+	      (:fwd  (function ,name ,parameters -> ,type))
+	      (:code (function ,name ,parameters -> ,type ,@body))) *boiler-func*))
+
+(defun get-builtin-fwd (alist)
+  (second (assoc :fwd alist)))
+
+
+#+nil
+(loop for e in *builtin-special* collect
+     (progn (get-builtin-fwd e)
+	    (comment ";" :prefix "")))
+
+
+(defun gen-forward-declaration (l)
+  (loop f))
 
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
@@ -334,8 +353,6 @@ and throws error when string is not a builtin."
   `(set ,x (+ 1 ,x)))
 (defmacro dec (x)
   `(set ,x (- ,x 1)))
-
-
 
 (defmacro %dolist ((item list) &body body)
   "The list can be an expression like (cons-cdr bla). It will only be evaluated once."
@@ -385,17 +402,19 @@ and throws error when string is not a builtin."
 
 (defmacro %cdr (x)
   `(cons-cdr ,x))
+
+
+
 (eval-when (:compile-toplevel)
   (setf *builtin-special* nil
 	*builtin-tailrec* nil
 	*builtin-normalfunc* nil)
-  (load "special")
-  (load "tailrec")
-  (load "normfunc"))
-
+  (setf *boiler-func* nil))
 
 (eval-when (:compile-toplevel)
-  (setf *boiler-func* nil)
+  (load "special")
+  (load "tailrec")
+  (load "normfunc")
   (load "boiler"))
 
 #+nil
