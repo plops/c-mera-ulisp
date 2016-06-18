@@ -70,23 +70,23 @@
 (defmacro cons-integer (x)
   `(pref (cast '(struct cons_number*) ,x) integer))
 
-(defmacro _second (x)
+(defmacro %second (x)
   `(cons-car (cons-cdr ,x)))
 
-(defmacro _third (x)
+(defmacro %third (x)
   `(cons-car (cons-cdr (cons-cdr ,x))))
 
-(defmacro _push (x y)
+(defmacro %push (x y)
   `(set ,y (funcall _cons ,x ,y)))
 
-(defmacro _pop (y)
+(defmacro %pop (y)
   `(set ,y (cons-cdr ,y)))
 
-(defmacro _listp (x)
+(defmacro %listp (x)
   `(and (!= *number* (cons-type ,x))
 	(!= *symbol* (cons-type ,x))))
 
-(defmacro _consp (x)
+(defmacro %consp (x)
   `(and (!= *number* (cons-type ,x))
 	(!= *symbol* (cons-type ,x))
 	(!= NULL ,x)))
@@ -391,24 +391,9 @@ and throws error when string is not a builtin."
   (load "tailrec")
   (load "normfunc"))
 
-
-
-#+nil
-(%function cdrx ((o arg)) -> o
-  (when (== 0 (_listp arg))
-    (err "can't take cdr"))
-  (when (== cnil arg)
-    (return cnil))
-  (return (%cdr arg)))
-
 (eval-when (:compile-toplevel)
   (setf *boiler-func* nil)
   (load "boiler"))
-
-
-#+nil
-*builtin-function*
-
 
 #+nil
 (let ((workspace-size 315)

@@ -14,7 +14,7 @@
 (deftailrec (if 2 3)
   (when (!= cnil (funcall _eval (%car args) env))
     (return (_second args)))
-  (return (_third args)))
+  (return (%third args)))
 (deftailrec (cond 0 127)
   (%dolist (clause args)
     (decl ((o test (funcall _eval (%car clause) env))
