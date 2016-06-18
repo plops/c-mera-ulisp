@@ -20,7 +20,7 @@
       (when (!= NULL pair)
 	(set (%cdr pair) val)
 	(return var))
-      (_push (funcall _cons var val) global-env)
+      (%push (funcall _cons var val) global-env)
       (return var))))
 (defspecial (defvar 0 127)
   (decl ((o var (%car args)))

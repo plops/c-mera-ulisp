@@ -338,8 +338,16 @@ definitions, the C code and some string arrays."
 
 (defun get-builtin-fwd (alist)
   (second (assoc :fwd alist)))
+(defun get-builtin-max (alist)
+  (second (assoc :max alist)))
+(defun get-builtin-min (alist)
+  (second (assoc :min alist)))
+(defun get-builtin-name (alist)
+  (second (assoc :name alist)))
+(defun get-builtin-code (alist)
+  (second (assoc :code alist)))
 
-(defmacro gen-forward-declaration ()
+(defmacro gen-builtin-forward-declaration ()
   `(progn
      ,@(loop for e in (append *builtin-special*
 			      *builtin-tailrec*
@@ -348,6 +356,14 @@ definitions, the C code and some string arrays."
 	  `(progn ,(get-builtin-fwd e)
 		  (comment ";" :prefix "")))))
 
+(defmacro gen-builtin-code ()
+  `(progn
+     ,@(loop for e in
+	    (list (first (append *builtin-special*
+			    *builtin-tailrec*
+			    *builtin-normalfunc*
+			    *boiler-func*))) collect
+	  (get-builtin-code e))))
 
 
 (defmacro ensure-symbol (var)
@@ -409,14 +425,14 @@ definitions, the C code and some string arrays."
   `(cons-cdr ,x))
 
 
-
+#+nil
 (eval-when (:compile-toplevel)
   (setf *builtin-special* nil
 	*builtin-tailrec* nil
 	*builtin-normalfunc* nil)
   (setf *boiler-func* nil))
 
-(eval-when (:compile-toplevel)
+(progn ;eval-when (:compile-toplevel)
   (load "special")
   (load "tailrec")
   (load "normfunc")
@@ -497,8 +513,25 @@ definitions, the C code and some string arrays."
 				   ;;cmd
 				   )
 		    (comment "forward declarations")
-		    (gen-forward-declaration)
-		    (deftailrec-fw progn)
+		    (gen-builtin-forward-declaration)
+		    ;(gen-builtin-code)
+		    (progn
+		      (function sp_decf
+			  ((o args) (o env))
+			  ->
+			  o
+			(comment "minimum number of parameters: 1, max. nr. of parameters: 2")
+			(dcomment "DECF\\n")
+			(decl ((o var (%car args)) (o pair (funcall findvalue var env))
+			       (int result (funcall _integer (funcall _eval var env))) (int temp 1))
+			  (when (!=
+				  NULL
+				  (%cdr args))
+			    (set temp (funcall _integer (funcall _eval (%second args) env))))
+			  (set result (- result temp))
+			  (set var (funcall _number result))
+			  (set (%cdr pair) var)
+			  (return var))))
 		    (decl ((const uintgr (aref builtin-par-min
 					   (cl:length *builtin-function*))
 				  (builtin-function-min-clist))
@@ -516,6 +549,7 @@ definitions, the C code and some string arrays."
 		      ;;  (funcall _print-object (funcall _eval line env)))
 		      (return 0))) 
        do
+	 (format t "~a~%" e)
 	 (simple-print e))))
 
 
