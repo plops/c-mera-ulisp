@@ -336,14 +336,20 @@ and throws error when string is not a builtin."
   (second (assoc :fwd alist)))
 
 
-#+nil
-(loop for e in *builtin-special* collect
-     (progn (get-builtin-fwd e)
-	    (comment ";" :prefix "")))
 
 
-(defun gen-forward-declaration (l)
-  (loop f))
+
+
+(defmacro gen-forward-declaration ()
+  `(progn
+     ,@(loop for e in (append *builtin-special*
+			      *builtin-tailrec*
+			      *builtin-normalfunc*
+			      *boiler-func*) collect
+	  `(progn ,(get-builtin-fwd e)
+		  (comment ";" :prefix "")))))
+
+
 
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
@@ -492,6 +498,7 @@ and throws error when string is not a builtin."
 				   ;;cmd
 				   )
 		    (comment "forward declarations")
+		    (gen-forward-declaration)
 		    (deftailrec-fw progn)
 		    (decl ((const uintgr (aref builtin-par-min
 					   (cl:length *builtin-function*))
