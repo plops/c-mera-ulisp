@@ -383,6 +383,7 @@ and throws error when string is not a builtin."
 (defmacro %cdr (x)
   `(cons-cdr ,x))
 
+#+nil
 (eval-when (:compile-toplevel)
   (setf *builtin-special* nil
 	*builtin-tailrec* nil
@@ -390,6 +391,7 @@ and throws error when string is not a builtin."
   (load "special")
   (load "tailrec")
   (load "normfunc"))
+
 
 (eval-when (:compile-toplevel)
   (setf *boiler-func* nil)
