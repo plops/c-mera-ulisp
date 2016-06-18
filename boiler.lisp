@@ -318,13 +318,13 @@
 		   (o newenv env))
 	      (dcomment "process LET")
 	      (%dolist (assign assigns)
-		(if (_consp assign)
-		    (%push (_cons (%car assign)
-				  (funcall _eval
-					   (%second assign)
-					   env))
+		(if (%consp assign)
+		    (%push (funcall _cons (%car assign)
+				    (funcall _eval
+					     (%second assign)
+					     env))
 			   newenv)
-		    (%push (%cons assign cnil)
+		    (%push (funcall _cons assign cnil)
 			   newenv))
 		;; FIXME letstar
 		)
