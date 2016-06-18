@@ -305,11 +305,10 @@ and throws error when string is not a builtin."
 		 (dcomment ,(format nil "~a\\n" name))
 		 ,@body)))
     `(cl:progn
-      (cl:progn
-	(cl:push '(:min ,min) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
-	(cl:push '(:max ,max) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
-	(cl:push '(:type ,type) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
-	(cl:push '( (:name ,name)  (:min ,min) (:max ,max) (:code ,code)) ,target)))))
+       ;; (cl:push '(:min ,min) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
+       ;; (cl:push '(:max ,max) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
+       ;; (cl:push '(:type ,type) (cl:elt *builtin-function* (builtin-function-name-to-number ',name)))
+       (cl:push '( (:name ,name)  (:min ,min) (:max ,max) (:code ,code)) ,target))))
 
 (defmacro defspecial ((name &optional (min 1) (max min)) &body body)
   `(def-with-prefix (sp ,name ,min ,max) ,@body))
@@ -382,8 +381,6 @@ and throws error when string is not a builtin."
 
 (defmacro %cdr (x)
   `(cons-cdr ,x))
-
-#+nil
 (eval-when (:compile-toplevel)
   (setf *builtin-special* nil
 	*builtin-tailrec* nil
@@ -479,6 +476,9 @@ and throws error when string is not a builtin."
 			   (const uintgr (aref builtin-par-max
 					   (cl:length *builtin-function*))
 				  (builtin-function-max-clist))))
+		    (decl ((fn_ptr_type
+			    (aref builtin-fptr (cl:length *builtin-function*))
+			    (builtin-function-ptr-clist))))
 		    (function main ((int argc) (char** argv)) -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
