@@ -308,6 +308,7 @@ definitions, the C code and some string arrays."
   (second (assoc :code alist)))
 
 (defmacro gen-builtin-forward-declaration ()
+  "Generate forward declarations for all the functions in the C file."
   `(progn
      ,@(loop for e in (append *builtin-special*
 			      *builtin-tailrec*
@@ -317,6 +318,7 @@ definitions, the C code and some string arrays."
 		  (comment ";" :prefix "")))))
 
 (defmacro gen-builtin-code ()
+  "Emit the code for all the functions."
   `(progn
      ,@(loop for e in
 	    (append *builtin-special*
@@ -324,6 +326,19 @@ definitions, the C code and some string arrays."
 		    *builtin-normalfunc*
 		    *boiler-func*) collect
 	  (get-builtin-code e))))
+
+
+;; create a string like this for special, tail and normal:
+;; (const char (aref builtin-name
+;; 	      (cl:length *builtin-function*)
+;; 	      buflen)
+;;        (builtin-function-name-clist))
+
+(defmacro builtin-function-name-clist ()
+  `(clist ,@(mapcar #'(lambda (x) (format nil "~a" (builtin-function-name x)))
+		    *builtin-function*)))
+
+(defmacro gen-builtin-strings ())
 
 
 (defmacro ensure-symbol (var)
