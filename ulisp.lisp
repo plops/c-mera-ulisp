@@ -384,15 +384,6 @@ const char builtin_normalfunc_name[9][5] = { 'add', 'apply', 'cdr', 'car', 'eq',
 #+nil
 (gen-builtin-strings)
 
-
-;; const uintgr builtin_par_min[33] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-;; const uintgr builtin_par_max[33] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-;; fn_ptr_type builtin_fptr[33] = { 0, 0, 0, 0, 0, 0, 0, sp_quote, sp_defun, sp_defvar, sp_setq, sp_loop, sp_push, sp_pop, sp_incf, sp_decf, 0, tf_progn, tf_return, tf_if, tf_cond, tf_and, tf_or, 0, fn_not, fn_cons, fn_atom, fn_listp, fn_eq, fn_car, fn_cdr, fn_apply, fn_add };
-
-;; (decl ((fn_ptr_type
-;; 	(aref builtin-fptr (cl:length *builtin-function*))
-;; 	(builtin-function-ptr-clist))))
-
 (defun calc-builtin-fptr-list (prefix l)
   "PREFIX is sp_, tf_ or fn_. L is the global list with the functions,
 e.g. *builtin-special*. Example output: (sp_decf sp_incf sp_pop
@@ -420,6 +411,17 @@ fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
 		  (clist ,@(calc-builtin-fptr-list "tf_" *builtin-tailrec*)))
 	   (fn_ptr_type (aref builtin-normalfunc-fptr ,(cl:length *builtin-normalfunc*))
 		  (clist ,@(calc-builtin-fptr-list "fn_" *builtin-normalfunc*)))))))
+
+;; const uintgr builtin_par_max[33] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+;; (const uintgr (aref builtin-par-min
+;; 		(cl:length *builtin-function*))
+;;        (builtin-function-min-clist))
+
+(defmacro builtin-function-min-clist ()
+  `(clist ,@(mapcar #'(lambda (x) (cl:let ((y (builtin-function-min x)))
+				    (cl:if y y 0)))
+		    *builtin-function*)))
 
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
