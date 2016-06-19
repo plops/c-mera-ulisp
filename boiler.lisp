@@ -160,11 +160,12 @@
     (return (+ 10 (- d #\a ))))
   (return 16))
 (%function lookupstring ((uintgr idx)) -> char*
-  (dcomment "Given an index number copy the string for the corresponding built-in function into the global character array buffer.")
+  (dcomment "Given an index number copy the string for the corresponding built-in function name into the global character array buffer.")
   (for ((int i 0) (< i buflen) (inc i))
     (set (aref buffer i) (aref builtin-name idx i)))
   (return buffer))
 (%function name ((o obj)) -> char*
+  (dcomment "If an object is of type symbol, write its name into the global character array buffer. Otherwise throw error.")
   (set (aref buffer 3) (cast 'char 0))
   (when (!= *symbol* (cons-type obj))
     (err "name"))
@@ -176,10 +177,12 @@
       (set x (/ x 40))))
   (return buffer))
 (%function _integer ((o obj)) -> intgr
+  (dcomment "If an object is of type number, return the value as an integer. Otherwise throw error.")
   (when (!= *number* (cons-type obj))
     (err "not number"))
   (return (cons-integer obj)))
 (%function issymbol ((o obj) (uintgr n)) -> int
+  (dcomment "If an object OBJ is a of type symbol return true if the builtin function index/symbol corresponds to the same function/symbol.")
   (return (and (== *symbol* (cons-type obj))
 	       (== n (cons-name obj)))))
 (%function _eq ((o a) (o b)) -> int
