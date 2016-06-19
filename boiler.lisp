@@ -274,8 +274,9 @@
   (dcomment "Return the maximum number of arguments for a builtin function with index IDX.")
   (comment "(void) name;" :prefix "")
   (return (aref builtin-par-max idx)))
-(%function lookupfn ((uintgr name)) -> fn_ptr_type
-  (return (aref builtin-fptr name)))
+(%function lookupfn ((uintgr idx)) -> fn_ptr_type
+  (dcomment "Given an index IDX of a builtin function return the corresponding function pointer.")
+  (return (aref builtin-fptr idx)))
 (%function _apply ((o function)
 		  (o args)
 		  (o* env)) -> o
@@ -317,14 +318,16 @@
       (return (funcall _eval result *env))))
   (err "illegal function")
   (return NULL))
-;; (comment "checked car and cdr")
+
 (%function carx ((o arg)) -> o
+  (dcomment "Car with argument check. Throws error, when argument isn't a list.")
   (when (== 0 (%listp arg))
     (err "can't take car"))
   (when (== cnil arg)
     (return cnil))
   (return (%car arg)))
 (%function cdrx ((o arg)) -> o
+  (dcomment "Cdr with argument check. Throws error, when argument isn't a list.")
   (when (== 0 (%listp arg))
     (err "can't take cdr"))
   (when (== cnil arg)
@@ -490,10 +493,12 @@
 	    (progn (dcomment "eval returns nil")
 		   (return cnil))))))))
 (%function init-env () -> void
+  (dcomment "Clear globale environment, initialize TEE to be the symbol that points to the TEE symbol number.")
   (set global-env NULL)
   (set tee (funcall _symbol (builtin-function-name-to-number 'tee))))
 
 (%function _getc () -> int
+  (dcomment "If lastchar is 0, blocking read of a character, followed by a print. If lastchar is not 0, return its value and clear it.")
   (when last-char
     (decl ((int temp last-char))
       (set last-char 0)
@@ -505,10 +510,9 @@
   ;; 	(return temp))
   (decl ((int temp (funcall getchar)))
     (funcall printf "%c" temp)
-    (return temp))
-  )
+    (return temp)))
 (%function nextitem () -> o
-  (dcomment "nextitem")
+  (dcomment "Get characters from the input stream and tokenize. Handles whitespace, comments, parenthesis, dot, numbers, builtins and user functions.")
   (decl ((int ch (funcall _getc)))
     (while (funcall isspace ch)
       (set ch (funcall _getc)))
@@ -589,6 +593,7 @@
 	      (progn (dcomment "usersymbol")
 		     (return (funcall _symbol (funcall pack40 buffer))))))))))
 (%function read-rest () -> o
+  (dcomment "FIXME: Part of the tokenizer of the input stream. I think it reads lists.")
   (decl ((o item (funcall nextitem)))
     (when (== (cast 'o *ket*) item)
       (return NULL))
@@ -638,7 +643,7 @@
 		      (funcall printf "%s" (funcall name form))
 		      (err "print err")))))))
 (%function _read () -> o
-  (dcomment "read")
+  (dcomment "Read either a list, cons, quotes, or any tokens the function nextitem returned.")
   (decl ((o item (funcall nextitem)))
     (when (== (cast 'o *bra*) item)
       (return (funcall read-rest)))
