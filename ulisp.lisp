@@ -129,7 +129,12 @@
  (reset-builtin))
 
 (defparameter *boiler-func* nil)
-(defparameter *builtin-symbol* nil)
+(defparameter *builtin-symbol*
+  '(((:name nil))
+    ((:name tee))
+    ((:name lambda))
+    ((:name let))
+    ((:name closure))))
 (defparameter *builtin-special* nil)
 (defparameter *builtin-tailrec* nil)
 (defparameter *builtin-normalfunc* nil)
@@ -414,10 +419,6 @@ fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
 
 ;; const uintgr builtin_par_max[33] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-(const uintgr (aref builtin-par-min
-		(cl:length *builtin-function*))
-       (builtin-function-min-clist))
-
 (defun calc-builtin-min (l)
   (mapcar #'get-builtin-min l))
 
@@ -449,7 +450,7 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 		 (cl:loop for val in '(min max)
 			  and func in (list #'calc-builtin-min #'calc-builtin-max)
 			  collect
-			  `(const uintgr (aref ,(intern (string-upcase (format nil "builtin-~a-par-~a" target val)))
+			  `(const char (aref ,(intern (string-upcase (format nil "builtin-~a-par-~a" target val)))
 					   (cl:length ,global))
 				  (clist ,@(eval `(cl:funcall ,func ,global)))))))))
 
@@ -558,7 +559,13 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 
 #+nil
 (let ((workspace-size 315)
-      (buflen (builtin-function-name-maxlength)) ;; length of longest symbol 
+      (buflen  ;; length of longest symbol 
+       (cl:max (calc-builtin-name-max-len *builtin-symbol*)
+	    (cl:+ 3 ;; for prefix sp_, tf_ or fn_
+	       (calc-builtin-name-max-len (append *builtin-normalfunc*
+					     *builtin-special*
+					     *builtin-tailrec*
+					     )))))
       (cnil 'NULL))
   ;; (reset-builtin)
   (with-open-file (*standard-output* "ulisp.c"
@@ -576,7 +583,7 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 		    (comment "I use integers that have the same size as a pointer")
 		    (typedef uintptr_t uintgr)
 		    (typedef intptr_t intgr)
-		    ;; (gen-cmd (add 123 456))
+		    
 		    (comment "C-mera doesn't support unions")
 		    (deftstruct cons_object
 		      (decl ((cons_object* car)
@@ -592,17 +599,8 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 		    (typedef cons_object* o)
 		    (gen-builtin-strings)
 		    (gen-builtin-min-max-clists)
-		    (decl ((cons_object o1 (clist (cast 'o #x12) (cast 'o #x32)))
-			   (cons_symbol o2 (clist *symbol* #x123))
-			   (cons_number o3 (clist *number* #x324))))
-		    (decl ((const char (aref builtin-name
-					 (cl:length *builtin-function*)
-					 buflen)
-				  (builtin-function-name-clist))
-			   (const uintgr (aref builtin-par-min
-					   (cl:length *builtin-function*)))
-			   (const uintgr (aref builtin-par-max
-					   (cl:length *builtin-function*)))))
+		    
+		   
 		    (comment "#undef NULL" :prefix "")
 		    (decl ((o freelist)
 			   (o tee)
@@ -622,15 +620,7 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 		    (gen-builtin-fptr-clists)
 		    (gen-builtin-code)
 		    
-		    (decl ((const uintgr (aref builtin-par-min
-					   (cl:length *builtin-function*))
-				  (builtin-function-min-clist))
-			   (const uintgr (aref builtin-par-max
-					   (cl:length *builtin-function*))
-				  (builtin-function-max-clist))))
-		    (decl ((fn_ptr_type
-			    (aref builtin-fptr (cl:length *builtin-function*))
-			    (builtin-function-ptr-clist))))
+
 		    (function main ((int argc) (char** argv)) -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
