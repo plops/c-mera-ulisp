@@ -90,44 +90,6 @@
 	(!= *symbol* (cons-type ,x))
 	(!= NULL ,x)))
 
-(eval-when (:compile-toplevel)
-  (defun reset-builtin ()
- (defparameter *builtin-function*
-   '(((:name f_sym))
-     ((:name nil))
-     ((:name tee))
-     ((:name lambda))
-     ((:name let))
-     ((:name closure))
-     ((:name f_spec))
-     ((:name quote))
-     ((:name defun))
-     ((:name defvar))
-     ((:name setq))
-     ((:name loop))
-     ((:name push))
-     ((:name pop))
-     ((:name incf))
-     ((:name decf))
-     ((:name f_tail))
-     ((:name progn))
-     ((:name return))
-     ((:name if))
-     ((:name cond))
-     ((:name and))
-     ((:name or))
-     ((:name f_fun))
-     ((:name not))
-     ((:name cons))
-     ((:name atom))
-     ((:name listp))
-     ((:name eq))
-     ((:name car))
-     ((:name cdr))
-     ((:name apply))
-     ((:name add)))))
- (reset-builtin))
-
 (defparameter *boiler-func* nil)
 (defparameter *builtin-symbol*
   '(((:name nil))
@@ -138,123 +100,6 @@
 (defparameter *builtin-special* nil)
 (defparameter *builtin-tailrec* nil)
 (defparameter *builtin-normalfunc* nil)
-
-(defun builtin-function-name (x)
-  (second (assoc :name x)))
-
-(defun builtin-function-max (x)
-  (second (assoc :max x)))
-
-(defun builtin-function-min (x)
-  (second (assoc :min x)))
-
-(defun builtin-function-name-to-number (name)
-  (loop for i from 0 and e in *builtin-function*
-   when (eql name (builtin-function-name e))
-     return i))
-
-#+nil
-(builtin-function-name-to-number 'add)
-
-(defun builtin-symbol-list ()
-  (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_sym))
-     below (builtin-function-name-to-number 'f_spec)
-     collect (builtin-function-name (elt *builtin-function* i))))
-
-(defun builtin-special-function-list ()
-  (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_spec))
-     below (builtin-function-name-to-number 'f_tail)
-     collect (builtin-function-name (elt *builtin-function* i))))
-
-(defun builtin-tail-function-list ()
-  (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_tail))
-     below (builtin-function-name-to-number 'f_fun)
-     collect (builtin-function-name (elt *builtin-function* i))))
-
-(defun builtin-normal-function-list ()
-  (loop for i from (cl:+ 1 (builtin-function-name-to-number 'f_fun))
-     below (cl:length *builtin-function*)
-     collect (builtin-function-name (elt *builtin-function* i))))
-
-(defun builtin-function-name-type (name)
-  "find in which class NAME is. It can be either :sym, :spec, :tail
-or :fun. Returns nil for the delimeters F_SYM F_SPEC, F_TAIL and F_FUN
-and throws error when string is not a builtin."
-  (unless (member name (mapcar #'builtin-function-name *builtin-function*))
-    (error "~a not a builtin" name))
-  (cl:cond ((member name (builtin-symbol-list)) :sym)
-	   ((member name (builtin-special-function-list)) :spec)
-	   ((member name (builtin-tail-function-list)) :tail)
-	   ((member name (builtin-normal-function-list)) :fun)))
-
-(defmacro builtin-function-ptr-clist ()
-  `(clist ,@(mapcar #'(lambda (x) (case (builtin-function-name-type x)
-				    (:spec (intern (string-upcase (format nil "sp_~a" x))))
-				    (:tail (intern (string-upcase (format nil "tf_~a" x))))
-				    (:fun (intern (string-upcase (format nil "fn_~a" x))))
-				    (t 0)))
-		    (mapcar #'builtin-function-name *builtin-function*))))
-
-#+nil
-(builtin-function-ptr-clist)
-
-#+nil
-(builtin-function-name-type 'not)
-
-#+nil
-(builtin-normal-function-list)
-
-(defmacro builtin-symbol ()
-  `(builtin-function-name-to-number 'f_sym))
-(defmacro builtin-special ()
-  `(builtin-function-name-to-number 'f_spec))
-(defmacro builtin-tail ()
-  `(builtin-function-name-to-number 'f_tail))
-(defmacro builtin-function ()
-  `(builtin-function-name-to-number 'f_fun))
-
-(defun builtin-function-name-maxlength ()
-  (reduce #'cl:max
-	 (mapcar #'(lambda (x) (cl:length (format nil "~a" (builtin-function-name x))))
-		 *builtin-function*)))
-
-(defmacro builtin-function-name-clist ()
-  `(clist ,@(mapcar #'(lambda (x) (format nil "~a" (builtin-function-name x)))
-		    *builtin-function*)))
-
-(defmacro builtin-function-max-clist ()
-  `(clist ,@(mapcar #'(lambda (x) (cl:let ((y (builtin-function-max x)))
-				    (cl:if y y 0)))
-		    *builtin-function*)))
-
-(defmacro builtin-function-min-clist ()
-  `(clist ,@(mapcar #'(lambda (x) (cl:let ((y (builtin-function-min x)))
-				    (cl:if y y 0)))
-		    *builtin-function*)))
-
-#+nil
-(builtin-function-name-clist)
-
-(defmacro gen-builtin-table-string ()
-  `(decl ,(loop for e in *builtin-function* and i from 0 collect
-	       `(const char
-		       ,(cl:intern (cl:format nil "STRING~3,'0d" i))
-		       ,(cl:format nil "~a" (builtin-function-name e))))))
-
-(defmacro gen-builtin-table-string-variables ()
-  `(use-variables ,@(loop for e in *builtin-function* and i from 0 collect
-			 (cl:intern (cl:format nil "STRING~3,'0d" i)))))
-
-
-
-
-
-(defmacro deftailrec-fw (name)
-  `(progn
-     (function ,(intern (string-upcase (format nil "tf_~a" name))) ((o args)
-									 (o env))
-	      -> o)
-	  (comment ";" :prefix "")))
 
 (defmacro dcomment (x)
   ;`(funcall printf "%s\\n",x)
@@ -455,16 +300,6 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 				  (clist ,@(eval `(cl:funcall ,func ,global)))))))))
 
 
-;; const uintgr builtin_special_par_min[9];
-
-#+nil
-(gen-builtin-min-max-clists)
-
-(defmacro builtin-function-min-clist ()
-  `(clist ,@(mapcar #'(lambda (x) (cl:let ((y (get-builtin-function-min x)))
-				    (cl:if y y 0)))
-		    *builtin-function*)))
-
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
        (erro "not a symbol")))
@@ -523,14 +358,6 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 (defmacro %cdr (x)
   `(cons-cdr ,x))
 
-
-#+nil
-(eval-when (:compile-toplevel)
-  (setf *builtin-special* nil
-	*builtin-tailrec* nil
-	*builtin-normalfunc* nil)
-  (setf *boiler-func* nil))
-
 (use-variables freelist
 	       freespace
 	       workspace
@@ -560,14 +387,15 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 #+nil
 (let ((workspace-size 315)
       (buflen  ;; length of longest symbol 
-       (cl:max (calc-builtin-name-max-len *builtin-symbol*)
-	    (cl:+ 3 ;; for prefix sp_, tf_ or fn_
-	       (calc-builtin-name-max-len (append *builtin-normalfunc*
-					     *builtin-special*
-					     *builtin-tailrec*
-					     )))))
+       (cl:max
+	3
+	(calc-builtin-name-max-len *builtin-symbol*)
+	(cl:+ 3 ;; for prefix sp_, tf_ or fn_
+	      (calc-builtin-name-max-len (append *builtin-normalfunc*
+						 *builtin-special*
+						 *builtin-tailrec*
+						 )))))
       (cnil 'NULL))
-  ;; (reset-builtin)
   (with-open-file (*standard-output* "ulisp.c"
 				     :direction :output
 				     :if-exists :supersede
@@ -614,19 +442,15 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 			   (char last-char)
 			   (void* NULL 0)))
 		    
-
 		    (comment "forward declarations")
 		    (gen-builtin-forward-declaration)
 		    (gen-builtin-fptr-clists)
 		    (gen-builtin-code)
 		    
-
 		    (function main ((int argc) (char** argv)) -> int
 		      (funcall init-workspace)
 		      (funcall init-env)
 		      (repl NULL)
-		      ;; (decl ((o line (funcall _read)))
-		      ;;  (funcall _print-object (funcall _eval line env)))
 		      (return 0))) 
        do
 	 (simple-print e))))
