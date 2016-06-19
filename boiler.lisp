@@ -196,6 +196,7 @@
 		 (== *number* (cons-type b))
 		 (== (cons-integer a) (cons-integer b))))))
 (%function value ((uintgr n) (o env)) -> o
+  (dcomment "Lookup a user-defined symbol (stored as at most 3 characters in radix-40 encoding in N) in the environment ENV.")
   (%dolist (item env)
     (when (== n (cons-name (%car item)))
       (return item)))
