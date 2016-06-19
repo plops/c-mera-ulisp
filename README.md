@@ -27,7 +27,7 @@ init_env init_workspace _alloc
 _symbol _cons _number  _integer
 gc sweep mark_object
 
-read_rest nextitem _getc
+_getc nextitem _read read_rest  
 
 repl _print_object erro name lookupstring
 pack40 fromradix40 toradix40
