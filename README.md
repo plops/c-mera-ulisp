@@ -153,9 +153,9 @@ How to make this run on a Lattice iCE40HX-8K FPGA?
 
 ## Hacking
 
-Currently I'm trying to store name strings in 4 arrays. I will have to
-change a few functions, which currently assume all symbols to be
-present in one array. These functions are:
+I'm trying to store name strings in 4 arrays. I will have to change a
+few functions, which currently assume all symbols to be present in one
+array. These functions are:
 
 ```
 builtin string -> idx
