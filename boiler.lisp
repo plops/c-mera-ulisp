@@ -150,7 +150,7 @@
 ;; 101: (14 #\e)
 ;; 102: (15 #\f)
 ;; 103: (16 #\g)
-  (dcomment "Converts the ascii characters 0-9 into the digitvalues. The characters a-f are converted into 10..15 respectively. Any othercharacter returns 16.")
+  (dcomment "Convert the ascii characters 0-9 into the digitvalues. The characters a-f are converted into 10..15 respectively. Any othercharacter returns 16.")
   (when (and (<= #\0 d)
 	     (<= d #\9))
     (return (- d #\0)))
@@ -159,9 +159,10 @@
 	     (<= d #\f))
     (return (+ 10 (- d #\a ))))
   (return 16))
-(%function lookupstring ((uintgr name)) -> char*
+(%function lookupstring ((uintgr idx)) -> char*
+  (dcomment "Given an index number copy the string for the corresponding built-in function into the global character array buffer.")
   (for ((int i 0) (< i buflen) (inc i))
-    (set (aref buffer i) (aref builtin-name name i)))
+    (set (aref buffer i) (aref builtin-name idx i)))
   (return buffer))
 (%function name ((o obj)) -> char*
   (set (aref buffer 3) (cast 'char 0))
