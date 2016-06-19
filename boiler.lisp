@@ -1,7 +1,7 @@
 (in-package :cg-user)
 (switch-reader)
 (%function init-workspace () -> void
-  (dcomment "init-workspace")
+  (dcomment "Construct the freelist and set freespace to the initial value.")
   (set freelist 0)
   (for ((intgr i (- workspace-size 1))
 	(<= 0 i) (dec i))
@@ -16,7 +16,7 @@
   ;; (funcall longjmp exception 1)
   )
 (%function _alloc () -> o
-  (dcomment "alloc")
+  (dcomment "Return an element from the freelist and reduce freespace.")
   (when (== 0 freespace)
     (err "No room"))
   (decl ((o temp freelist))
@@ -29,7 +29,7 @@
 ;;   (set freelist obj)
 ;;   (inc freespace))
 (%function  _number ((intgr n)) -> o
-  (dcomment "number")
+  (dcomment "Allocate an object and store the integer inside.")
   (decl ((cons_number* ptr
 		       (cast 
 			'cons_number*
@@ -38,8 +38,8 @@
     (set (cons-integer ptr) n)
     (return (cast o ptr))))
 (%function _cons ((o arg1)
-		 (o arg2)) -> o
-  (dcomment "cons")
+		  (o arg2)) -> o
+  (dcomment "Allocate an object and attach both arguments.")
   (decl ((o ptr (cast 'o (funcall _alloc))))
     (set (%car ptr) arg1)
     (set (%cdr ptr) arg2)
@@ -198,10 +198,10 @@
     (%dolist (e list)
       (inc len))
     (return len)))
-(%function builtin ((char* n)) -> int
+(%function builtin ((char* name)) -> int
   (decl ((intgr entry 0))
     (while (< entry (cl:length *builtin-function*))
-      (when (== 0 (funcall strcmp n (aref builtin-name entry)))
+      (when (== 0 (funcall strcmp name (aref builtin-name entry)))
 	(return entry))
       (inc entry))
     (return (cl:length *builtin-function*))))
