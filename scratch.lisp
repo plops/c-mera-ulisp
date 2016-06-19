@@ -35,3 +35,40 @@
 	  do
 	    (format t "~4a" (elt (elt a j) i)))
        (terpri)))
+
+
+(defun digitvalue (d)
+  (declare (type (unsigned-byte 8) d)
+	   (values fixnum &optional))
+  (if (<= (char-code #\0) d (char-code #\9))
+      (- d (char-code #\0))
+      (progn (setf d (logior d #x20))
+	     (if (<= (char-code #\a) d (char-code #\f))
+		 (+ 10 (- d (char-code #\a)))
+		 16))))
+
+(defparameter *digitval-ascii*
+ (loop for i below 256 collect
+      (list (digitvalue i) (code-char i) )))
+
+;; 47: (16 #\/)
+;; 48: (0 #\0)
+;; 49: (1 #\1)
+;; 50: (2 #\2)
+;; 51: (3 #\3)
+;; 52: (4 #\4)
+;; 53: (5 #\5)
+;; 54: (6 #\6)
+;; 55: (7 #\7)
+;; 56: (8 #\8)
+;; 57: (9 #\9)
+;; 58: (16 #\:)
+;; ...
+;; 96: (16 #\`)
+;; 97: (10 #\a)
+;; 98: (11 #\b)
+;; 99: (12 #\c)
+;; 100: (13 #\d)
+;; 101: (14 #\e)
+;; 102: (15 #\f)
+;; 103: (16 #\g)
