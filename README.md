@@ -120,11 +120,13 @@ jitter in deterministic time.
 
 ## Goals:
 
-I changed the way symbol strings are stored. Perhaps I can use a hash
-based method to ensure cycle exact name lookups in constant
-time. Currently I write docstrings for the boiler plate
-functions. Because these are the hardest to get my head
-around. Eventually, I hope to export this documentation using pax-mgl.
+Compared to the original ulisp I changed the way symbol strings are
+stored. Perhaps I can use a hash based method to ensure cycle exact
+name lookups in constant time.
+
+Currently I write docstrings for the boiler plate functions. Because
+these are the hardest to get my head around. Eventually, I hope to
+export this documentation using pax-mgl.
 
 I hope to understand ulisp enough to port it to a variety of
 microcontrollers, everytime I have to use some microcontroller,
