@@ -211,17 +211,26 @@
       (err "unknown var"))
     (return pair)))
 (%function findtwin ((o var) (o env)) -> o
+  (dcomment "Find VAR in environment ENV and return it, otherwise NIL.")
   (%dolist (item env)
     (when (== var (%car item))
       (return item)))
   (return cnil))
-
 (%function closure ((int tail)
-		   (o fname)
-		   (o state)
-		   (o function)
-		   (o args)
-		   (o* env)) -> o
+		    (o fname)
+		    (o state)
+		    (o function)
+		    (o args)
+		    (o* env)) -> o
+  ;; (defun mt (x)
+  ;;   (lambda ()
+  ;;     (digitalwrite x (not (digitalread x)))
+  ;; example for a closure:
+  ;; (defvar grn (mt 6))
+
+  ;; (closure :tail 0 :fname n :state ? :function ((a b) (+ a b x)) :args (1 2) :env (:x 3))
+  
+  (dcomment "FIXME I guess this is one of the most complicated concepts. As such I probably have to revisit this after understanding apply")
   (comment "(void) fname;" :prefix "")
   (decl ((o params (%car function)))
     (set function (%cdr function))
@@ -244,25 +253,27 @@
     (comment "do implicit progn")
     (return (funcall tf-progn function *env))))
 (%function listlength ((o list)) -> int
+  (dcomment "Return the length of a list.")
   (decl ((int len 0))
     (%dolist (e list)
       (inc len))
     (return len)))
 (%function builtin ((char* name)) -> int
+  (dcomment "Find the index of a builtin function with the name given as a string.")
   (decl ((intgr entry 0))
     (while (< entry (cl:length *builtin-function*))
       (when (== 0 (funcall strcmp name (aref builtin-name entry)))
 	(return entry))
       (inc entry))
     (return (cl:length *builtin-function*))))
-(%function lookupmin ((uintgr name)) -> int
+(%function lookupmin ((uintgr idx)) -> int
+  (dcomment "Return the minimum number of arguments for a builtin function with index IDX.")
   (comment "(void) name;" :prefix "") ;; FIXME
-  (return (aref builtin-par-min name)))
-(%function lookupmax ((uintgr name)) -> int
+  (return (aref builtin-par-min idx)))
+(%function lookupmax ((uintgr idx)) -> int
+  (dcomment "Return the maximum number of arguments for a builtin function with index IDX.")
   (comment "(void) name;" :prefix "")
-  (return (aref builtin-par-max name)))
-(decl ((fn_ptr_type
-	(aref builtin-fptr (cl:length *builtin-function*)))))
+  (return (aref builtin-par-max idx)))
 (%function lookupfn ((uintgr name)) -> fn_ptr_type
   (return (aref builtin-fptr name)))
 (%function _apply ((o function)
