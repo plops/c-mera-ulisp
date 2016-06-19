@@ -1,8 +1,5 @@
 (eval-when (:compile-toplevel) (ql:quickload :cgen))
 (in-package :cg-user)
-;; (defpackage :g
-;;   (:use :cgen))
-;; (in-package :g)
 (switch-reader)
 
 ;; 32 kBytes flash
@@ -401,6 +398,7 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 				     :if-exists :supersede
 				     :if-does-not-exist :create)
     (loop for e in (list
+		    (comment "Headers")
 		    (include <setjmp.h>)
 		    (include <stdio.h>)
 		    (include <stdint.h>) ;; uintptr_t
@@ -408,6 +406,8 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 		    (include <stdlib.h>) ;; exit
 		    (include <unistd.h>) ;; exit
 		    (include <string.h>) ;; strcmp
+
+		    (comment "Type declarations")
 		    (comment "I use integers that have the same size as a pointer")
 		    (typedef uintptr_t uintgr)
 		    (typedef intptr_t intgr)
@@ -425,11 +425,14 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 			     (intgr integer))))
 		    
 		    (typedef cons_object* o)
+		    
+		    (comment "Global variables")
+		    
 		    (gen-builtin-strings)
 		    (gen-builtin-min-max-clists)
 		    
-		   
 		    (comment "#undef NULL" :prefix "")
+
 		    (decl ((o freelist)
 			   (o tee)
 			   (o global-env)
@@ -444,7 +447,9 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 		    
 		    (comment "forward declarations")
 		    (gen-builtin-forward-declaration)
+
 		    (gen-builtin-fptr-clists)
+		    
 		    (gen-builtin-code)
 		    
 		    (function main ((int argc) (char** argv)) -> int

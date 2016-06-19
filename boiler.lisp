@@ -1,7 +1,5 @@
 (in-package :cg-user)
 (switch-reader)
-(%function _eval ((o form)(o env)) -> o) (comment ";" :prefix "")
-(%function _read () -> o) (comment ";" :prefix "")
 (%function init-workspace () -> void
   (dcomment "init-workspace")
   (set freelist 0)
