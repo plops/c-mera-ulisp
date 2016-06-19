@@ -12,5 +12,26 @@
   ;(break "illegal character")
   )
 
-(loop for i below 200 when (toradix40 i) collect
-     (format nil "~c ~2,'0d ~2,'0d"  (code-char i) i (toradix40 i)))
+(length
+ (loop for i below 200 when (toradix40 i) collect
+      (list  i (code-char i) (toradix40 i))))
+
+(let ((a (loop for i below 200 when (toradix40 i) collect
+	      (list  i (code-char i) (toradix40 i)))))
+  (loop for i below 3 do
+       (loop for j below 11 ;(length a)
+	  do
+	    (format t "~4a" (elt (elt a j) i)))
+       (terpri))
+  (terpri)
+  (loop for i below 3 do
+       (loop for j from 11 below (+ 11 26)	;(length a)
+	  do
+	    (format t "~4a" (elt (elt a j) i)))
+       (terpri))
+  (terpri)
+  (loop for i below 3 do
+       (loop for j from (+ 11 26) below (length a)
+	  do
+	    (format t "~4a" (elt (elt a j) i)))
+       (terpri)))
