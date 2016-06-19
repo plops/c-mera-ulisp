@@ -202,6 +202,7 @@
       (return item)))
   (return cnil))
 (%function findvalue ((o var) (o env)) -> o
+  (dcomment "Return the place that stores the symbol VAR. The lookup is first in ENV then in GLOBAL-ENV.")
   (decl ((uintgr varname (cons-name var))
 	 (o pair (funcall value varname env)))
     (when (== NULL pair)
