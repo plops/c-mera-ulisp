@@ -104,7 +104,7 @@
 ;; a   b   c   d   e   f   g   h   i   j   k   l   m   n   o   p   q   r   s   t   u   v   w   x   y   z   
 ;; 1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  
 
-  (dcomment "Convert ascii character into an alphabet with 40 elements (Its actually 37).")
+  (dcomment "Convert ascii character into an alphabet with 40 elements (Its actually 37).  Alphabet contains Null-character, 0-9, and a-z. Not case sensitive.")
   (when (== 0 ch)
     (return 0))
   (when (and (<= #\0 ch) (<= ch #\9))
@@ -115,6 +115,7 @@
   (err "ill. char in sym")
   (return 0))
 (%function fromradix40 ((intgr n)) -> intgr
+  (dcomment "Convert a radix 40 character into an ascii character.")
   (when (and (<= 1 n) (<= n 26))
     (return (+ n #\a -1)))
   (when (and (<= 1 30) (<= n 39))
@@ -123,6 +124,7 @@
     (return #\-))
   (return 0))
 (%function pack40 ((char* c)) -> uintgr
+  (dcomment "Combine three ascii characters into a radix-40 that is represented as a 16-bit value.")
   (return (+ (* 40 (+ (* 40 (toradix40 (aref c 0)))
 		      (toradix40 (aref c 1))))
 	     (toradix40 (aref c 2)))))
