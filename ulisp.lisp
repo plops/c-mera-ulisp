@@ -425,6 +425,16 @@ fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
   (mapcar #'get-builtin-max l))
 
 (defmacro gen-builtin-min-max-clists ()
+"Emit C code to define arrays containing the min and max number of
+arguments for the functions. Example output:
+
+const uintgr builtin_special_par_min[9] = { 1, 1, 1, 2, 0, 2, 0, 0, 1 };
+const uintgr builtin_special_par_max[9] = { 2, 2, 1, 2, 127, 2, 127, 127, 1 };
+const uintgr builtin_tailrec_par_min[6] = { 0, 0, 0, 2, 0, 0 };
+const uintgr builtin_tailrec_par_max[6] = { 127, 127, 127, 3, 127, 127 };
+const uintgr builtin_normalfunc_par_min[9] = { 0, 2, 1, 1, 2, 1, 1, 2, 1 };
+const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
+"
   `(cl:progn
      (use-variables
       builtin-special-par-min
@@ -441,13 +451,7 @@ fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
 			  collect
 			  `(const uintgr (aref ,(intern (string-upcase (format nil "builtin-~a-par-~a" target val)))
 					   (cl:length ,global))
-				  (macroexpand #'clist (,func ,global))
-					;(clist (cl:funcall ,fun ,global))
-				  ))))))
-
-
-(macroexpand #')
-
+				  (clist ,@(eval `(cl:funcall ,func ,global)))))))))
 
 
 ;; const uintgr builtin_special_par_min[9];
