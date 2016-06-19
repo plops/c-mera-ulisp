@@ -426,10 +426,6 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 		    
 		    (typedef cons_object* o)
 		    
-		    (comment "Global variables")
-		    
-		    (gen-builtin-strings)
-		    (gen-builtin-min-max-clists)
 		    
 		    (comment "#undef NULL" :prefix "")
 
@@ -447,7 +443,12 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 		    
 		    (comment "forward declarations")
 		    (gen-builtin-forward-declaration)
-
+		    (comment "Global variables")
+		    
+		    (gen-builtin-strings)
+		    (gen-builtin-min-max-clists)
+		    
+		    
 		    (gen-builtin-fptr-clists)
 		    
 		    (gen-builtin-code)

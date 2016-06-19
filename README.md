@@ -110,7 +110,7 @@ Lattice FPGA with icestorm.
 One thing I learned is that the style of ulisp is not type safe. It is
 very easy to confuse a number object for an object of symbol type. It
 think the best approach to ensure functional correctness is to
-implement a test cases for many of the functions.
+implement test cases for as many of the functions as possible.
 
 Another issue with Lisp, that I haven't really thought about before is
 real-time performance. The current code does not seem to be
