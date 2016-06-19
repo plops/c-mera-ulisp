@@ -19,45 +19,11 @@ A few more functions are required to implement the runtime. I call
 those boiler plate functions. These are:
 
 ```
-repl
-_print_object
-read_rest
-nextitem
-_getc
-init_env
-_eval
-cdrx
-carx
-_apply
-lookupfn
-lookupmax
-lookupmin
-builtin
-listlength
-closure
-findtwin
-findvalue
-value
-_eq
-issymbol
-_integer
-name
-lookupstring
-digitvalue
-pack40
-fromradix40
-toradix40
-gc
-sweep
-mark_object
-_symbol
-_cons
-_number
-_alloc
-erro
-init_workspace
-_read
-_eval
+repl _print_object read_rest nextitem _getc init_env _eval cdrx
+carx _apply lookupfn lookupmax lookupmin builtin listlength closure
+findtwin findvalue value _eq issymbol _integer name lookupstring
+digitvalue pack40 fromradix40 toradix40 gc sweep mark_object _symbol
+_cons _number _alloc erro init_workspace _read _eval
 ```
 
 Note that I prefixed some functions with an underscore `_` to avoid
@@ -98,14 +64,47 @@ o fn_add(o args, o env)
 }
 ```
 
+Let's have a look at the macro `%dolist`. In the first implementation
+I expand into a while loop with a `,@body` expansion in the middle and
+the cdr propagation at the end. Later I added a hygienic variable
+using `gensym` to ensure that the `list` argument is only evaluated
+once.
+
+
+```
+(defmacro %dolist ((item list) &body body)
+  "The list can be an expression like (cons-cdr bla). It will only be evaluated once."
+  (cl:let ((e (intern (format nil "~a" (gensym)))))
+    (cl:if (cl:listp list)
+        `(decl ((o ,e ,list))
+           (while (!= NULL ,e)
+             (decl ((o ,item (cons-car ,e)))
+               ,@body)
+             (set ,e (cons-cdr ,e))))
+        `(while (!= NULL ,list)
+           (decl ((o ,item (cons-car ,list)))
+             ,@body)
+           (set ,list (cons-cdr ,list))))))
+```
+
+## Intermediate result:
+
+One thing I learned is that the style of ulisp is not type safe. It is
+very easy to confuse a number object for an object of symbol type. It
+think the best approach to ensure functional correctness is to
+implement a test cases for many of the functions.
 
 
 
 ## Goals:
 
-Currently I write docstrings for 
+I changed the way symbol strings are stored. Perhaps I can use a hash
+based method to ensure cycle exact name lookups. Currently I write
+docstrings for the boiler plate functions. Because these are the
+hardest to get my head around. Eventually I hope to export this
+documentation using pax-mgl.
 
-Eventually, I hope to understand it enough to port ulisp to a variety
+Eventually, I hope to understand ulisp enough to port it to a variety
 of microcontrollers.  I would like to investigate the feasibility of
 implementing a swank interface, so that I can communicate with the
 Lisp using Emacs/SLIME.
