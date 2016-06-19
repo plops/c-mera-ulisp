@@ -68,24 +68,18 @@ Let's have a look at the macro `%dolist`. In the first implementation
 I expand into a while loop with a `,@body` expansion in the middle and
 the cdr propagation at the end. Later I added a hygienic variable
 using `gensym` to ensure that the `list` argument is only evaluated
-once.
+once (not shown here). 
 
 
 ```
 (defmacro %dolist ((item list) &body body)
-  "The list can be an expression like (cons-cdr bla). It will only be evaluated once."
-  (cl:let ((e (intern (format nil "~a" (gensym)))))
-    (cl:if (cl:listp list)
-        `(decl ((o ,e ,list))
-           (while (!= NULL ,e)
-             (decl ((o ,item (cons-car ,e)))
-               ,@body)
-             (set ,e (cons-cdr ,e))))
-        `(while (!= NULL ,list)
-           (decl ((o ,item (cons-car ,list)))
-             ,@body)
-           (set ,list (cons-cdr ,list))))))
+  `(while (!= NULL ,list)
+     (decl ((o ,item (cons-car ,list)))
+       ,@body)
+     (set ,list (cons-cdr ,list))))
 ```
+
+The macro `deffunction` stores the 
 
 ## Intermediate result:
 
