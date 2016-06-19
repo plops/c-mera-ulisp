@@ -23,11 +23,24 @@ A few more functions are required to implement the runtime. I call
 those boiler plate functions. These are:
 
 ```
-repl _print_object read_rest nextitem _getc init_env _eval cdrx
-carx _apply lookupfn lookupmax lookupmin builtin listlength closure
-findtwin findvalue value _eq issymbol _integer name lookupstring
-digitvalue pack40 fromradix40 toradix40 gc sweep mark_object _symbol
-_cons _number _alloc erro init_workspace _read _eval
+init_env init_workspace _alloc
+_symbol _cons _number  _integer
+gc sweep mark_object
+
+read_rest nextitem _getc
+
+repl _print_object erro name lookupstring
+pack40 fromradix40 toradix40
+
+_apply _eval
+
+closure
+ 
+cdrx carx listlength issymbol _eq
+
+lookupfn builtin lookupmax lookupmin 
+
+findtwin findvalue value digitvalue 
 ```
 
 Note that I prefixed some functions with an underscore `_` to avoid
