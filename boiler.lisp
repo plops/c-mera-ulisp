@@ -45,7 +45,7 @@
     (set (%cdr ptr) arg2)
     (return ptr)))
 (%function _symbol ((uintgr name)) -> o
-  (dcomment "symbol")
+  (dcomment "Allocate an object and store the symbol (with up to 3 characters) inside.")
   (decl ((cons_symbol* ptr
 		       (cast 
 			'cons_symbol*
@@ -54,6 +54,7 @@
     (set (cons-name ptr) name)
     (return (cast o ptr))))
 (%function mark-object ((o obj)) -> void
+  (dcomment "Set the most significant bit of the pointer to 1 (mark). Iterate through car and cdr of obj.")
   (when (== 0 obj)
     (return))
   (when (marked obj)
@@ -66,6 +67,7 @@
       (funcall mark-object arg)
       (funcall mark-object (%cdr obj)))))
 (%function sweep () -> void
+  (dcomment "Clear freespace, go through the workspace and attach all unmarked objects to freespace.")
   (set freelist 0)
   (set freespace 0)
   (for ((int i (- workspace-size 1)) (<= 0 i) (dec i))
@@ -78,6 +80,7 @@
 	    (set freelist obj)
 	    (inc freespace))))))
 (%function gc ((o form) (o env)) -> void
+  (dcomment "Mark all objects in the lists tee, global-env, gc-stack, the parameters form and env and reclaim space from objects that haven't been marked.")
   (mark-object tee)
   (mark-object global-env)
   (mark-object gc-stack)
@@ -86,6 +89,7 @@
   (funcall sweep))
 
 (%function toradix40 ((intgr ch)) -> intgr
+  (dcomment "")
   (when (== 0 ch)
     (return 0))
   (when (and (<= #\0 ch) (<= ch #\9))
