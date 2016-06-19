@@ -149,3 +149,22 @@ I would like to investigate the feasibility of implementing a swank
 interface, so that I can communicate with the Lisp using Emacs/SLIME.
 
 How to make this run on a Lattice iCE40HX-8K FPGA?
+
+
+## Hacking
+
+Currently I'm trying to store name strings in 4 arrays. I will have to
+change a few functions, which currently assume all symbols to be
+present in one array. These functions are:
+
+```
+builtin string -> idx
+lookupstring idx -> string
+name obj -> char*buffer
+lookupmin idx -> int
+lookupmax idx -> int
+lookupfn  idx -> fptr
+init_env nextitem builtin-function-name-to-number symbol -> idx
+_eval apply
+
+```
