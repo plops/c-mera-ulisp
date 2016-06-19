@@ -186,6 +186,7 @@
   (return (and (== *symbol* (cons-type obj))
 	       (== n (cons-name obj)))))
 (%function _eq ((o a) (o b)) -> int
+  (dcomment "Compare two objects. They are considered the same if both objects are the same pointer, if both are symbols with identical names or if both are numbers with identical values.")
   (return (or
 	    (== a b)
 	    (and (== *symbol* (cons-type a))
