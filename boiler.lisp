@@ -170,7 +170,7 @@
   (when (!= *symbol* (cons-type obj))
     (err "name"))
   (decl ((uintgr x (cons-name obj)))
-    (when (< x (builtin-function))
+    (when (< x (cl:length *builtin-declaration*))
       (return (funcall lookupstring x)))
     (for ((int n 2) (<= 0 n) (dec n))
       (set (aref buffer n) (funcall fromradix40 (% x 40)))
@@ -261,11 +261,11 @@
 (%function builtin ((char* name)) -> int
   (dcomment "Find the index of a builtin function with the name given as a string.")
   (decl ((intgr entry 0))
-    (while (< entry (cl:length *builtin-function*))
+    (while (< entry (cl:length *builtin-declaration*))
       (when (== 0 (funcall strcmp name (aref builtin-name entry)))
 	(return entry))
       (inc entry))
-    (return (cl:length *builtin-function*))))
+    (return (cl:length *builtin-declaration*))))
 (%function lookupmin ((uintgr idx)) -> int
   (dcomment "Return the minimum number of arguments for a builtin function with index IDX.")
   (comment "(void) name;" :prefix "") ;; FIXME
@@ -283,7 +283,7 @@
   (when (== *symbol* (cons-type function))
     (decl ((uintgr name (cons-name function))
 	   (int nargs (funcall listlength args)))
-      (when (<= (builtin-function) name)
+      (when (< (cl:length *builtin-declaration*) name)
 	(err "not a function"))
       (when (< nargs (funcall lookupmin name))
 	(err "too few args"))
@@ -295,8 +295,7 @@
 	       args *env))))
   (when (and (%listp function)
 	     (funcall issymbol (%car function)
-		      (builtin-function-name-to-number
-		       'lambda)))
+		      (get-builtin-idx-from-name 'lambda)))
     (set function (%cdr function))
     (decl ((o
 	    result
@@ -305,8 +304,7 @@
       (return (funcall _eval result *env))))
   (when (and (%listp function)
 	     (funcall issymbol (%car function)
-		      (builtin-function-name-to-number
-		       'closure)))
+		      (get-builtin-idx-from-name 'closure)))
     (set function (%cdr function))
     (decl ((o
 	    result
@@ -350,7 +348,7 @@
       (return form))
     (when (== *symbol* (cons-type form))
       (decl ((uintgr name (cons-name form)))
-	(when (== (builtin-function-name-to-number 'nil)
+	(when (== (get-builtin-idx-from-name 'nil)
 		  name)
 	  (dcomment "nil")
 	  (return cnil))
@@ -362,7 +360,7 @@
 	  (if (!= NULL pair)
 	      (progn (dcomment "sym cdr pair2")
 		     (return (%cdr pair)))
-	      (if (<= name (cl:length *builtin-function*))
+	      (if (<= name (cl:length *builtin-declaration*))
 		  (progn (dcomment "form") (return form))
 		  (err "undefined variable"))))))
     (comment "it's a list")
@@ -372,7 +370,7 @@
       (when (== *symbol* (cons-type function))
 	(decl ((uintgr name (cons-name function)))
 	  
-	  (when (== (builtin-function-name-to-number 'let)
+	  (when (== (get-builtin-idx-from-name 'let)
 		    name)
 	    ;; FIXME leaving out LETSTAR
 	    
@@ -396,7 +394,7 @@
 	      (set TC 1)
 	      (comment "goto EVALJUMP;" :prefix "")))
 	  
-	  (when (== (builtin-function-name-to-number 'lambda) name)
+	  (when (== (get-builtin-idx-from-name 'lambda) name)
 	    (dcomment "process LAMBDA")
 	    (when (== NULL env)
 	      (dcomment "lambda nil env")
@@ -415,17 +413,17 @@
 			      _cons
 			      (funcall
 			       _symbol
-			       (builtin-function-name-to-number
+			       (get-builtin-idx-from-name
 				'closure))
 			      (funcall _cons envcopy args))))))
 	  
-	  (when (and (< (builtin-function-name-to-number 'f_spec) name)
-		     (< name (builtin-function-name-to-number 'f_tail)))
+	  (when (and (< (get-builtin-idx-from-name 'f_spec) name)
+		     (< name (get-builtin-idx-from-name 'f_tail)))
 	    (dcomment "process SPECIAL form")
 	    (return (funcall (cast 'fn_ptr_type (funcall lookupfn name))
 			     args env)))
-	  (when (and (< (builtin-function-name-to-number 'f_tail) name)
-		     (< name (builtin-function-name-to-number 'f_fun)))
+	  (when (and (< (get-builtin-idx-from-name 'f_tail) name)
+		     (< name (get-builtin-idx-from-name 'f_fun)))
 	    (dcomment "process TAIL CALL form")
 	    (set form (funcall (cast 'fn_ptr_type (funcall lookupfn name))
 			       args env))
@@ -455,7 +453,7 @@
 	    (set args (%cdr head))
 	    (when (== *symbol* (cons-type function))
 	      (decl ((uintgr name (cons-name function)))
-		(if (<= (cl:length *builtin-function*) name)
+		(if (<= (cl:length *builtin-declaration*) name)
 		    (err "not a function"))
 		(if (< nargs (funcall lookupmin name))
 		    (err "too few args"))
@@ -470,7 +468,7 @@
 			 (return result)))))
 	    (when (and (%listp function)
 		       (funcall issymbol (%car function)
-				(builtin-function-name-to-number 'lambda)))
+				(get-builtin-idx-from-name 'lambda)))
 	      (set form (funcall closure TCstart
 				 fname NULL (%cdr function) args
 				 (addr-of env)))
@@ -480,7 +478,7 @@
 	      (comment "goto EVALJUMP;" :prefix ""))
 	    (when (and (%listp function)
 		       (funcall issymbol (%car function)
-				(builtin-function-name-to-number 'closure)))
+				(get-builtin-idx-from-name 'closure)))
 	      (set function (%cdr function))
 	      (set form (funcall closure TCstart
 				 fname (%car function) (%cdr function) args
@@ -495,7 +493,7 @@
 (%function init-env () -> void
   (dcomment "Clear globale environment, initialize TEE to be the symbol that points to the TEE symbol number.")
   (set global-env NULL)
-  (set tee (funcall _symbol (builtin-function-name-to-number 'tee))))
+  (set tee (funcall _symbol (get-builtin-idx-from-name 'tee))))
 
 (%function _getc () -> int
   (dcomment "If lastchar is 0, blocking read of a character, followed by a print. If lastchar is not 0, return its value and clear it.")
@@ -584,10 +582,10 @@
 	  (dcomment "number")
 	  (return (funcall _number (* sign result))))
 	(decl ((intgr x (funcall builtin buffer)))
-	  (when (== x (builtin-function-name-to-number 'nil))
+	  (when (== x (get-builtin-idx-from-name 'nil))
 	    (dcomment "nil")
 	    (return cnil))
-	  (if (< x (cl:length *builtin-function*))
+	  (if (< x (cl:length *builtin-declaration*))
 	      (progn (dcomment "builtin symbol")
 		     (return (funcall _symbol x)))
 	      (progn (dcomment "usersymbol")
@@ -609,7 +607,7 @@
 		 (funcall
 		  _cons
 		  (funcall _symbol
-			   (builtin-function-name-to-number 'quote))
+			   (get-builtin-idx-from-name 'quote))
 		  (funcall _cons arg1 NULL))
 		 (funcall read-rest)))))
     (when (== (cast 'o *bra*) item)
@@ -621,7 +619,7 @@
       (funcall printf "nil")
       (if (and (%listp form)
 	       (funcall issymbol (%car form)
-			(builtin-function-name-to-number 'closure)))
+			(get-builtin-idx-from-name 'closure)))
 	  (funcall printf "<closure>")
 	  (if (%listp form)
 	      (progn
@@ -652,7 +650,7 @@
     (when (== (cast 'o *quo*) item)
       (return (funcall _cons
 		       (funcall _symbol
-				(builtin-function-name-to-number 'quote))
+				(get-builtin-idx-from-name 'quote))
 		       (funcall _cons (funcall _read) NULL))))
     (return item)))
 (%function repl ((o env)) -> void

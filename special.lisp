@@ -13,7 +13,7 @@
 	     _cons
 	     (funcall
 	      _symbol
-	      (builtin-function-name-to-number 'lambda))
+	      (get-builtin-idx-from-name 'lambda))
 	     (%cdr args)))
 	   (o pair
 	      (funcall value (cons-name var)
