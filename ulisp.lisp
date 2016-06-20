@@ -205,6 +205,8 @@ this: ('decf' 'incf' 'pop' 'push' 'loop' 'setq' 'defvar' 'defun'
 #+nil
 (calc-builtin-name-max-len *builtin-declaration*)
 
+(defparameter *builtin-declaration* nil)
+
 (defmacro gen-builtin-strings ()
 "Create string array like this:
 const char builtin_name[53][7] = { 'nil', 'tee', 'lambda', 'let',
