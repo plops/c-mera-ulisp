@@ -43,7 +43,7 @@
 	(cast 'o
 	      (& (cast 'uintgr (cons-car ,x))
 		 ;; #x7fff
-		 (- *mark-bit* 1)
+		 (- *mark-bit* 1) 
 		 ))))
 
 (defmacro err (&rest rest)
