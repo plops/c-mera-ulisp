@@ -381,6 +381,12 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
   (load "normfunc")
   (load "boiler"))
 
+(defparameter *builtin-declaration*
+ (append (mapcar #'(lambda (x) (push '(:type symbol) x)) *builtin-symbol*)
+	 (mapcar #'(lambda (x) (push '(:type special) x)) *builtin-special*)
+	 (mapcar #'(lambda (x) (push '(:type tailrec) x)) *builtin-tailrec*)
+	 (mapcar #'(lambda (x) (push '(:type normalfunc) x)) *builtin-normalfunc*)))
+
 #+nil
 (let ((workspace-size 315)
       (buflen  ;; length of longest symbol 
