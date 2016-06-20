@@ -208,7 +208,7 @@ this: ('decf' 'incf' 'pop' 'push' 'loop' 'setq' 'defvar' 'defun'
 const char builtin_name[53][7] = { 'nil', 'tee', 'lambda', 'let', 'closure', 'decf', 'incf', 'pop', 'push', 'loop', 'setq', 'defvar', 'defun', 'quote', 'decf', 'incf', 'pop', 'push', 'loop', 'setq', 'defvar', 'defun', 'quote', 'or', 'and', 'cond', 'if', 'return', 'progn', 'or', 'and', 'cond', 'if', 'return', 'progn', 'add', 'apply', 'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not', 'add', 'apply', 'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not' };
 "
   `(cl:progn
-     (use-variables
+     (use-variables 
        builtin-name)
      (decl ((const char (aref builtin-name
 			  ,(cl:length *builtin-declaration*)
