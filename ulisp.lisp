@@ -273,30 +273,24 @@ Note that the symbols (the first 5 elements) have null pointers."
 "Emit C code to define arrays containing the min and max number of
 arguments for the functions. Example output:
 
-const uintgr builtin_special_par_min[9] = { 1, 1, 1, 2, 0, 2, 0, 0, 1 };
-const uintgr builtin_special_par_max[9] = { 2, 2, 1, 2, 127, 2, 127, 127, 1 };
-const uintgr builtin_tailrec_par_min[6] = { 0, 0, 0, 2, 0, 0 };
-const uintgr builtin_tailrec_par_max[6] = { 127, 127, 127, 3, 127, 127 };
-const uintgr builtin_normalfunc_par_min[9] = { 0, 2, 1, 1, 2, 1, 1, 2, 1 };
-const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
+const char builtin_par_max[53] = { 0, 0, 0, 0, 0, 2, 2, 1, 2, 127, 2,
+127, 127, 1, 2, 2, 1, 2, 127, 2, 127, 127, 1, 127, 127, 127, 3, 127,
+127, 127, 127, 127, 3, 127, 127, 127, 127, 1, 1, 2, 1, 1, 2, 1, 127,
+127, 1, 1, 2, 1, 1, 2, 1 };
+
+const char builtin_par_min[53] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 2, 0,
+0, 1, 1, 1, 1, 2, 0, 2, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 0,
+0, 2, 1, 1, 2, 1, 1, 2, 1, 0, 2, 1, 1, 2, 1, 1, 2, 1 };
 "
   `(cl:progn
      (use-variables
-      builtin-special-par-min
-      builtin-tailrec-par-min
-      builtin-normalfunc-par-min
-      builtin-special-par-max
-      builtin-tailrec-par-max
-      builtin-normalfunc-par-max)
-     (decl ,(loop for target in '(special tailrec normalfunc)
-		 and global in '(*builtin-special* *builtin-tailrec* *builtin-normalfunc*)
-	       nconc
-		 (cl:loop for val in '(min max)
-			  and func in (list #'calc-builtin-min #'calc-builtin-max)
-			  collect
-			  `(const char (aref ,(intern (string-upcase (format nil "builtin-~a-par-~a" target val)))
-					   (cl:length ,global))
-				  (clist ,@(eval `(cl:funcall ,func ,global)))))))))
+      builtin-par-min
+      builtin-par-max)
+     (decl ((const char (aref builtin-par-max (cl:length *builtin-declaration*))
+		   (clist ,@(substitute 0 nil (calc-builtin-max *builtin-declaration*))))
+	    (const char (aref builtin-par-min (cl:length *builtin-declaration*))
+		   (clist ,@(substitute 0 nil (calc-builtin-min *builtin-declaration*))))))))
+
 
 
 (defmacro ensure-symbol (var)
