@@ -199,34 +199,21 @@ this: ('decf' 'incf' 'pop' 'push' 'loop' 'setq' 'defvar' 'defun'
 	  l))
 
 #+nil
-(calc-builtin-name-list *builtin-special*)
+(calc-builtin-name-list *builtin-declaration*)
+#+nil
+(calc-builtin-name-max-len *builtin-declaration*)
 
 (defmacro gen-builtin-strings ()
 "Create strings like this:
-const char builtin_special_name[9][6] = { 'decf', 'incf', 'pop', 'push', 'loop', 'setq', 'defvar', 'defun', 'quote' };
-const char builtin_tailrec_name[6][6] = { 'or', 'and', 'cond', 'if', 'return', 'progn' };
-const char builtin_normalfunc_name[9][5] = { 'add', 'apply', 'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not' };
+const char builtin_name[53][7] = { 'nil', 'tee', 'lambda', 'let', 'closure', 'decf', 'incf', 'pop', 'push', 'loop', 'setq', 'defvar', 'defun', 'quote', 'decf', 'incf', 'pop', 'push', 'loop', 'setq', 'defvar', 'defun', 'quote', 'or', 'and', 'cond', 'if', 'return', 'progn', 'or', 'and', 'cond', 'if', 'return', 'progn', 'add', 'apply', 'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not', 'add', 'apply', 'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not' };
 "
   `(cl:progn
      (use-variables
-       builtin-special-name
-       builtin-tailrec-name
-       builtin-normalfunc-name)
-     (decl ((const char (aref builtin-special-name
-			  ,(cl:length *builtin-special*)
-			  ,(calc-builtin-name-max-len *builtin-special*)
-			  )
-		  (clist ,@(calc-builtin-name-list *builtin-special*)))
-	   (const char (aref builtin-tailrec-name
-			 ,(cl:length *builtin-tailrec*)
-			 ,(calc-builtin-name-max-len *builtin-tailrec*)
-			 )
-		  (clist ,@(calc-builtin-name-list *builtin-tailrec*)))
-	   (const char (aref builtin-normalfunc-name
-			 ,(cl:length *builtin-normalfunc*)
-			 ,(calc-builtin-name-max-len *builtin-normalfunc*))
-		  (clist ,@(calc-builtin-name-list *builtin-normalfunc*))))
-      )))
+       builtin-name)
+     (decl ((const char (aref builtin-name
+			  ,(cl:length *builtin-declaration*)
+			  ,(calc-builtin-name-max-len *builtin-declaration*))
+		  (clist ,@(calc-builtin-name-list *builtin-declaration*)))))))
 
 #+nil
 (gen-builtin-strings)
@@ -475,7 +462,7 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 		    
 		    (gen-builtin-fptr-clists)
 		    
-		    (gen-builtin-code)
+		    ;(gen-builtin-code)
 		    
 		    (function main ((int argc) (char** argv)) -> int
 		      (funcall init-workspace)
