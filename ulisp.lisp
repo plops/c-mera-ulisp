@@ -153,6 +153,8 @@ definitions, the C code and some string arrays."
   (second (assoc :name alist)))
 (defun get-builtin-code (alist)
   (second (assoc :code alist)))
+(defun get-builtin-type (alist)
+  (second (assoc :type alist)))
 
 (defmacro gen-builtin-forward-declaration ()
   "Generate forward declarations for all the functions in the C file."
@@ -204,8 +206,14 @@ this: ('decf' 'incf' 'pop' 'push' 'loop' 'setq' 'defvar' 'defun'
 (calc-builtin-name-max-len *builtin-declaration*)
 
 (defmacro gen-builtin-strings ()
-"Create strings like this:
-const char builtin_name[53][7] = { 'nil', 'tee', 'lambda', 'let', 'closure', 'decf', 'incf', 'pop', 'push', 'loop', 'setq', 'defvar', 'defun', 'quote', 'decf', 'incf', 'pop', 'push', 'loop', 'setq', 'defvar', 'defun', 'quote', 'or', 'and', 'cond', 'if', 'return', 'progn', 'or', 'and', 'cond', 'if', 'return', 'progn', 'add', 'apply', 'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not', 'add', 'apply', 'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not' };
+"Create string array like this:
+const char builtin_name[53][7] = { 'nil', 'tee', 'lambda', 'let',
+'closure', 'decf', 'incf', 'pop', 'push', 'loop', 'setq', 'defvar',
+'defun', 'quote', 'decf', 'incf', 'pop', 'push', 'loop', 'setq',
+'defvar', 'defun', 'quote', 'or', 'and', 'cond', 'if', 'return',
+'progn', 'or', 'and', 'cond', 'if', 'return', 'progn', 'add', 'apply',
+'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not', 'add', 'apply',
+'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not' };
 "
   `(cl:progn
      (use-variables 
@@ -218,33 +226,40 @@ const char builtin_name[53][7] = { 'nil', 'tee', 'lambda', 'let', 'closure', 'de
 #+nil
 (gen-builtin-strings)
 
-(defun calc-builtin-fptr-list (prefix l)
+(defun calc-builtin-fptr-list (l)
   "PREFIX is sp_, tf_ or fn_. L is the global list with the functions,
 e.g. *builtin-special*. Example output: (sp_decf sp_incf sp_pop
 sp_push sp_loop sp_setq sp_defvar sp_defun sp_quote)"
-  (mapcar #'(lambda (x) (intern (string-upcase (format nil "~a~a" prefix x))))
-	  (mapcar #'get-builtin-name l)))
+  (mapcar #'(lambda (x)
+	      (let ((prefix (ecase (get-builtin-type x)
+			      (symbol nil)
+			      (special "sp_")
+			      (tailrec "tf_")
+			      (normalfunc "fn_"))))
+		(cl:if prefix
+		       (intern (string-upcase (format nil "~a~a" prefix (get-builtin-name x))))
+		       0)))
+	  l))
 
 (defmacro gen-builtin-fptr-clists ()
-  "Create arrays of function pointers, like this:
-fn_ptr_type builtin_special_fptr[9] = { sp_decf, sp_incf, sp_pop,
-sp_push, sp_loop, sp_setq, sp_defvar, sp_defun, sp_quote };
-fn_ptr_type builtin_tailrec_fptr[6] = { tf_or, tf_and, tf_cond, tf_if,
-tf_return, tf_progn };
-fn_ptr_type builtin_normalfunc_fptr[9] = { fn_add, fn_apply, fn_cdr,
-fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
-"
+  "Create array of function pointers, like this:
+fn_ptr_type builtin_fptr[53] = { 0, 0, 0, 0, 0, sp_decf, sp_incf,
+sp_pop, sp_push, sp_loop, sp_setq, sp_defvar, sp_defun, sp_quote,
+sp_decf, sp_incf, sp_pop, sp_push, sp_loop, sp_setq, sp_defvar,
+sp_defun, sp_quote, tf_or, tf_and, tf_cond, tf_if, tf_return,
+tf_progn, tf_or, tf_and, tf_cond, tf_if, tf_return, tf_progn, fn_add,
+fn_apply, fn_cdr, fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not,
+fn_add, fn_apply, fn_cdr, fn_car, fn_eq, fn_listp, fn_atom, fn_cons,
+fn_not };
+Note that the symbols (the first 5 elements) have null pointers."
   `(cl:progn
      (use-variables
-       builtin-special-fptr
-       builtin-tailrec-fptr
-       builtin-normalfunc-fptr)
-     (decl ((fn_ptr_type (aref builtin-special-fptr ,(cl:length *builtin-special*))
-		  (clist ,@(calc-builtin-fptr-list "sp_" *builtin-special*)))
-	   (fn_ptr_type (aref builtin-tailrec-fptr ,(cl:length *builtin-tailrec*))
-		  (clist ,@(calc-builtin-fptr-list "tf_" *builtin-tailrec*)))
-	   (fn_ptr_type (aref builtin-normalfunc-fptr ,(cl:length *builtin-normalfunc*))
-		  (clist ,@(calc-builtin-fptr-list "fn_" *builtin-normalfunc*)))))))
+       builtin-fptr)
+     (decl ((fn_ptr_type (aref builtin-fptr ,(cl:length *builtin-declaration*))
+		  (clist ,@(calc-builtin-fptr-list *builtin-declaration*)))))))
+
+#+nil
+(gen-builtin-fptr-clists)
 
 ;; const uintgr builtin_par_max[33] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
