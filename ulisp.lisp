@@ -13,6 +13,9 @@
 ;;  - garbage collection marks objects by setting top bit of leftmost word
 ;;    (never more than 32 kBytes of RAM)
 
+;; look at the data section:
+;; objdump -s -j .rodata ulisp.o
+
 (defmacro deftstruct (name &body body)
   `(progn
      (typedef struct ,name ,name)
@@ -47,8 +50,8 @@
 		 ))))
 
 (defmacro err (&rest rest)
-  `(progn (funcall erro ,(cl:substitute #\space #\newline (cl:format nil "~a" rest)))
-	  (funcall printf "EXIT\\n")
+  `(progn ;(funcall erro ,(cl:substitute #\space #\newline (cl:format nil "~a" rest)))
+	  ;(funcall printf "EXIT\\n")
 	  (funcall exit 0)))
 
 (defparameter *none* 0)
