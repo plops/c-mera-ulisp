@@ -379,13 +379,31 @@ const uintgr builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
   (load "special")
   (load "tailrec")
   (load "normfunc")
-  (load "boiler"))
+  (load "boiler")
+  (defparameter *builtin-declaration*
+    (append (mapcar #'(lambda (x) (push '(:type symbol) x)) *builtin-symbol*)
+	    (mapcar #'(lambda (x) (push '(:type special) x)) *builtin-special*)
+	    (mapcar #'(lambda (x) (push '(:type tailrec) x)) *builtin-tailrec*)
+	    (mapcar #'(lambda (x) (push '(:type normalfunc) x)) *builtin-normalfunc*))))
 
-(defparameter *builtin-declaration*
- (append (mapcar #'(lambda (x) (push '(:type symbol) x)) *builtin-symbol*)
-	 (mapcar #'(lambda (x) (push '(:type special) x)) *builtin-special*)
-	 (mapcar #'(lambda (x) (push '(:type tailrec) x)) *builtin-tailrec*)
-	 (mapcar #'(lambda (x) (push '(:type normalfunc) x)) *builtin-normalfunc*)))
+(defmacro is-idx-in-type-range (idx type)
+    "This emits a range check to test whether an index IDX into
+*builtin-declaration* and therefore the builtin function name table is
+of TYPE symbol, special, tailrec or normalfunc.
+Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
+    (declare (type (member symbol special tailrec normalfunc) type))
+ (let ((start-idx 
+	(position type
+		  (mapcar #'(lambda (x) (second (assoc :type x)))
+			  *builtin-declaration*)
+		  :from-end nil))
+       (end-idx (position type
+			  (mapcar #'(lambda (x) (second (assoc :type x)))
+				  *builtin-declaration*)
+			  :from-end t)))
+   `(and (<= ,start-idx ,idx)
+	 (<= ,idx ,end-idx))))
+
 
 #+nil
 (let ((workspace-size 315)
