@@ -478,6 +478,8 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 		    (gen-builtin-code)
 		    
 		    (function main ((int argc) (char** argv)) -> int
+		      (comment "(void) argc;" :prefix "")
+		      (comment "(void) argv;" :prefix "")
 		      (funcall init-workspace)
 		      (funcall init-env)
 		      (repl NULL)

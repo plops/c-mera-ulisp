@@ -251,7 +251,7 @@
     (when (!= NULL args)
       (err "too many params"))
     (comment "do implicit progn")
-    (return (funcall tf-progn function *env))))
+    (return (funcall tf_progn function *env))))
 (%function listlength ((o list)) -> int
   (dcomment "Return the length of a list.")
   (decl ((int len 0))
