@@ -400,6 +400,8 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
    `(and (<= ,start-idx ,idx)
 	 (<= ,idx ,end-idx))))
 
+(defun get-builtin-idx-from-name (symb)
+  (cl:position symb (cl:mapcar #'get-builtin-name *builtin-declaration*)))
 
 #+nil
 (let ((workspace-size 315)
@@ -471,7 +473,7 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 		    
 		    (gen-builtin-fptr-clists)
 		    
-		    ;(gen-builtin-code)
+		    (gen-builtin-code)
 		    
 		    (function main ((int argc) (char** argv)) -> int
 		      (funcall init-workspace)
