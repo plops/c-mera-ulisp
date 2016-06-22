@@ -4,7 +4,7 @@
 
 ## Table of Contents
 
-- [1 Usage][797d]
+- [1 Intro][797d]
 - [2 Usage][ab00]
 
 ###### \[in package ULISP-DOC\]
@@ -12,7 +12,7 @@
 
 <a id='x-28ULISP-DOC-3A-40INTRO-SEC-20MGL-PAX-3ASECTION-29'></a>
 
-## 1 Usage
+## 1 Intro
 
 ## What is this?
 
@@ -287,5 +287,5 @@ _eval apply
     of TYPE symbol, special, tailrec or normalfunc.
     Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))
 
-  [797d]: #x-28ULISP-DOC-3A-40INTRO-SEC-20MGL-PAX-3ASECTION-29 "Usage"
+  [797d]: #x-28ULISP-DOC-3A-40INTRO-SEC-20MGL-PAX-3ASECTION-29 "Intro"
   [ab00]: #x-28ULISP-DOC-3A-40USAGE-SEC-20MGL-PAX-3ASECTION-29 "Usage"

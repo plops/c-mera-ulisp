@@ -16,7 +16,7 @@
 
 (in-package :ulisp-doc)
 
-(mgl-pax:defsection @intro-sec (:title "Usage")
+(mgl-pax:defsection @intro-sec (:title "Intro")
   "## What is this?
  
  I started from ulisp 1.0 (later 1.1) and tried to implement as few
