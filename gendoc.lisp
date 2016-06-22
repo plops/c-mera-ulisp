@@ -189,7 +189,18 @@
 
 (mgl-pax:defsection @usage-sec (:title "Usage")
   ""
-  (cg-user::calc-builtin-name-max-len function))
+  (cg-user::gen-builtin-forward-declaration macro)
+  (cg-user::gen-builtin-code macro)
+  (cg-user::calc-builtin-name-max-len function)
+  (cg-user::calc-builtin-name-list function)
+  (cg-user::gen-builtin-strings macro)
+  (cg-user::calc-builtin-fptr-list function)
+  (cg-user::gen-builtin-fptr-clists macro)
+  (cg-user::gen-builtin-min-max-clists macro)
+  (cg-user::%dolist macro)
+  (cg-user::%dolist2 macro)
+  (cg-user::is-idx-in-type-range macro)
+  )
 
 (mgl-pax:defsection @ulisp-manual (:title "Native USB manual")
   ""

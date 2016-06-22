@@ -187,12 +187,105 @@ _eval apply
 
 
 
+<a id='x-28CG-USER-3A-3AGEN-BUILTIN-FORWARD-DECLARATION-20-28MGL-PAX-3AMACRO-29-29'></a>
+
+- [macro] **cg-user::gen-builtin-forward-declaration** 
+
+    Generate forward declarations for all the functions in the C file.
+
+<a id='x-28CG-USER-3A-3AGEN-BUILTIN-CODE-20-28MGL-PAX-3AMACRO-29-29'></a>
+
+- [macro] **cg-user::gen-builtin-code** 
+
+    Emit the code for all the functions.
+
 <a id='x-28CG-USER-3A-3ACALC-BUILTIN-NAME-MAX-LEN-20FUNCTION-29'></a>
 
 - [function] **cg-user::calc-builtin-name-max-len** *L*
 
     Find the longest function name. The name doesn't include the
     prefix.
+
+<a id='x-28CG-USER-3A-3ACALC-BUILTIN-NAME-LIST-20FUNCTION-29'></a>
+
+- [function] **cg-user::calc-builtin-name-list** *L*
+
+    Generate a list of function names (without prefix) like
+    this: ('decf' 'incf' 'pop' 'push' 'loop' 'setq' 'defvar' 'defun'
+    'quote')
+
+<a id='x-28CG-USER-3A-3AGEN-BUILTIN-STRINGS-20-28MGL-PAX-3AMACRO-29-29'></a>
+
+- [macro] **cg-user::gen-builtin-strings** 
+
+    Create string array like this:
+    const char builtin\_name[53][7] = { 'nil', 'tee', 'lambda', 'let',
+    'closure', 'decf', 'incf', 'pop', 'push', 'loop', 'setq', 'defvar',
+    'defun', 'quote', 'decf', 'incf', 'pop', 'push', 'loop', 'setq',
+    'defvar', 'defun', 'quote', 'or', 'and', 'cond', 'if', 'return',
+    'progn', 'or', 'and', 'cond', 'if', 'return', 'progn', 'add', 'apply',
+    'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not', 'add', 'apply',
+    'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not' };
+
+<a id='x-28CG-USER-3A-3ACALC-BUILTIN-FPTR-LIST-20FUNCTION-29'></a>
+
+- [function] **cg-user::calc-builtin-fptr-list** *L*
+
+    PREFIX is sp*, tf* or fn\_. L is the global list with the functions,
+    e.g. *builtin-special*. Example output: (sp\_decf sp\_incf sp\_pop
+    sp\_push sp\_loop sp\_setq sp\_defvar sp\_defun sp\_quote)
+
+<a id='x-28CG-USER-3A-3AGEN-BUILTIN-FPTR-CLISTS-20-28MGL-PAX-3AMACRO-29-29'></a>
+
+- [macro] **cg-user::gen-builtin-fptr-clists** 
+
+    Create array of function pointers, like this:
+    fn\_ptr\_type builtin\_fptr[53][] = { 0, 0, 0, 0, 0, sp\_decf, sp\_incf,
+    sp\_pop, sp\_push, sp\_loop, sp\_setq, sp\_defvar, sp\_defun, sp\_quote,
+    sp\_decf, sp\_incf, sp\_pop, sp\_push, sp\_loop, sp\_setq, sp\_defvar,
+    sp\_defun, sp\_quote, tf\_or, tf\_and, tf\_cond, tf\_if, tf\_return,
+    tf\_progn, tf\_or, tf\_and, tf\_cond, tf\_if, tf\_return, tf\_progn, fn\_add,
+    fn\_apply, fn\_cdr, fn\_car, fn\_eq, fn\_listp, fn\_atom, fn\_cons, fn\_not,
+    fn\_add, fn\_apply, fn\_cdr, fn\_car, fn\_eq, fn\_listp, fn\_atom, fn\_cons,
+    fn\_not };
+    Note that the symbols (the first 5 elements) have null pointers.
+
+<a id='x-28CG-USER-3A-3AGEN-BUILTIN-MIN-MAX-CLISTS-20-28MGL-PAX-3AMACRO-29-29'></a>
+
+- [macro] **cg-user::gen-builtin-min-max-clists** 
+
+    Emit C code to define arrays containing the min and max number of
+    arguments for the functions. Example output:
+    
+    const char builtin\_par\_max[53][] = { 0, 0, 0, 0, 0, 2, 2, 1, 2, 127, 2,
+    127, 127, 1, 2, 2, 1, 2, 127, 2, 127, 127, 1, 127, 127, 127, 3, 127,
+    127, 127, 127, 127, 3, 127, 127, 127, 127, 1, 1, 2, 1, 1, 2, 1, 127,
+    127, 1, 1, 2, 1, 1, 2, 1 };
+    
+    const char builtin\_par\_min[53][] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 2, 0,
+    0, 1, 1, 1, 1, 2, 0, 2, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 0,
+    0, 2, 1, 1, 2, 1, 1, 2, 1, 0, 2, 1, 1, 2, 1, 1, 2, 1 };
+
+<a id='x-28CG-USER-3A-3A-25DOLIST-20-28MGL-PAX-3AMACRO-29-29'></a>
+
+- [macro] **cg-user::%dolist** *(ITEM LIST) &body BODY*
+
+    The list can be an expression like (cons-cdr bla). It will only be evaluated once.
+
+<a id='x-28CG-USER-3A-3A-25DOLIST2-20-28MGL-PAX-3AMACRO-29-29'></a>
+
+- [macro] **cg-user::%dolist2** *((E1 L1) (E2 L2)) &body BODY*
+
+    Go through two lists simultaneously
+
+<a id='x-28CG-USER-3A-3AIS-IDX-IN-TYPE-RANGE-20-28MGL-PAX-3AMACRO-29-29'></a>
+
+- [macro] **cg-user::is-idx-in-type-range** *IDX TYPE*
+
+    This emits a range check to test whether an index IDX into
+    *builtin-declaration* and therefore the builtin function name table is
+    of TYPE symbol, special, tailrec or normalfunc.
+    Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))
 
   [797d]: #x-28ULISP-DOC-3A-40INTRO-SEC-20MGL-PAX-3ASECTION-29 "Usage"
   [ab00]: #x-28ULISP-DOC-3A-40USAGE-SEC-20MGL-PAX-3ASECTION-29 "Usage"
