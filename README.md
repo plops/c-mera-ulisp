@@ -1,4 +1,18 @@
-# C-MERA-ULISP
+<a id='x-28ULISP-DOC-3A-40ULISP-MANUAL-20MGL-PAX-3ASECTION-29'></a>
+
+# Native USB manual
+
+## Table of Contents
+
+- [1 Usage][797d]
+- [2 Usage][ab00]
+
+###### \[in package ULISP-DOC\]
+
+
+<a id='x-28ULISP-DOC-3A-40INTRO-SEC-20MGL-PAX-3ASECTION-29'></a>
+
+## 1 Usage
 
 ## What is this?
 
@@ -8,7 +22,6 @@ is an s-expression based representation that can be processed with
 Common Lisp macros and expanded into C code.  The functions can be
 separated in to three types of builtins (special, tail recursive and
 normal functions):
-
 
 ```
 special: def incf pop push loop setq defvar defun quote
@@ -55,7 +68,7 @@ in a more lispy way. Lets look at the implementation of the function
 
 ```common-lisp
 (deffunction (add 0 127)
-  (comment "(void) env;" :prefix "")
+  (comment '(void) env;' :prefix '')
   (decl ((intgr result 0))
     (%dolist (item args)
       (decl ((intgr temp (funcall _integer item)))
@@ -87,7 +100,6 @@ the cdr propagation at the end. Later I added a hygienic variable
 using `gensym` to ensure that the `list` argument is only evaluated
 once (not shown here). 
 
-
 ```
 (defmacro %dolist ((item list) &body body)
   `(while (!= NULL ,list)
@@ -107,7 +119,7 @@ and the entries for the number of arguments in corresponding tables:
 ```
 o fn_add(o args, o env);
 fn_ptr_type builtin_normalfunc_fptr[9] = { fn_add, fn_apply, fn_cdr, fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
-const char builtin_normalfunc_name[9][5] = { "add", "apply", "cdr", "car", "eq", "listp", "atom", "cons", "not" };
+const char builtin_normalfunc_name[9][5] = { 'add', 'apply', 'cdr', 'car', 'eq', 'listp', 'atom', 'cons', 'not' };
 const char builtin_normalfunc_par_min[9] = { 0, 2, 1, 1, 2, 1, 1, 2, 1 };
 const char builtin_normalfunc_par_max[9] = { 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 ```
@@ -150,7 +162,6 @@ interface, so that I can communicate with the Lisp using Emacs/SLIME.
 
 How to make this run on a Lattice iCE40HX-8K FPGA?
 
-
 ## Hacking
 
 I'm trying to store name strings in 4 arrays. I will have to change a
@@ -168,3 +179,20 @@ init_env nextitem builtin-function-name-to-number symbol -> idx
 _eval apply
 
 ```
+
+
+<a id='x-28ULISP-DOC-3A-40USAGE-SEC-20MGL-PAX-3ASECTION-29'></a>
+
+## 2 Usage
+
+
+
+<a id='x-28CG-USER-3A-3ACALC-BUILTIN-NAME-MAX-LEN-20FUNCTION-29'></a>
+
+- [function] **cg-user::calc-builtin-name-max-len** *L*
+
+    Find the longest function name. The name doesn't include the
+    prefix.
+
+  [797d]: #x-28ULISP-DOC-3A-40INTRO-SEC-20MGL-PAX-3ASECTION-29 "Usage"
+  [ab00]: #x-28ULISP-DOC-3A-40USAGE-SEC-20MGL-PAX-3ASECTION-29 "Usage"
