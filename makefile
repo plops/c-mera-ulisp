@@ -3,8 +3,8 @@ DEADCODESTRIP := -Wl,-static -fvtable-gc -fdata-sections -ffunction-sections -Wl
 #-Wl,-s
 WARN := -Wswitch-default -Wfloat-equal -Winline -Wundef -Wnested-externs  -Wstrict-aliasing=3 -Wall -Wextra -pedantic -std=c99 -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes
 
-b: ulisp.c
-	gcc -O3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing $(DEADCODESTRIP) $(WARN) -static ulisp.c  -o b
+ulisp-interp: ulisp.c
+	gcc -O3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing $(DEADCODESTRIP) $(WARN) -static ulisp.c  -o ulisp-interp
 
 #--coverage -pg
 

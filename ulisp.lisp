@@ -429,7 +429,7 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 				     :if-does-not-exist :create)
     (loop for e in (list
 		    (comment "Headers")
-		    (include <setjmp.h>)
+		    ;(include <setjmp.h>)
 		    (include <stdio.h>)
 		    (include <stdint.h>) ;; uintptr_t
 		    (include <ctype.h>)  ;; isschar
@@ -465,7 +465,7 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 			   (o gc-stack)
 			   (uintgr freespace)
 			   (cons_object (aref workspace workspace-size))
-			   (jmp_buf exception)
+			   ;(jmp_buf exception)
 			   (char return-flag 0)
 			   (char (aref buffer (+ buflen 1)))
 			   (char last-char)
