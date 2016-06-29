@@ -163,7 +163,7 @@
   (return 16))
 (%function lookupstring ((uintgr idx)) -> char*
   (dcomment "Given an index number copy the string for the corresponding built-in function name into the global character array buffer.")
-  (for ((int i 0) (< i buflen) (inc i))
+  (for ((int i 0) (< i (calc-builtin-name-max-len *builtin-declaration*)) (inc i))
     (set (aref buffer i) (aref builtin-name idx i)))
   (return buffer))
 (%function name ((o obj)) -> char*
