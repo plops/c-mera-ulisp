@@ -148,7 +148,10 @@ definitions, the C code and some string arrays."
 (defmacro %function (name parameters -> type &body body)
   `(cl:push '((:name ,name)
 	      (:fwd  (function ,name ,parameters -> ,type))
-	      (:code (function ,name ,parameters -> ,type ,@body))) *boiler-func*))
+	      (:code (function ,name ,parameters -> ,type
+		       (%puts ,(format nil "~a" name))
+		       ,@body)))
+	    *boiler-func*))
 
 (defun get-builtin-fwd (alist)
   (second (assoc :fwd alist)))
