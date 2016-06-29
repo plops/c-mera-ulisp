@@ -149,8 +149,12 @@ definitions, the C code and some string arrays."
   `(cl:push '((:name ,name)
 	      (:fwd  (function ,name ,parameters -> ,type))
 	      (:code (function ,name ,parameters -> ,type
-		       ,(unless (eq name '_putsn) 
-			 `(%puts ,(format nil "~a\\n" name)))
+		       ,(unless (cl:or (cl:eq name '_putsn)
+				       (cl:eq name 'putui)
+				       (cl:eq name '_putchar))
+			    `(progn
+			       (funcall putui (funcall __rdtsc))
+			       (%puts ,(format nil " ~a\\n" name))))
 		       ,@body)))
 	    *boiler-func*))
 
@@ -438,7 +442,8 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
     (loop for e in (list
 		    (comment "Headers")
 		    ;(include <setjmp.h>)
-		    ;(include <stdio.h>)
+					;(include <stdio.h>)
+		    (include <x86intrin.h>) (comment "__rdtsc intrinsic")
 		    (include <stdint.h>) (comment "uintptr_t")
 		    ;(include <ctype.h>)  (comment "isspace")
 		    (include <stdlib.h>) (comment "exit")
