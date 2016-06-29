@@ -13,7 +13,7 @@
 ;; (%function erro ((const char* string)) -> void
 ;;   (%puts "Error: ")
 ;;   (funcall _putsn string)
-;;   (funcall putchar #\Newline)
+;;   (funcall _putchar #\Newline)
 ;;   (set gc-stack 0)
 ;;   ;; (funcall longjmp exception 1)
 ;;   )
@@ -260,11 +260,18 @@
     (%dolist (e list)
       (inc len))
     (return len)))
+(%function _string_eq_p ((const char* a) (const char* b) (int n)) -> int
+  ;; i don't need to sort things
+  (for (() (< 0 n) (set n (- n 1)))
+    (when (!= *a *b)
+      (return 0)))
+  (return 1))
 (%function builtin ((char* name)) -> int
   (dcomment "Find the index of a builtin function with the name given as a string.")
   (decl ((intgr entry 0))
     (while (< entry (cl:length *builtin-declaration*))
-      (when (== 0 (funcall strcmp name (aref builtin-name entry)))
+      (when (funcall _string_eq_p name (aref builtin-name entry)
+		     (calc-builtin-name-max-len *builtin-declaration*))
 	(return entry))
       (inc entry))
     (return (cl:length *builtin-declaration*))))
@@ -507,7 +514,7 @@
   ;; 	(funcall printf "%c" temp)
   ;; 	(return temp))
   (decl ((int temp (funcall getchar)))
-    (funcall putchar temp)
+    (funcall _putchar temp)
     (return temp)))
 (%function nextitem () -> o
   (dcomment "Get characters from the input stream and tokenize. Handles whitespace, comments, parenthesis, dot, numbers, builtins and user functions.")
@@ -623,18 +630,18 @@
 	  (funcall puts "<closure>")
 	  (if (%listp form)
 	      (progn
-		(funcall putchar (cast 'int #\())
+		(funcall _putchar (cast 'int #\())
 		(funcall _print-object (%car form))
 		(set form (%cdr form))
 		(%dolist (e form) 
 		  (if (%listp form)
 		      (progn
-			(funcall putchar #\Space)
+			(funcall _putchar #\Space)
 			(funcall _print-object e))))
 		(if (!= NULL form)
 		    (progn (funcall puts " . ")
 			   (funcall _print-object form)))
-		(funcall putchar #\)))
+		(funcall _putchar #\)))
 	      (if (== *number* (cons-type form))
 		  (funcall puti (funcall _integer form))
 		  (if (== *symbol* (cons-type form))
@@ -677,7 +684,7 @@
 (%function puti ((intgr i)) -> void
   (when (< i 0)
     ;; (funcall SciaXmit (char-code #\-)) 
-    (funcall putchar (char-code #\-))
+    (funcall _putchar (char-code #\-))
     (comment "output minus (-) character")
     (set i (- i)))
   (decl ((int rev 0))
@@ -687,6 +694,6 @@
 	(set i (/ i 10))))
     (while (< 0 rev)
       (decl ((int digit (% rev 10)))
-	(funcall putchar (+ 48 digit))
+	(funcall _putchar (+ 48 digit))
 	(set rev (/ rev 10))))))
 		    

@@ -431,11 +431,11 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 		    (comment "Headers")
 		    ;(include <setjmp.h>)
 		    (include <stdio.h>)
-		    (include <stdint.h>) ;; uintptr_t
-		    (include <ctype.h>)  ;; isschar
+		    (include <stdint.h>) (comment "uintptr_t")
+		    (include <ctype.h>)  (comment "isschar")
 		    (include <stdlib.h>) ;; exit
 		    (include <unistd.h>) ;; exit
-		    (include <string.h>) ;; strcmp
+		    (include <string.h>) (comment "strcmp")
 
 		    (comment "Type declarations")
 		    (comment "I use integers that have the same size as a pointer")
