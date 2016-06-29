@@ -52,7 +52,8 @@
 (defmacro %err (&rest rest)
   `(progn (%puts ,(cl:substitute #\space #\newline (cl:format nil "~a" rest)))
 	  (%puts "EXIT\\n")
-	  (funcall exit 0)))
+	  ;(funcall exit 0)
+	  ))
 
 (defparameter *none* 0)
 (defparameter *symbol* 1)
@@ -430,11 +431,11 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
     (loop for e in (list
 		    (comment "Headers")
 		    ;(include <setjmp.h>)
-		    (include <stdio.h>)
+		    ;(include <stdio.h>)
 		    (include <stdint.h>) (comment "uintptr_t")
 		    (include <ctype.h>)  (comment "isschar")
-		    (include <stdlib.h>) ;; exit
-		    (include <unistd.h>) ;; exit
+		    ;(include <stdlib.h>) ;; exit
+		    (include <unistd.h>) (comment "write")
 		    (include <string.h>) (comment "strcmp")
 
 		    (comment "Type declarations")
@@ -492,16 +493,3 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 		      (return 0))) 
        do
 	 (simple-print e))))
-
-
-#+nil
-(defun tak (x y z)
-  (if (not (less y x))
-      z
-      (tak
-       (tak (add x -1) y z)
-       (tak (add y -1) z x)
-       (tak (add z -1) x y))))
-
-#+nil
-(tak 18 12 6)
