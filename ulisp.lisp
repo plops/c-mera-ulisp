@@ -49,8 +49,8 @@
 		 (- *mark-bit* 1) 
 		 ))))
 
-(defmacro err (&rest rest)
-  `(progn (funcall erro ,(cl:substitute #\space #\newline (cl:format nil "~a" rest)))
+(defmacro %err (&rest rest)
+  `(progn (%puts ,(cl:substitute #\space #\newline (cl:format nil "~a" rest)))
 	  (%puts "EXIT\\n")
 	  (funcall exit 0)))
 
@@ -105,7 +105,7 @@
   ;`(funcall printf "%s\\n",x)
   )
 (defmacro %puts (x)
-  `(funcall putsn ,x ,(cl:length x))
+  `(funcall _putsn ,x ,(cl:length x))
   )
 
 (defmacro def-with-prefix ((type name &optional (min 1) (max min)) &body body)
@@ -303,7 +303,7 @@ const char builtin_par_min[53] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 2, 0,
 
 (defmacro ensure-symbol (var)
   `(if (!= *symbol* (cons-type ,var))
-       (erro "not a symbol")))
+       (%err "not a symbol")))
 
 (defmacro inc (x)
   `(set ,x (+ 1 ,x)))

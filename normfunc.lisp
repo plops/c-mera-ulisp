@@ -40,7 +40,7 @@
     (%dolist (e (%cdr last))
       (set previous last))
     (when (== 0 (%listp (%car last)))
-      (err "last arg not list"))
+      (%err "last arg not list"))
     (set (%cdr previous) (%car last))
     (return (funcall _apply (%car args)
 		     (%cdr args)
