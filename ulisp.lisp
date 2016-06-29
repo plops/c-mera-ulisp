@@ -149,7 +149,8 @@ definitions, the C code and some string arrays."
   `(cl:push '((:name ,name)
 	      (:fwd  (function ,name ,parameters -> ,type))
 	      (:code (function ,name ,parameters -> ,type
-		       (%puts ,(format nil "~a" name))
+		       ,(unless (eq name '_putsn) 
+			 `(%puts ,(format nil "~a\\n" name)))
 		       ,@body)))
 	    *boiler-func*))
 
