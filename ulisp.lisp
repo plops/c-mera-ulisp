@@ -51,7 +51,7 @@
 
 (defmacro err (&rest rest)
   `(progn (funcall erro ,(cl:substitute #\space #\newline (cl:format nil "~a" rest)))
-	  (funcall puts "EXIT\\n")
+	  (%puts "EXIT\\n")
 	  (funcall exit 0)))
 
 (defparameter *none* 0)
@@ -103,6 +103,9 @@
 
 (defmacro dcomment (x)
   ;`(funcall printf "%s\\n",x)
+  )
+(defmacro %puts (x)
+  `(funcall putsn ,x ,(cl:length x))
   )
 
 (defmacro def-with-prefix ((type name &optional (min 1) (max min)) &body body)
