@@ -51,7 +51,7 @@
 
 (defmacro err (&rest rest)
   `(progn (funcall erro ,(cl:substitute #\space #\newline (cl:format nil "~a" rest)))
-	  (funcall printf "EXIT\\n")
+	  (funcall puts "EXIT\\n")
 	  (funcall exit 0)))
 
 (defparameter *none* 0)
