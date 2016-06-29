@@ -1,10 +1,12 @@
 # https://gcc.gnu.org/ml/gcc-help/2003-08/msg00128.html
-DEADCODESTRIP := -Wl,-static -fdata-sections -ffunction-sections -Wl,--gc-sections
+DEADCODESTRIP := #-Wl,-static -fdata-sections -ffunction-sections -Wl,--gc-sections
 #-Wl,-s
 WARN := -Wswitch-default -Wfloat-equal -Winline -Wundef -Wnested-externs  -Wstrict-aliasing=3 -Wall -Wextra -pedantic -std=c99 -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes
 
+CFLAGS := -O3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing
+
 ulisp-interp: ulisp.c
-	gcc -O3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing $(DEADCODESTRIP) $(WARN) -static ulisp.c  -o ulisp-interp
+	gcc  $(CFLAGS) $(DEADCODESTRIP) $(WARN)  ulisp.c  -o ulisp-interp
 
 #--coverage -pg
 

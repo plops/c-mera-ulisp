@@ -205,6 +205,14 @@
    431: 0000000000490860 19188 OBJECT  LOCAL  DEFAULT   10 translit_to_tbl
   1234: 000000000046ba90 30365 FUNC    GLOBAL DEFAULT    6 _IO_vfscanf_internal
   1760: 000000000046ba90 30365 FUNC    GLOBAL DEFAULT    6 _IO_vfscanf
+ ```
+ Show glibc dependencies
+ ```
+ [martin@localhost c-mera-ulisp]$ objdump -T ulisp-interp |grep GLIBC
+ 0000000000000000      DF *UND*  0000000000000000  GLIBC_2.2.5 write
+ 0000000000000000      DF *UND*  0000000000000000  GLIBC_2.2.5 read
+ 0000000000000000      DF *UND*  0000000000000000  GLIBC_2.2.5 __libc_start_main
+ 0000000000000000      DF *UND*  0000000000000000  GLIBC_2.3   __ctype_b_loc
 
  ```")
 
