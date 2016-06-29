@@ -315,13 +315,16 @@ const char builtin_par_min[53] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 2, 0,
   "The list can be an expression like (cons-cdr bla). It will only be evaluated once."
   (cl:let ((e (intern (format nil "~a" (gensym)))))
     (cl:if (cl:listp list)
-	`(decl ((o ,e ,list))
+	   `(decl ((o ,e ,list))
+	      
 	   (while (!= NULL ,e)
 	     (decl ((o ,item (cons-car ,e)))
+	       (cast 'void ,item)
 	       ,@body)
 	     (set ,e (cons-cdr ,e))))
 	`(while (!= NULL ,list)
 	   (decl ((o ,item (cons-car ,list)))
+	     (cast 'void ,item)
 	     ,@body)
 	   (set ,list (cons-cdr ,list))))))
 
