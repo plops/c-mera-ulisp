@@ -206,7 +206,7 @@
   1234: 000000000046ba90 30365 FUNC    GLOBAL DEFAULT    6 _IO_vfscanf_internal
   1760: 000000000046ba90 30365 FUNC    GLOBAL DEFAULT    6 _IO_vfscanf
  ```
- Show glibc dependencies
+ Show glibc dependencies https://insanecoding.blogspot.de/2012/07/creating-portable-linux-binaries.html
  ```
  [martin@localhost c-mera-ulisp]$ objdump -T ulisp-interp |grep GLIBC
  0000000000000000      DF *UND*  0000000000000000  GLIBC_2.2.5 write

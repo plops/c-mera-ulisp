@@ -52,7 +52,7 @@
 (defmacro %err (&rest rest)
   `(progn (%puts ,(cl:substitute #\space #\newline (cl:format nil "~a" rest)))
 	  (%puts "EXIT\\n")
-	  ;(funcall exit 0)
+	  (funcall exit 0)
 	  ))
 
 (defparameter *none* 0)
@@ -436,8 +436,8 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 		    ;(include <setjmp.h>)
 		    ;(include <stdio.h>)
 		    (include <stdint.h>) (comment "uintptr_t")
-		    (include <ctype.h>)  (comment "isschar")
-		    ;(include <stdlib.h>) ;; exit
+		    ;(include <ctype.h>)  (comment "isspace")
+		    (include <stdlib.h>) (comment "exit")
 		    (include <unistd.h>) (comment "write")
 		    (include <string.h>) (comment "strcmp")
 
