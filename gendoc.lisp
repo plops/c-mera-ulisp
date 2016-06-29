@@ -183,7 +183,23 @@
  lookupfn  idx -> fptr
  init_env nextitem builtin-function-name-to-number symbol -> idx
  _eval apply
- 
+
+  
+ ```
+ ## Size
+
+ ```
+ [martin@localhost c-mera-ulisp]$ size b
+    text    data     bss     dec     hex filename
+  726051    7540   11704  745295   b5f4f b
+
+ [martin@localhost c-mera-ulisp]$ nm -a --demangle --print-size --size-sort -t d b|tail -n 5 
+ 0000000004477152 0000000000011113 T vfprintf
+ 0000000004849056 0000000000013800 R __tens
+ 0000000004786272 0000000000019188 r translit_to_tbl
+ 0000000004635280 0000000000030365 T _IO_vfscanf
+ 0000000004635280 0000000000030365 T _IO_vfscanf_internal
+
  ```")
 
 
