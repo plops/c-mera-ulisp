@@ -149,55 +149,55 @@ definitions, the C code and some string arrays."
     "turn a c-mera function parameter list with types like this ((o form) (o env)) into a list of variable names like this (form env)."
     (mapcar #'first (mapcar #'last l)))
 
-;; (defmacro %function (name parameters -> type &body body)
-;;   "This is a macro for defining the general helper functions. Push
-;; name, forward declaration and function code into *boiler-func*. For
-;; each function (except a few functions that are used for printing) two
-;; functions are declared. One with the suffice _not_timed that
-;; implements the functionality and another which calls this function
-;; while measuring and printing the cpu cycles."
-;;   (let ((name2 (intern (string-upcase (format nil "~a-not-timed" name))))
-;; 	(start (intern (string-upcase (format nil "~a" (gensym "start"))))))
-;;    `(cl:push '((:name ,name)
-;; 	       (:fwd  (function ,name ,parameters ,-> ,type))
-;; 	       (:code (progn
-;; 		  (function ,name2 ,parameters -> ,type
-;; 		    ,@body)
-;; 		  (function ,name ,parameters -> ,type
-;; 		    ,(cl:if (cl:or (cl:eq name '_putsn)
-;; 		    		   (cl:eq name 'putui)
-;; 		    		   (cl:eq name '_putchar)
-;; 		    		   (cl:eq name 'puti)
-;; 		    		   (cl:eq name '_isspace)
-;; 		    		   (cl:eq name '_getchar)
-;; 		    		   (cl:eq name 'digitvalue))
-;; 			    (cl:if (eq type 'void)
-;; 				   `(funcall ,name2 ,@(parameter-names parameters))
-;; 				   `(return (funcall ,name2 ,@(parameter-names parameters))))
-;; 		    	    `(decl ((uintgr ,start (funcall __rdtsc)))
-;; 		    	       ,(cl:if (eq type 'void)
-;; 		    	    	       `(progn
-;; 		    	    		  (funcall ,name2 ,@(parameter-names parameters))
-;; 		    	    		  (%puts ,(format nil " ~a:" name))
-;; 		    	    		  (funcall putui (- (funcall __rdtsc)
-;; 		    	    				    ,start))
-;; 		    	    		  (funcall _putchar #\Newline))
-;; 		    	    	       `(decl ((,type ret (funcall ,name2 ,@(parameter-names parameters))))
-;; 		    	    		  (%puts ,(format nil " ~a:" name))
-;; 		    	    		  (funcall putui (- (funcall __rdtsc)
-;; 		    	    				    ,start))
-;; 		    	    		  (funcall _putchar #\Newline)
-;; 		    	    		  (return ret)))))))))
-;; 	       *boiler-func*)))
 (defmacro %function (name parameters -> type &body body)
   "This is a macro for defining the general helper functions. Push
-name, forward declaration and function code into *boiler-func*"
-  `(cl:push '((:name ,name)
-	      (:fwd  (function ,name ,parameters ,-> ,type))
-	      (:code (progn
-		       (function ,name ,parameters -> ,type
-			 ,@body))))
-	    *boiler-func*))
+name, forward declaration and function code into *boiler-func*. For
+each function (except a few functions that are used for printing) two
+functions are declared. One with the suffice _not_timed that
+implements the functionality and another which calls this function
+while measuring and printing the cpu cycles."
+  (let ((name2 (intern (string-upcase (format nil "~a-not-timed" name))))
+	(start (intern (string-upcase (format nil "~a" (gensym "start"))))))
+   `(cl:push '((:name ,name)
+	       (:fwd  (function ,name ,parameters ,-> ,type))
+	       (:code (progn
+		  (function ,name2 ,parameters -> ,type
+		    ,@body)
+		  (function ,name ,parameters -> ,type
+		    ,(cl:if (cl:or (cl:eq name '_putsn)
+		    		   (cl:eq name 'putui)
+		    		   (cl:eq name '_putchar)
+		    		   (cl:eq name 'puti)
+		    		   (cl:eq name '_isspace)
+		    		   (cl:eq name '_getchar)
+		    		   (cl:eq name 'digitvalue))
+			    (cl:if (eq type 'void)
+				   `(funcall ,name2 ,@(parameter-names parameters))
+				   `(return (funcall ,name2 ,@(parameter-names parameters))))
+		    	    `(decl ((uintgr ,start (funcall __rdtsc)))
+		    	       ,(cl:if (eq type 'void)
+		    	    	       `(progn
+		    	    		  (funcall ,name2 ,@(parameter-names parameters))
+		    	    		  (%puts ,(format nil " ~a:" name))
+		    	    		  (funcall putui (- (funcall __rdtsc)
+		    	    				    ,start))
+		    	    		  (funcall _putchar #\Newline))
+		    	    	       `(decl ((,type ret (funcall ,name2 ,@(parameter-names parameters))))
+		    	    		  (%puts ,(format nil " ~a:" name))
+		    	    		  (funcall putui (- (funcall __rdtsc)
+		    	    				    ,start))
+		    	    		  (funcall _putchar #\Newline)
+		    	    		  (return ret)))))))))
+	       *boiler-func*)))
+;; (defmacro %function (name parameters -> type &body body)
+;;   "This is a macro for defining the general helper functions. Push
+;; name, forward declaration and function code into *boiler-func*"
+;;   `(cl:push '((:name ,name)
+;; 	      (:fwd  (function ,name ,parameters ,-> ,type))
+;; 	      (:code (progn
+;; 		       (function ,name ,parameters -> ,type
+;; 			 ,@body))))
+;; 	    *boiler-func*))
 
 (defun get-builtin-fwd (alist)
   (second (assoc :fwd alist)))
