@@ -525,7 +525,7 @@
 	    (== c #\Linefeed))
       (return 1)
       (return 0)))
-(%function nextitem ()  -> o
+(%function nextitem () -> o
   (dcomment "Get characters from the input stream and tokenize. Handles whitespace, comments, parenthesis, dot, numbers, builtins and user functions.")
   (decl ((int ch (funcall _getc)))
     (while (funcall _isspace ch)
