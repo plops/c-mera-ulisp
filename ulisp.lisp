@@ -164,13 +164,7 @@ while measuring and printing the cpu cycles."
 		  (function ,name2 ,parameters -> ,type
 		    ,@body)
 		  (function ,name ,parameters -> ,type
-		    ,(cl:if (cl:or (cl:eq name '_putsn)
-		    		   (cl:eq name 'putui)
-		    		   (cl:eq name '_putchar)
-		    		   (cl:eq name 'puti)
-		    		   (cl:eq name '_isspace)
-		    		   (cl:eq name '_getchar)
-		    		   (cl:eq name 'digitvalue))
+		    ,(cl:if (cl:member name '(_putsn putui _putchar puti _isspace _getchar digitvalue mark-object _string_eq_p)) 
 			    (cl:if (eq type 'void)
 				   `(funcall ,name2 ,@(parameter-names parameters))
 				   `(return (funcall ,name2 ,@(parameter-names parameters))))
