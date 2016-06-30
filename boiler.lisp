@@ -262,8 +262,10 @@
     (return len)))
 (%function _string_eq_p ((const char* a) (const char* b) (int n)) -> int
   ;; i don't need to sort things
-  (for (() (< 0 n) (set n (- n 1)))
-    (when (!= *a *b)
+  (for ((int i 0) (and (< i n)
+		       (aref a i)
+		       (aref b i)) (inc i))
+    (when (!= (aref a i) (aref b i))
       (return 0)))
   (return 1))
 (%function builtin ((char* name)) -> int
@@ -344,12 +346,12 @@
 (%function _eval ((o form)
 		 (o env)) -> o
   (dcomment "eval")
-  (%puts "form ")
-  (funcall _print-object form)
-  (funcall _putchar #\Newline)
-  (%puts "env ")
-  (funcall _print-object env)
-  (funcall _putchar #\Newline)
+  ;; (%puts "form ")
+  ;; (funcall _print-object form)
+  ;; (funcall _putchar #\Newline)
+  ;; (%puts "env ")
+  ;; (funcall _print-object env)
+  ;; (funcall _putchar #\Newline)
   (decl ((int TC 0))
     (comment "EVALJUMP:" :prefix "") ;; FIXME this is crazy
     (when (< freespace 10)
@@ -687,6 +689,7 @@
 (%function repl ((o env)) -> void
   (dcomment "repl")
   (for (() () ())
+    
     ;(funcall gc NULL env)
     ;(%puts "freespace=")
     ;(funcall puti freespace)
