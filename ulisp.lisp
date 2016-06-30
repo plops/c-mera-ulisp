@@ -468,13 +468,11 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 (let ((workspace-size 315)
       (buflen  ;; length of longest symbol 
        (cl:max
-	3
 	(calc-builtin-name-max-len *builtin-symbol*)
-	(cl:+ 3 ;; for prefix sp_, tf_ or fn_
-	      (calc-builtin-name-max-len (append *builtin-normalfunc*
-						 *builtin-special*
-						 *builtin-tailrec*
-						 )))))
+	(calc-builtin-name-max-len (append *builtin-normalfunc*
+					   *builtin-special*
+					   *builtin-tailrec*
+					   ))))
       (cnil 'NULL))
   (with-open-file (*standard-output* "ulisp.c"
 				     :direction :output

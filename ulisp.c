@@ -45,7 +45,7 @@ o gc_stack;
 uintgr freespace;
 cons_object workspace[315];
 char return_flag = 0;
-char buffer[9 + 1];
+char buffer[7 + 1];
 char last_char;
 void *NULL = 0;
 //forward declarations
@@ -531,12 +531,12 @@ o fn_apply(o args, o env)
 	//minimum number of parameters: 2, max. nr. of parameters: 127
 	o previous = NULL;
 	o last = args;
-	o G805 = ((o)last)->cdr;
-	while (NULL != G805) {
-		o e = ((o)G805)->car;
+	o G681 = ((o)last)->cdr;
+	while (NULL != G681) {
+		o e = ((o)G681)->car;
 		((void)e);
 		previous = last;
-		G805 = ((o)G805)->cdr;
+		G681 = ((o)G681)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -869,7 +869,7 @@ o nextitem(void)
 	intgr isnumber = digitvalue(ch) < base;
 	//in case var is one letter
 	buffer[2] = 0;
-	while ((0 == _isspace(ch)) && (')' != ch) && (index < 9)) {
+	while ((0 == _isspace(ch)) && (')' != ch) && (index < 7)) {
 		buffer[index++] = ch;
 		intgr temp = digitvalue(ch);
 		result = temp + (result * base);
