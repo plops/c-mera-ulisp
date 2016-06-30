@@ -344,6 +344,12 @@
 (%function _eval ((o form)
 		 (o env)) -> o
   (dcomment "eval")
+  (%puts "form ")
+  (funcall _print-object form)
+  (funcall _putchar #\Newline)
+  (%puts "env ")
+  (funcall _print-object env)
+  (funcall _putchar #\Newline)
   (decl ((int TC 0))
     (comment "EVALJUMP:" :prefix "") ;; FIXME this is crazy
     (when (< freespace 10)
