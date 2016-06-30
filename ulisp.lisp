@@ -146,27 +146,37 @@ definitions, the C code and some string arrays."
   `(def-with-prefix (fn ,name ,min ,max) ,@body))
 
 (defmacro %function (name parameters -> type &body body)
-  `(cl:push '((:name ,name)
-	      (:fwd  (function ,name ,parameters -> ,type))
-	      (:code (function ,name ,parameters -> ,type
-		       ,(unless (cl:or (cl:eq name '_putsn)
-				       (cl:eq name 'putui)
-				       (cl:eq name '_putchar)
-				       (cl:eq name 'puti)
-				       (cl:eq name '_isspace)
-				       (cl:eq name '_getchar)
-				       (cl:eq name 'digitvalue))
-				(let ((start (intern (format nil "~a" (gensym "start")))))
-				 `(progn
-				    (decl ((uintgr ,start (funcall __rdtsc)))
-				      
-				      ,@body
-				      (%puts ,(format nil " ~a:" name))
-				      (funcall putui (- (funcall __rdtsc)
-							,start))
-				      (funcall _putchar #\Newline)))))
-		       )))
-	    *boiler-func*))
+  (let ((name2 (intern (format nil "~a-not-timed" name)))
+	(start (intern (format nil "~a" (gensym "start")))))
+   `(cl:push '((:name ,name)
+	       (:fwd  (function ,name ,parameters ,-> ,type))
+	       (:code (progn
+			(function ,name2 ,parameters -> ,type
+			  ,@body)
+			(function ,name ,parameters -> ,type
+			  ,(cl:if (cl:or (cl:eq name '_putsn)
+					 (cl:eq name 'putui)
+					 (cl:eq name '_putchar)
+					 (cl:eq name 'puti)
+					 (cl:eq name '_isspace)
+					 (cl:eq name '_getchar)
+					 (cl:eq name 'digitvalue))
+				  `(decl ((uintgr ,start (funcall __rdtsc)))
+				     
+				     ,(cl:if (eq type 'void)
+					     `(progn
+						(funcall ,name2 ,@parameters)
+						(%puts ,(format nil " ~a:" name))
+						(funcall putui (- (funcall __rdtsc)
+								  ,start))
+						(funcall _putchar #\Newline))
+					     `(decl ((,type ret (funcall ,name2 ,@parameters)))
+						(%puts ,(format nil " ~a:" name))
+						(funcall putui (- (funcall __rdtsc)
+								  ,start))
+						(funcall _putchar #\Newline)
+						(return ret)))))))))
+	     *boiler-func*)))
 
 (defun get-builtin-fwd (alist)
   (second (assoc :fwd alist)))
