@@ -167,7 +167,9 @@ definitions, the C code and some string arrays."
 		    		   (cl:eq name '_isspace)
 		    		   (cl:eq name '_getchar)
 		    		   (cl:eq name 'digitvalue))
-		    	    `(return (funcall ,name2 ,@(parameter-names parameters)))
+			    (cl:if (eq type 'void)
+				   `(funcall ,name2 ,@(parameter-names parameters))
+				   `(return (funcall ,name2 ,@(parameter-names parameters))))
 		    	    `(decl ((uintgr ,start (funcall __rdtsc)))
 		    	       ,(cl:if (eq type 'void)
 		    	    	       `(progn
