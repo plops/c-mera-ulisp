@@ -637,6 +637,11 @@
     (when (== (cast 'o *bra*) item)
       (set item (funcall read-rest)))
     (return (funcall _cons item (funcall read-rest)))))
+(%function _strlen ((const char* s)) -> int
+  (decl ((const char* start s))
+    (while *s
+      (inc s))
+    (return (- s start))))
 (%function _print-object ((o form)) -> void
   (dcomment "print-object")
   (if (== NULL form)
@@ -662,7 +667,9 @@
 	      (if (== *number* (cons-type form))
 		  (funcall puti (funcall _integer form))
 		  (if (== *symbol* (cons-type form))
-		      (funcall _putsn (funcall name form) (cl:length *builtin-declaration*))
+		      (decl ((char* s (funcall name form))
+			     (int len (funcall _strlen s)))
+		       (funcall _putsn s len))
 		      (%err "print err")))))))
 (%function _read () -> o
   (dcomment "Read either a list, cons, quotes, or any tokens the function nextitem returned.")
