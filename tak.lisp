@@ -9,3 +9,10 @@
 
 (tak 18 12 6)
 
+(defun bla (a)
+  (princ a)
+  (setq a (add a -1))
+  (if (less 0 a)
+      (bla a)
+      0))
+(bla 2)
