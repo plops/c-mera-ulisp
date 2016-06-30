@@ -95,6 +95,9 @@ o tf_return(o args, o env)
 o tf_progn(o args, o env)
 ;
 
+o fn_princ(o args, o env)
+;
+
 o fn_less(o args, o env)
 ;
 
@@ -260,10 +263,10 @@ o _alloc(void)
 void init_workspace(void)
 ;
 //Global variables
-const char builtin_name[30][7] = { "nil", "tee", "lambda", "let", "closure", "decf", "incf", "pop", "push", "loop", "setq", "defvar", "defun", "quote", "or", "and", "cond", "if", "return", "progn", "less", "add", "apply", "cdr", "car", "eq", "listp", "atom", "cons", "not" };
-const char builtin_par_max[30] = { 0, 0, 0, 0, 0, 2, 2, 1, 2, 127, 2, 127, 127, 1, 127, 127, 127, 3, 127, 127, 127, 127, 127, 1, 1, 2, 1, 1, 2, 1 };
-const char builtin_par_min[30] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 2, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 2, 1, 1, 2, 1, 1, 2, 1 };
-fn_ptr_type builtin_fptr[30] = { 0, 0, 0, 0, 0, sp_decf, sp_incf, sp_pop, sp_push, sp_loop, sp_setq, sp_defvar, sp_defun, sp_quote, tf_or, tf_and, tf_cond, tf_if, tf_return, tf_progn, fn_less, fn_add, fn_apply, fn_cdr, fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
+const char builtin_name[31][7] = { "nil", "tee", "lambda", "let", "closure", "decf", "incf", "pop", "push", "loop", "setq", "defvar", "defun", "quote", "or", "and", "cond", "if", "return", "progn", "princ", "less", "add", "apply", "cdr", "car", "eq", "listp", "atom", "cons", "not" };
+const char builtin_par_max[31] = { 0, 0, 0, 0, 0, 2, 2, 1, 2, 127, 2, 127, 127, 1, 127, 127, 127, 3, 127, 127, 1, 127, 127, 127, 1, 1, 2, 1, 1, 2, 1 };
+const char builtin_par_min[31] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 2, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1, 1, 0, 2, 1, 1, 2, 1, 1, 2, 1 };
+fn_ptr_type builtin_fptr[31] = { 0, 0, 0, 0, 0, sp_decf, sp_incf, sp_pop, sp_push, sp_loop, sp_setq, sp_defvar, sp_defun, sp_quote, tf_or, tf_and, tf_cond, tf_if, tf_return, tf_progn, fn_princ, fn_less, fn_add, fn_apply, fn_cdr, fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
 
 o sp_decf(o args, o env)
 {
@@ -480,6 +483,15 @@ o tf_progn(o args, o env)
 	return ((o)args)->car;
 }
 
+o fn_princ(o args, o env)
+{
+	//minimum number of parameters: 1, max. nr. of parameters: 1
+	(void) env;
+	o obj = ((o)args)->car;
+	_print_object(obj);
+	return obj;
+}
+
 o fn_less(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 127
@@ -519,12 +531,12 @@ o fn_apply(o args, o env)
 	//minimum number of parameters: 2, max. nr. of parameters: 127
 	o previous = NULL;
 	o last = args;
-	o G1314 = ((o)last)->cdr;
-	while (NULL != G1314) {
-		o e = ((o)G1314)->car;
+	o G805 = ((o)last)->cdr;
+	while (NULL != G805) {
+		o e = ((o)G805)->car;
 		((void)e);
 		previous = last;
-		G1314 = ((o)G1314)->cdr;
+		G805 = ((o)G805)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -880,7 +892,7 @@ o nextitem(void)
 	if (x == 0) {
 		return NULL;
 	}
-	if (x < 30) {
+	if (x < 31) {
 		return _symbol(x);
 	}
 	else {
@@ -944,7 +956,7 @@ o _eval(o form, o env)
 		if (NULL != pair) {
 			return ((o)pair)->cdr;
 		}
-		else if (name <= 30) 
+		else if (name <= 31) 
 		{
 			return form;
 		}
@@ -1033,7 +1045,7 @@ o _eval(o form, o env)
 	if (1 == ((cons_symbol*)function)->type) {
 		{
 			uintgr name = ((cons_symbol*)function)->name;
-			if (30 <= name) {
+			if (31 <= name) {
 				_putsn("(not a function)", 16);
 				_putsn("EXIT\n", 6);
 				exit(0);
@@ -1103,7 +1115,7 @@ o _apply(o function, o args, o *env)
 	if (1 == ((cons_symbol*)function)->type) {
 		uintgr name = ((cons_symbol*)function)->name;
 		int nargs = listlength(args);
-		if (30 < name) {
+		if (31 < name) {
 			_putsn("(not a function)", 16);
 			_putsn("EXIT\n", 6);
 			exit(0);
@@ -1158,13 +1170,13 @@ int lookupmin(uintgr idx)
 int builtin(char *name)
 {
 	intgr entry = 0;
-	while (entry < 30) {
+	while (entry < 31) {
 		if (_string_eq_p(name, builtin_name[entry], 7)) {
 			return entry;
 		}
 		entry = 1 + entry;
 	}
-	return 30;
+	return 31;
 }
 
 int _string_eq_p(const char *a, const char *b, int n)
@@ -1308,7 +1320,7 @@ char *name(o obj)
 		exit(0);
 	}
 	uintgr x = ((cons_symbol*)obj)->name;
-	if (x < 30) {
+	if (x < 31) {
 		return lookupstring(x);
 	}
 	for(int n = 2; 0 <= n; n = n - 1){

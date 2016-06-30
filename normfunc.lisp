@@ -54,7 +54,7 @@
     (return (funcall _number result))))
 
 (deffunction (less 1 127)
-    (comment "(void) env;" :prefix "")
+  (comment "(void) env;" :prefix "")
   (decl ((intgr arg1 (funcall _integer (%car args))))
 	(set args (%cdr args))
 	(%dolist (item args)
@@ -63,3 +63,9 @@
 			 (return cnil))
 		       (set arg1 arg2)))
     (return tee)))
+
+(deffunction (princ 1 1)
+  (comment "(void) env;" :prefix "")
+  (decl ((o obj (%car args)))
+    (_print-object obj)
+    (return obj)))

@@ -1,4 +1,5 @@
 (defun tak (x y z)
+  (princ x)
   (if (not (less y x))
       z
       (tak
