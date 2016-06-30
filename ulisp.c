@@ -519,12 +519,12 @@ o fn_apply(o args, o env)
 	//minimum number of parameters: 2, max. nr. of parameters: 127
 	o previous = NULL;
 	o last = args;
-	o G1198 = ((o)last)->cdr;
-	while (NULL != G1198) {
-		o e = ((o)G1198)->car;
+	o G1314 = ((o)last)->cdr;
+	while (NULL != G1314) {
+		o e = ((o)G1314)->car;
 		((void)e);
 		previous = last;
-		G1198 = ((o)G1198)->cdr;
+		G1314 = ((o)G1314)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -672,7 +672,11 @@ void _putsn(char *string, int len)
 void repl(o env)
 {
 	for(; ; ){
-		_putsn("\n> ", 4);
+		gc(NULL, env);
+		_putsn("freespace=", 10);
+		puti(freespace);
+		_putchar('\n');
+		_putsn("> ", 2);
 		o line = _read();
 		if (NULL == line) {
 			_putchar('\n');
@@ -682,7 +686,8 @@ void repl(o env)
 		gc_stack = _cons(line, gc_stack);
 		_print_object(_eval(line, env));
 		gc_stack = ((o)gc_stack)->cdr;
-		_putsn("\n\n", 4);
+		_putchar('\n');
+		_putchar('\n');
 	}
 }
 

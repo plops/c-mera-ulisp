@@ -689,11 +689,11 @@
 (%function repl ((o env)) -> void
   (dcomment "repl")
   (for (() () ())
-    
-    ;(funcall gc NULL env)
-    ;(%puts "freespace=")
-    ;(funcall puti freespace)
-    (%puts "\\n> ")
+    (funcall gc NULL env)
+    (%puts "freespace=")
+    (funcall puti freespace)
+    (funcall _putchar #\Newline)
+    (%puts "> ")
     (decl ((o line (funcall _read)))
       (when (== cnil line)
 	(funcall _putchar #\Newline)
@@ -702,7 +702,8 @@
       (%push line gc-stack)
       (funcall _print-object (funcall _eval line env))
       (%pop gc-stack)
-      (%puts "\\n\\n"))))
+      (funcall _putchar #\Newline)
+      (funcall _putchar #\Newline))))
 (%function _putsn ((char* string) (int len)) -> void
   (funcall write 0 string len)
   ;; (funcall puts string)
