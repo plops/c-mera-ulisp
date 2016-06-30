@@ -531,12 +531,12 @@ o fn_apply(o args, o env)
 	//minimum number of parameters: 2, max. nr. of parameters: 127
 	o previous = NULL;
 	o last = args;
-	o G985 = ((o)last)->cdr;
-	while (NULL != G985) {
-		o e = ((o)G985)->car;
+	o G1103 = ((o)last)->cdr;
+	while (NULL != G1103) {
+		o e = ((o)G1103)->car;
 		((void)e);
 		previous = last;
-		G985 = ((o)G985)->cdr;
+		G1103 = ((o)G1103)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -620,7 +620,7 @@ o fn_not(o args, o env)
 	}
 }
 
-void putui_not_timed(uintgr i)
+void putui(uintgr i)
 {
 	uintgr rev = 0;
 	while (0 < i) {
@@ -637,12 +637,7 @@ void putui_not_timed(uintgr i)
 	}
 }
 
-void putui(uintgr i)
-{
-	putui_not_timed(i);
-}
-
-void puti_not_timed(intgr i)
+void puti(intgr i)
 {
 	if (i < 0) {
 		_putchar(45);
@@ -664,12 +659,7 @@ void puti_not_timed(intgr i)
 	}
 }
 
-void puti(intgr i)
-{
-	puti_not_timed(i);
-}
-
-int _getchar_not_timed(void)
+int _getchar(void)
 {
 	char b;
 	int num = read(0, &b, 1);
@@ -681,33 +671,19 @@ int _getchar_not_timed(void)
 	}
 }
 
-int _getchar(void)
-{
-	return _getchar_not_timed();
-}
-
-void _putchar_not_timed(int c)
+void _putchar(int c)
 {
 	write(0, &c, 1);
 }
 
-void _putchar(int c)
-{
-	_putchar_not_timed(c);
-}
-
-void _putsn_not_timed(char *string, int len)
+void _putsn(char *string, int len)
 {
 	write(0, string, len);
 }
 
-void _putsn(char *string, int len)
+void repl(o env)
 {
-	_putsn_not_timed(string, len);
-}
-
-void repl_not_timed(o env)
-{
+	_putsn("repl\n", 6);
 	for(; ; ){
 		gc(NULL, env);
 		_putsn("freespace=", 10);
@@ -728,17 +704,9 @@ void repl_not_timed(o env)
 	}
 }
 
-void repl(o env)
+o _read(void)
 {
-	uintgr start933 = __rdtsc();
-	repl_not_timed(env);
-	_putsn(" repl:", 6);
-	putui(__rdtsc() - start933);
-	_putchar('\n');
-}
-
-o _read_not_timed(void)
-{
+	_putsn("_read\n", 7);
 	o item = nextitem();
 	if (((o)1) == item) {
 		return read_rest();
@@ -752,18 +720,9 @@ o _read_not_timed(void)
 	return item;
 }
 
-o _read(void)
+void _print_object(o form)
 {
-	uintgr start932 = __rdtsc();
-	o ret = _read_not_timed();
-	_putsn(" _read:", 7);
-	putui(__rdtsc() - start932);
-	_putchar('\n');
-	return ret;
-}
-
-void _print_object_not_timed(o form)
-{
+	_putsn("_print-object\n", 15);
 	if (NULL == form) {
 		_putsn("nil", 3);
 	}
@@ -808,17 +767,9 @@ void _print_object_not_timed(o form)
 	}
 }
 
-void _print_object(o form)
+int _strlen(const char *s)
 {
-	uintgr start931 = __rdtsc();
-	_print_object_not_timed(form);
-	_putsn(" _print-object:", 15);
-	putui(__rdtsc() - start931);
-	_putchar('\n');
-}
-
-int _strlen_not_timed(const char *s)
-{
+	_putsn("_strlen\n", 9);
 	const char *start = s;
 	while (*s) {
 		s = 1 + s;
@@ -826,18 +777,9 @@ int _strlen_not_timed(const char *s)
 	return s - start;
 }
 
-int _strlen(const char *s)
+o read_rest(void)
 {
-	uintgr start930 = __rdtsc();
-	int ret = _strlen_not_timed(s);
-	_putsn(" _strlen:", 9);
-	putui(__rdtsc() - start930);
-	_putchar('\n');
-	return ret;
-}
-
-o read_rest_not_timed(void)
-{
+	_putsn("read-rest\n", 11);
 	o item = nextitem();
 	if (((o)2) == item) {
 		return NULL;
@@ -863,18 +805,9 @@ o read_rest_not_timed(void)
 	return _cons(item, read_rest());
 }
 
-o read_rest(void)
+o nextitem(void)
 {
-	uintgr start929 = __rdtsc();
-	o ret = read_rest_not_timed();
-	_putsn(" read-rest:", 11);
-	putui(__rdtsc() - start929);
-	_putchar('\n');
-	return ret;
-}
-
-o nextitem_not_timed(void)
-{
+	_putsn("nextitem\n", 10);
 	int ch = _getc();
 	while (_isspace(ch)) {
 		ch = _getc();
@@ -973,17 +906,7 @@ o nextitem_not_timed(void)
 	}
 }
 
-o nextitem(void)
-{
-	uintgr start928 = __rdtsc();
-	o ret = nextitem_not_timed();
-	_putsn(" nextitem:", 10);
-	putui(__rdtsc() - start928);
-	_putchar('\n');
-	return ret;
-}
-
-int _isspace_not_timed(int c)
+int _isspace(int c)
 {
 	if ((c == ' ') || (c == '\n') || (c == '\t') || (c == '\r') || (c == '') || (c == '\n')) {
 		return 1;
@@ -993,13 +916,9 @@ int _isspace_not_timed(int c)
 	}
 }
 
-int _isspace(int c)
+int _getc(void)
 {
-	return _isspace_not_timed(c);
-}
-
-int _getc_not_timed(void)
-{
+	_putsn("_getc\n", 7);
 	if (last_char) {
 		int temp = last_char;
 		last_char = 0;
@@ -1012,33 +931,16 @@ int _getc_not_timed(void)
 	}
 }
 
-int _getc(void)
+void init_env(void)
 {
-	uintgr start926 = __rdtsc();
-	int ret = _getc_not_timed();
-	_putsn(" _getc:", 7);
-	putui(__rdtsc() - start926);
-	_putchar('\n');
-	return ret;
-}
-
-void init_env_not_timed(void)
-{
+	_putsn("init-env\n", 10);
 	global_env = NULL;
 	tee = _symbol(1);
 }
 
-void init_env(void)
+o _eval(o form, o env)
 {
-	uintgr start925 = __rdtsc();
-	init_env_not_timed();
-	_putsn(" init-env:", 10);
-	putui(__rdtsc() - start925);
-	_putchar('\n');
-}
-
-o _eval_not_timed(o form, o env)
-{
+	_putsn("_eval\n", 7);
 	int TC = 0;
 	EVALJUMP:
 	if (freespace < 10) {
@@ -1191,18 +1093,9 @@ o _eval_not_timed(o form, o env)
 	return NULL;
 }
 
-o _eval(o form, o env)
+o cdrx(o arg)
 {
-	uintgr start924 = __rdtsc();
-	o ret = _eval_not_timed(form, env);
-	_putsn(" _eval:", 7);
-	putui(__rdtsc() - start924);
-	_putchar('\n');
-	return ret;
-}
-
-o cdrx_not_timed(o arg)
-{
+	_putsn("cdrx\n", 6);
 	if (0 == ((2 != ((cons_symbol*)arg)->type) && (1 != ((cons_symbol*)arg)->type))) {
 		_putsn("(can't take cdr)", 16);
 		_putsn("EXIT\n", 6);
@@ -1214,18 +1107,9 @@ o cdrx_not_timed(o arg)
 	return ((o)arg)->cdr;
 }
 
-o cdrx(o arg)
+o carx(o arg)
 {
-	uintgr start923 = __rdtsc();
-	o ret = cdrx_not_timed(arg);
-	_putsn(" cdrx:", 6);
-	putui(__rdtsc() - start923);
-	_putchar('\n');
-	return ret;
-}
-
-o carx_not_timed(o arg)
-{
+	_putsn("carx\n", 6);
 	if (0 == ((2 != ((cons_symbol*)arg)->type) && (1 != ((cons_symbol*)arg)->type))) {
 		_putsn("(can't take car)", 16);
 		_putsn("EXIT\n", 6);
@@ -1237,18 +1121,9 @@ o carx_not_timed(o arg)
 	return ((o)arg)->car;
 }
 
-o carx(o arg)
+o _apply(o function, o args, o *env)
 {
-	uintgr start922 = __rdtsc();
-	o ret = carx_not_timed(arg);
-	_putsn(" carx:", 6);
-	putui(__rdtsc() - start922);
-	_putchar('\n');
-	return ret;
-}
-
-o _apply_not_timed(o function, o args, o *env)
-{
+	_putsn("_apply\n", 8);
 	if (1 == ((cons_symbol*)function)->type) {
 		uintgr name = ((cons_symbol*)function)->name;
 		int nargs = listlength(args);
@@ -1287,65 +1162,29 @@ o _apply_not_timed(o function, o args, o *env)
 	return NULL;
 }
 
-o _apply(o function, o args, o *env)
-{
-	uintgr start921 = __rdtsc();
-	o ret = _apply_not_timed(function, args, env);
-	_putsn(" _apply:", 8);
-	putui(__rdtsc() - start921);
-	_putchar('\n');
-	return ret;
-}
-
-fn_ptr_type lookupfn_not_timed(uintgr idx)
-{
-	return builtin_fptr[idx];
-}
-
 fn_ptr_type lookupfn(uintgr idx)
 {
-	uintgr start920 = __rdtsc();
-	fn_ptr_type ret = lookupfn_not_timed(idx);
-	_putsn(" lookupfn:", 10);
-	putui(__rdtsc() - start920);
-	_putchar('\n');
-	return ret;
-}
-
-int lookupmax_not_timed(uintgr idx)
-{
-	(void) name;
-	return builtin_par_max[idx];
+	_putsn("lookupfn\n", 10);
+	return builtin_fptr[idx];
 }
 
 int lookupmax(uintgr idx)
 {
-	uintgr start919 = __rdtsc();
-	int ret = lookupmax_not_timed(idx);
-	_putsn(" lookupmax:", 11);
-	putui(__rdtsc() - start919);
-	_putchar('\n');
-	return ret;
-}
-
-int lookupmin_not_timed(uintgr idx)
-{
+	_putsn("lookupmax\n", 11);
 	(void) name;
-	return builtin_par_min[idx];
+	return builtin_par_max[idx];
 }
 
 int lookupmin(uintgr idx)
 {
-	uintgr start918 = __rdtsc();
-	int ret = lookupmin_not_timed(idx);
-	_putsn(" lookupmin:", 11);
-	putui(__rdtsc() - start918);
-	_putchar('\n');
-	return ret;
+	_putsn("lookupmin\n", 11);
+	(void) name;
+	return builtin_par_min[idx];
 }
 
-int builtin_not_timed(char *name)
+int builtin(char *name)
 {
+	_putsn("builtin\n", 9);
 	intgr entry = 0;
 	while (entry < 31) {
 		if (_string_eq_p(name, builtin_name[entry], 7)) {
@@ -1356,17 +1195,7 @@ int builtin_not_timed(char *name)
 	return 31;
 }
 
-int builtin(char *name)
-{
-	uintgr start917 = __rdtsc();
-	int ret = builtin_not_timed(name);
-	_putsn(" builtin:", 9);
-	putui(__rdtsc() - start917);
-	_putchar('\n');
-	return ret;
-}
-
-int _string_eq_p_not_timed(const char *a, const char *b, int n)
+int _string_eq_p(const char *a, const char *b, int n)
 {
 	for(int i = 0; (i < n) && a[i] && b[i]; i = 1 + i){
 		if (a[i] != b[i]) {
@@ -1376,13 +1205,9 @@ int _string_eq_p_not_timed(const char *a, const char *b, int n)
 	return 1;
 }
 
-int _string_eq_p(const char *a, const char *b, int n)
+int listlength(o list)
 {
-	return _string_eq_p_not_timed(a, b, n);
-}
-
-int listlength_not_timed(o list)
-{
+	_putsn("listlength\n", 12);
 	int len = 0;
 	while (NULL != list) {
 		o e = ((o)list)->car;
@@ -1393,18 +1218,9 @@ int listlength_not_timed(o list)
 	return len;
 }
 
-int listlength(o list)
+o closure(int tail, o fname, o state, o function, o args, o *env)
 {
-	uintgr start915 = __rdtsc();
-	int ret = listlength_not_timed(list);
-	_putsn(" listlength:", 12);
-	putui(__rdtsc() - start915);
-	_putchar('\n');
-	return ret;
-}
-
-o closure_not_timed(int tail, o fname, o state, o function, o args, o *env)
-{
+	_putsn("closure\n", 9);
 	(void) fname;
 	o params = ((o)function)->car;
 	function = ((o)function)->cdr;
@@ -1452,18 +1268,9 @@ o closure_not_timed(int tail, o fname, o state, o function, o args, o *env)
 	return tf_progn(function, *env);
 }
 
-o closure(int tail, o fname, o state, o function, o args, o *env)
+o findtwin(o var, o env)
 {
-	uintgr start914 = __rdtsc();
-	o ret = closure_not_timed(tail, fname, state, function, args, env);
-	_putsn(" closure:", 9);
-	putui(__rdtsc() - start914);
-	_putchar('\n');
-	return ret;
-}
-
-o findtwin_not_timed(o var, o env)
-{
+	_putsn("findtwin\n", 10);
 	while (NULL != env) {
 		o item = ((o)env)->car;
 		((void)item);
@@ -1475,18 +1282,9 @@ o findtwin_not_timed(o var, o env)
 	return NULL;
 }
 
-o findtwin(o var, o env)
+o findvalue(o var, o env)
 {
-	uintgr start913 = __rdtsc();
-	o ret = findtwin_not_timed(var, env);
-	_putsn(" findtwin:", 10);
-	putui(__rdtsc() - start913);
-	_putchar('\n');
-	return ret;
-}
-
-o findvalue_not_timed(o var, o env)
-{
+	_putsn("findvalue\n", 11);
 	uintgr varname = ((cons_symbol*)var)->name;
 	o pair = value(varname, env);
 	if (NULL == pair) {
@@ -1500,18 +1298,9 @@ o findvalue_not_timed(o var, o env)
 	return pair;
 }
 
-o findvalue(o var, o env)
+o value(uintgr n, o env)
 {
-	uintgr start912 = __rdtsc();
-	o ret = findvalue_not_timed(var, env);
-	_putsn(" findvalue:", 11);
-	putui(__rdtsc() - start912);
-	_putchar('\n');
-	return ret;
-}
-
-o value_not_timed(uintgr n, o env)
-{
+	_putsn("value\n", 7);
 	while (NULL != env) {
 		o item = ((o)env)->car;
 		((void)item);
@@ -1523,48 +1312,21 @@ o value_not_timed(uintgr n, o env)
 	return NULL;
 }
 
-o value(uintgr n, o env)
-{
-	uintgr start911 = __rdtsc();
-	o ret = value_not_timed(n, env);
-	_putsn(" value:", 7);
-	putui(__rdtsc() - start911);
-	_putchar('\n');
-	return ret;
-}
-
-int _eq_not_timed(o a, o b)
-{
-	return (a == b) || ((1 == ((cons_symbol*)a)->type) && (1 == ((cons_symbol*)b)->type) && (((cons_symbol*)a)->name == ((cons_symbol*)b)->name)) || ((2 == ((cons_symbol*)a)->type) && (2 == ((cons_symbol*)b)->type) && (((cons_number*)a)->integer == ((cons_number*)b)->integer));
-}
-
 int _eq(o a, o b)
 {
-	uintgr start910 = __rdtsc();
-	int ret = _eq_not_timed(a, b);
-	_putsn(" _eq:", 5);
-	putui(__rdtsc() - start910);
-	_putchar('\n');
-	return ret;
-}
-
-int issymbol_not_timed(o obj, uintgr n)
-{
-	return (1 == ((cons_symbol*)obj)->type) && (n == ((cons_symbol*)obj)->name);
+	_putsn("_eq\n", 5);
+	return (a == b) || ((1 == ((cons_symbol*)a)->type) && (1 == ((cons_symbol*)b)->type) && (((cons_symbol*)a)->name == ((cons_symbol*)b)->name)) || ((2 == ((cons_symbol*)a)->type) && (2 == ((cons_symbol*)b)->type) && (((cons_number*)a)->integer == ((cons_number*)b)->integer));
 }
 
 int issymbol(o obj, uintgr n)
 {
-	uintgr start909 = __rdtsc();
-	int ret = issymbol_not_timed(obj, n);
-	_putsn(" issymbol:", 10);
-	putui(__rdtsc() - start909);
-	_putchar('\n');
-	return ret;
+	_putsn("issymbol\n", 10);
+	return (1 == ((cons_symbol*)obj)->type) && (n == ((cons_symbol*)obj)->name);
 }
 
-intgr _integer_not_timed(o obj)
+intgr _integer(o obj)
 {
+	_putsn("_integer\n", 10);
 	if (2 != ((cons_symbol*)obj)->type) {
 		_putsn("(not number)", 12);
 		_putsn("EXIT\n", 6);
@@ -1573,18 +1335,9 @@ intgr _integer_not_timed(o obj)
 	return ((cons_number*)obj)->integer;
 }
 
-intgr _integer(o obj)
+char *name(o obj)
 {
-	uintgr start908 = __rdtsc();
-	intgr ret = _integer_not_timed(obj);
-	_putsn(" _integer:", 10);
-	putui(__rdtsc() - start908);
-	_putchar('\n');
-	return ret;
-}
-
-char *name_not_timed(o obj)
-{
+	_putsn("name\n", 6);
 	buffer[3] = ((char)0);
 	if (1 != ((cons_symbol*)obj)->type) {
 		_putsn("(name)", 6);
@@ -1602,35 +1355,16 @@ char *name_not_timed(o obj)
 	return buffer;
 }
 
-char *name(o obj)
+char *lookupstring(uintgr idx)
 {
-	uintgr start907 = __rdtsc();
-	char *ret = name_not_timed(obj);
-	_putsn(" name:", 6);
-	putui(__rdtsc() - start907);
-	_putchar('\n');
-	return ret;
-}
-
-char *lookupstring_not_timed(uintgr idx)
-{
+	_putsn("lookupstring\n", 14);
 	for(int i = 0; i < 7; i = 1 + i){
 		buffer[i] = builtin_name[idx][i];
 	}
 	return buffer;
 }
 
-char *lookupstring(uintgr idx)
-{
-	uintgr start906 = __rdtsc();
-	char *ret = lookupstring_not_timed(idx);
-	_putsn(" lookupstring:", 14);
-	putui(__rdtsc() - start906);
-	_putchar('\n');
-	return ret;
-}
-
-intgr digitvalue_not_timed(char d)
+intgr digitvalue(char d)
 {
 	if (('0' <= d) && (d <= '9')) {
 		return d - '0';
@@ -1642,28 +1376,15 @@ intgr digitvalue_not_timed(char d)
 	return 16;
 }
 
-intgr digitvalue(char d)
+uintgr pack40(char *c)
 {
-	return digitvalue_not_timed(d);
-}
-
-uintgr pack40_not_timed(char *c)
-{
+	_putsn("pack40\n", 8);
 	return (40 * ((40 * toradix40(c[0])) + toradix40(c[1]))) + toradix40(c[2]);
 }
 
-uintgr pack40(char *c)
+intgr fromradix40(intgr n)
 {
-	uintgr start904 = __rdtsc();
-	uintgr ret = pack40_not_timed(c);
-	_putsn(" pack40:", 8);
-	putui(__rdtsc() - start904);
-	_putchar('\n');
-	return ret;
-}
-
-intgr fromradix40_not_timed(intgr n)
-{
+	_putsn("fromradix40\n", 13);
 	if ((1 <= n) && (n <= 26)) {
 		return n + 'a' + -1;
 	}
@@ -1676,18 +1397,9 @@ intgr fromradix40_not_timed(intgr n)
 	return 0;
 }
 
-intgr fromradix40(intgr n)
+intgr toradix40(intgr ch)
 {
-	uintgr start903 = __rdtsc();
-	intgr ret = fromradix40_not_timed(n);
-	_putsn(" fromradix40:", 13);
-	putui(__rdtsc() - start903);
-	_putchar('\n');
-	return ret;
-}
-
-intgr toradix40_not_timed(intgr ch)
-{
+	_putsn("toradix40\n", 11);
 	if (0 == ch) {
 		return 0;
 	}
@@ -1704,18 +1416,9 @@ intgr toradix40_not_timed(intgr ch)
 	return 0;
 }
 
-intgr toradix40(intgr ch)
+void gc(o form, o env)
 {
-	uintgr start902 = __rdtsc();
-	intgr ret = toradix40_not_timed(ch);
-	_putsn(" toradix40:", 11);
-	putui(__rdtsc() - start902);
-	_putchar('\n');
-	return ret;
-}
-
-void gc_not_timed(o form, o env)
-{
+	_putsn("gc\n", 4);
 	mark_object(tee);
 	mark_object(global_env);
 	mark_object(gc_stack);
@@ -1724,17 +1427,9 @@ void gc_not_timed(o form, o env)
 	sweep();
 }
 
-void gc(o form, o env)
+void sweep(void)
 {
-	uintgr start901 = __rdtsc();
-	gc_not_timed(form, env);
-	_putsn(" gc:", 4);
-	putui(__rdtsc() - start901);
-	_putchar('\n');
-}
-
-void sweep_not_timed(void)
-{
+	_putsn("sweep\n", 7);
 	freelist = 0;
 	freespace = 0;
 	for(int i = 315 - 1; 0 <= i; i = i - 1){
@@ -1751,16 +1446,7 @@ void sweep_not_timed(void)
 	}
 }
 
-void sweep(void)
-{
-	uintgr start900 = __rdtsc();
-	sweep_not_timed();
-	_putsn(" sweep:", 7);
-	putui(__rdtsc() - start900);
-	_putchar('\n');
-}
-
-void mark_object_not_timed(o obj)
+void mark_object(o obj)
 {
 	if (0 == obj) {
 		return;
@@ -1777,67 +1463,36 @@ void mark_object_not_timed(o obj)
 	}
 }
 
-void mark_object(o obj)
+o _symbol(uintgr name)
 {
-	mark_object_not_timed(obj);
-}
-
-o _symbol_not_timed(uintgr name)
-{
+	_putsn("_symbol\n", 9);
 	cons_symbol *ptr = ((cons_symbol*)_alloc());
 	((cons_symbol*)ptr)->type = 1;
 	((cons_symbol*)ptr)->name = name;
 	return ((o)ptr);
 }
 
-o _symbol(uintgr name)
+o _cons(o arg1, o arg2)
 {
-	uintgr start898 = __rdtsc();
-	o ret = _symbol_not_timed(name);
-	_putsn(" _symbol:", 9);
-	putui(__rdtsc() - start898);
-	_putchar('\n');
-	return ret;
-}
-
-o _cons_not_timed(o arg1, o arg2)
-{
+	_putsn("_cons\n", 7);
 	o ptr = ((o)_alloc());
 	((o)ptr)->car = arg1;
 	((o)ptr)->cdr = arg2;
 	return ptr;
 }
 
-o _cons(o arg1, o arg2)
+o _number(intgr n)
 {
-	uintgr start897 = __rdtsc();
-	o ret = _cons_not_timed(arg1, arg2);
-	_putsn(" _cons:", 7);
-	putui(__rdtsc() - start897);
-	_putchar('\n');
-	return ret;
-}
-
-o _number_not_timed(intgr n)
-{
+	_putsn("_number\n", 9);
 	cons_number *ptr = ((cons_number*)_alloc());
 	((cons_symbol*)ptr)->type = 2;
 	((cons_number*)ptr)->integer = n;
 	return ((o)ptr);
 }
 
-o _number(intgr n)
+o _alloc(void)
 {
-	uintgr start896 = __rdtsc();
-	o ret = _number_not_timed(n);
-	_putsn(" _number:", 9);
-	putui(__rdtsc() - start896);
-	_putchar('\n');
-	return ret;
-}
-
-o _alloc_not_timed(void)
-{
+	_putsn("_alloc\n", 8);
 	if (0 == freespace) {
 		_putsn("(No room)", 9);
 		_putsn("EXIT\n", 6);
@@ -1849,18 +1504,9 @@ o _alloc_not_timed(void)
 	return temp;
 }
 
-o _alloc(void)
+void init_workspace(void)
 {
-	uintgr start895 = __rdtsc();
-	o ret = _alloc_not_timed();
-	_putsn(" _alloc:", 8);
-	putui(__rdtsc() - start895);
-	_putchar('\n');
-	return ret;
-}
-
-void init_workspace_not_timed(void)
-{
+	_putsn("init-workspace\n", 16);
 	freelist = 0;
 	for(intgr i = 315 - 1; 0 <= i; i = i - 1){
 		o obj = workspace + i;
@@ -1869,15 +1515,6 @@ void init_workspace_not_timed(void)
 		freelist = obj;
 		freespace = 1 + freespace;
 	}
-}
-
-void init_workspace(void)
-{
-	uintgr start894 = __rdtsc();
-	init_workspace_not_timed();
-	_putsn(" init-workspace:", 16);
-	putui(__rdtsc() - start894);
-	_putchar('\n');
 }
 
 int main(int argc, char **argv)
