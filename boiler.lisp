@@ -671,7 +671,7 @@
 		      (progn
 			(funcall _putchar #\Space)
 			(funcall _print-object e))))
-		(if (!= NULL form)
+ 		(if (!= NULL form)
 		    (progn (%puts " . ")
 			   (funcall _print-object form)))
 		(funcall _putchar #\)))
