@@ -60,7 +60,12 @@
 (defparameter *number* 2)
 
 (defmacro cons-car (x)
-  `(pref (cast 'o ,x) car))
+  `(block
+     (when (== 0 (%listp ,x))
+       (%err "can't access car"))
+     (when (== cnil ,x)
+       cnil)
+     (pref (cast 'o ,x) car)))
 (defmacro cons-cdr (x)
   `(pref (cast 'o ,x) cdr))
 (defmacro cons-name (x)

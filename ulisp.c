@@ -271,12 +271,32 @@ fn_ptr_type builtin_fptr[31] = { 0, 0, 0, 0, 0, sp_decf, sp_incf, sp_pop, sp_pus
 o sp_decf(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 2
-	o var = ((o)args)->car;
+	o var = 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 	o pair = findvalue(var, env);
 	int result = _integer(_eval(var, env));
 	int temp = 1;
 	if (NULL != ((o)args)->cdr) {
-		temp = _integer(_eval(((o)((o)args)->cdr)->car, env));
+		temp = _integer(_eval(
+		{
+			if (0 == ((2 != ((cons_symbol*)((o)args)->cdr)->type) && (1 != ((cons_symbol*)((o)args)->cdr)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == ((o)args)->cdr) {
+NULL
+			}((o)((o)args)->cdr)->car
+		}, env));
 	}
 	result = result - temp;
 	var = _number(result);
@@ -287,12 +307,32 @@ o sp_decf(o args, o env)
 o sp_incf(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 2
-	o var = ((o)args)->car;
+	o var = 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 	o pair = findvalue(var, env);
 	int result = _integer(_eval(var, env));
 	int temp = 1;
 	if (NULL != ((o)args)->cdr) {
-		temp = _integer(_eval(((o)((o)args)->cdr)->car, env));
+		temp = _integer(_eval(
+		{
+			if (0 == ((2 != ((cons_symbol*)((o)args)->cdr)->type) && (1 != ((cons_symbol*)((o)args)->cdr)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == ((o)args)->cdr) {
+NULL
+			}((o)((o)args)->cdr)->car
+		}, env));
 	}
 	result = result + temp;
 	var = _number(result);
@@ -303,8 +343,28 @@ o sp_incf(o args, o env)
 o sp_pop(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
-	o pair = findvalue(((o)((o)args)->cdr)->car, env);
-	o result = ((o)((o)pair)->cdr)->car;
+	o pair = findvalue(
+	{
+		if (0 == ((2 != ((cons_symbol*)((o)args)->cdr)->type) && (1 != ((cons_symbol*)((o)args)->cdr)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == ((o)args)->cdr) {
+NULL
+		}((o)((o)args)->cdr)->car
+	}, env);
+	o result = 
+	{
+		if (0 == ((2 != ((cons_symbol*)((o)pair)->cdr)->type) && (1 != ((cons_symbol*)((o)pair)->cdr)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == ((o)pair)->cdr) {
+NULL
+		}((o)((o)pair)->cdr)->car
+	};
 	((o)pair)->cdr = ((o)((o)pair)->cdr)->cdr;
 	return result;
 }
@@ -312,8 +372,28 @@ o sp_pop(o args, o env)
 o sp_push(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 2
-	o item = _eval(((o)args)->car, env);
-	o pair = findvalue(((o)((o)args)->cdr)->car, env);
+	o item = _eval(
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	}, env);
+	o pair = findvalue(
+	{
+		if (0 == ((2 != ((cons_symbol*)((o)args)->cdr)->type) && (1 != ((cons_symbol*)((o)args)->cdr)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == ((o)args)->cdr) {
+NULL
+		}((o)((o)args)->cdr)->car
+	}, env);
 	((o)pair)->cdr = _cons(item, ((o)pair)->cdr);
 	return ((o)pair)->cdr;
 }
@@ -326,7 +406,17 @@ o sp_loop(o args, o env)
 	for(; ; ){
 		args = start;
 		while (NULL != args) {
-			o form = ((o)args)->car;
+			o form = 
+			{
+				if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+					_putsn("(can't access car)", 18);
+					_putsn("EXIT\n", 6);
+					exit(0);
+				}
+				if (NULL == args) {
+NULL
+				}((o)args)->car
+			};
 			((void)form);
 			o result = _eval(form, env);
 			if (1 == return_flag) {
@@ -341,8 +431,28 @@ o sp_loop(o args, o env)
 o sp_setq(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 2
-	o arg = _eval(((o)((o)args)->cdr)->car, env);
-	o pair = findvalue(((o)args)->car, env);
+	o arg = _eval(
+	{
+		if (0 == ((2 != ((cons_symbol*)((o)args)->cdr)->type) && (1 != ((cons_symbol*)((o)args)->cdr)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == ((o)args)->cdr) {
+NULL
+		}((o)((o)args)->cdr)->car
+	}, env);
+	o pair = findvalue(
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	}, env);
 	((o)pair)->cdr = arg;
 	return arg;
 }
@@ -350,13 +460,33 @@ o sp_setq(o args, o env)
 o sp_defvar(o args, o env)
 {
 	//minimum number of parameters: 0, max. nr. of parameters: 127
-	o var = ((o)args)->car;
+	o var = 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 	if (1 != ((cons_symbol*)var)->type) {
 		_putsn("(not a symbol)", 14);
 		_putsn("EXIT\n", 6);
 		exit(0);
 	}
-	o val = _eval(((o)((o)args)->cdr)->car, env);
+	o val = _eval(
+	{
+		if (0 == ((2 != ((cons_symbol*)((o)args)->cdr)->type) && (1 != ((cons_symbol*)((o)args)->cdr)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == ((o)args)->cdr) {
+NULL
+		}((o)((o)args)->cdr)->car
+	}, env);
 	o pair = value(((cons_symbol*)var)->name, global_env);
 	if (NULL != pair) {
 		((o)pair)->cdr = val;
@@ -370,7 +500,17 @@ o sp_defun(o args, o env)
 {
 	//minimum number of parameters: 0, max. nr. of parameters: 127
 	(void) env;
-	o var = ((o)args)->car;
+	o var = 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 	if (1 != ((cons_symbol*)var)->type) {
 		_putsn("(not a symbol)", 14);
 		_putsn("EXIT\n", 6);
@@ -390,7 +530,17 @@ o sp_quote(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	return ((o)args)->car;
+	return 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 }
 
 o tf_or(o args, o env)
@@ -398,16 +548,46 @@ o tf_or(o args, o env)
 	//minimum number of parameters: 0, max. nr. of parameters: 127
 	o more = ((o)args)->cdr;
 	while (NULL != more) {
-		o e = ((o)more)->car;
+		o e = 
+		{
+			if (0 == ((2 != ((cons_symbol*)more)->type) && (1 != ((cons_symbol*)more)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == more) {
+NULL
+			}((o)more)->car
+		};
 		((void)e);
-		o result = _eval(((o)args)->car, env);
+		o result = _eval(
+		{
+			if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == args) {
+NULL
+			}((o)args)->car
+		}, env);
 		if (NULL != result) {
 			return result;
 		}
 		args = more;
 		more = ((o)more)->cdr;
 	}
-	return ((o)args)->car;
+	return 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 }
 
 o tf_and(o args, o env)
@@ -418,24 +598,74 @@ o tf_and(o args, o env)
 	}
 	o more = ((o)args)->cdr;
 	while (NULL != more) {
-		o e = ((o)more)->car;
+		o e = 
+		{
+			if (0 == ((2 != ((cons_symbol*)more)->type) && (1 != ((cons_symbol*)more)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == more) {
+NULL
+			}((o)more)->car
+		};
 		((void)e);
-		if (NULL == _eval(((o)args)->car, env)) {
+		if (NULL == _eval(
+		{
+			if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == args) {
+NULL
+			}((o)args)->car
+		}, env)) {
 			return NULL;
 		}
 		args = more;
 		more = ((o)more)->cdr;
 	}
-	return ((o)args)->car;
+	return 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 }
 
 o tf_cond(o args, o env)
 {
 	//minimum number of parameters: 0, max. nr. of parameters: 127
 	while (NULL != args) {
-		o clause = ((o)args)->car;
+		o clause = 
+		{
+			if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == args) {
+NULL
+			}((o)args)->car
+		};
 		((void)clause);
-		o test = _eval(((o)clause)->car, env);
+		o test = _eval(
+		{
+			if (0 == ((2 != ((cons_symbol*)clause)->type) && (1 != ((cons_symbol*)clause)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == clause) {
+NULL
+			}((o)clause)->car
+		}, env);
 		o forms = ((o)clause)->cdr;
 		if (NULL != test) {
 			if (NULL == forms) {
@@ -453,10 +683,39 @@ o tf_cond(o args, o env)
 o tf_if(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 3
-	if (NULL != _eval(((o)args)->car, env)) {
-		return ((o)((o)args)->cdr)->car;
+	if (NULL != _eval(
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	}, env)) {
+		return {
+			if (0 == ((2 != ((cons_symbol*)((o)args)->cdr)->type) && (1 != ((cons_symbol*)((o)args)->cdr)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == ((o)args)->cdr) {
+NULL
+			}((o)((o)args)->cdr)->car
+		};
 	}
-	return ((o)((o)((o)args)->cdr)->cdr)->car;
+	return 
+	{
+		if (0 == ((2 != ((cons_symbol*)((o)((o)args)->cdr)->cdr)->type) && (1 != ((cons_symbol*)((o)((o)args)->cdr)->cdr)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == ((o)((o)args)->cdr)->cdr) {
+NULL
+		}((o)((o)((o)args)->cdr)->cdr)->car
+	};
 }
 
 o tf_return(o args, o env)
@@ -474,20 +733,60 @@ o tf_progn(o args, o env)
 	}
 	o more = ((o)args)->cdr;
 	while (NULL != more) {
-		o e = ((o)more)->car;
+		o e = 
+		{
+			if (0 == ((2 != ((cons_symbol*)more)->type) && (1 != ((cons_symbol*)more)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == more) {
+NULL
+			}((o)more)->car
+		};
 		((void)e);
-		_eval(((o)args)->car, env);
+		_eval(
+		{
+			if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == args) {
+NULL
+			}((o)args)->car
+		}, env);
 		args = more;
 		more = ((o)more)->cdr;
 	}
-	return ((o)args)->car;
+	return 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 }
 
 o fn_princ(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	o obj = ((o)args)->car;
+	o obj = 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 	_print_object(obj);
 	return obj;
 }
@@ -496,10 +795,30 @@ o fn_less(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 127
 	(void) env;
-	intgr arg1 = _integer(((o)args)->car);
+	intgr arg1 = _integer(
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	});
 	args = ((o)args)->cdr;
 	while (NULL != args) {
-		o item = ((o)args)->car;
+		o item = 
+		{
+			if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == args) {
+NULL
+			}((o)args)->car
+		};
 		((void)item);
 		intgr arg2 = _integer(item);
 		if (0 == (arg1 < arg2)) {
@@ -517,7 +836,17 @@ o fn_add(o args, o env)
 	(void) env;
 	intgr result = 0;
 	while (NULL != args) {
-		o item = ((o)args)->car;
+		o item = 
+		{
+			if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == args) {
+NULL
+			}((o)args)->car
+		};
 		((void)item);
 		intgr temp = _integer(item);
 		result = result + temp;
@@ -531,42 +860,132 @@ o fn_apply(o args, o env)
 	//minimum number of parameters: 2, max. nr. of parameters: 127
 	o previous = NULL;
 	o last = args;
-	o G912 = ((o)last)->cdr;
-	while (NULL != G912) {
-		o e = ((o)G912)->car;
+	o G1030 = ((o)last)->cdr;
+	while (NULL != G1030) {
+		o e = 
+		{
+			if (0 == ((2 != ((cons_symbol*)G1030)->type) && (1 != ((cons_symbol*)G1030)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == G1030) {
+NULL
+			}((o)G1030)->car
+		};
 		((void)e);
 		previous = last;
-		G912 = ((o)G912)->cdr;
+		G1030 = ((o)G1030)->cdr;
 	}
-	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
+	if (0 == ((2 != ((cons_symbol*)
+	{
+		if (0 == ((2 != ((cons_symbol*)last)->type) && (1 != ((cons_symbol*)last)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == last) {
+NULL
+		}((o)last)->car
+	})->type) && (1 != ((cons_symbol*)
+	{
+		if (0 == ((2 != ((cons_symbol*)last)->type) && (1 != ((cons_symbol*)last)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == last) {
+NULL
+		}((o)last)->car
+	})->type))) {
 		_putsn("(last arg not list)", 19);
 		_putsn("EXIT\n", 6);
 		exit(0);
 	}
-	((o)previous)->cdr = ((o)last)->car;
-	return _apply(((o)args)->car, ((o)args)->cdr, &env);
+	((o)previous)->cdr = 
+	{
+		if (0 == ((2 != ((cons_symbol*)last)->type) && (1 != ((cons_symbol*)last)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == last) {
+NULL
+		}((o)last)->car
+	};
+	return _apply(
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	}, ((o)args)->cdr, &env);
 }
 
 o fn_cdr(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	return cdrx(((o)args)->car);
+	return cdrx(
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	});
 }
 
 o fn_car(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	return carx(((o)args)->car);
+	return carx(
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	});
 }
 
 o fn_eq(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 2
 	(void) env;
-	o arg1 = ((o)args)->car;
-	o arg2 = ((o)((o)args)->cdr)->car;
+	o arg1 = 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
+	o arg2 = 
+	{
+		if (0 == ((2 != ((cons_symbol*)((o)args)->cdr)->type) && (1 != ((cons_symbol*)((o)args)->cdr)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == ((o)args)->cdr) {
+NULL
+		}((o)((o)args)->cdr)->car
+	};
 	if (_eq(arg1, arg2)) {
 		return tee;
 	}
@@ -579,7 +998,17 @@ o fn_listp(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	o arg1 = ((o)args)->car;
+	o arg1 = 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 	if ((2 != ((cons_symbol*)arg1)->type) && (1 != ((cons_symbol*)arg1)->type)) {
 		return tee;
 	}
@@ -592,7 +1021,17 @@ o fn_atom(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	o arg1 = ((o)args)->car;
+	o arg1 = 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	};
 	if ((2 != ((cons_symbol*)arg1)->type) && (1 != ((cons_symbol*)arg1)->type) && (NULL != arg1)) {
 		return NULL;
 	}
@@ -605,14 +1044,44 @@ o fn_cons(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 2
 	(void) env;
-	return _cons(((o)args)->car, ((o)((o)args)->cdr)->car);
+	return _cons(
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	}, 
+	{
+		if (0 == ((2 != ((cons_symbol*)((o)args)->cdr)->type) && (1 != ((cons_symbol*)((o)args)->cdr)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == ((o)args)->cdr) {
+NULL
+		}((o)((o)args)->cdr)->car
+	});
 }
 
 o fn_not(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	if (NULL == ((o)args)->car) {
+	if (NULL == 
+	{
+		if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == args) {
+NULL
+		}((o)args)->car
+	}) {
 		return tee;
 	}
 	else {
@@ -723,17 +1192,47 @@ void _print_object(o form)
 	if (NULL == form) {
 		_putsn("nil", 3);
 	}
-	else if (((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type)) && issymbol(((o)form)->car, 4)) 
+	else if (((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type)) && issymbol(
+	{
+		if (0 == ((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == form) {
+NULL
+		}((o)form)->car
+	}, 4)) 
 	{
 		_putsn("<closure>", 9);
 	}
 	else if ((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type)) 
 	{
 		_putchar(((int)'('));
-		_print_object(((o)form)->car);
+		_print_object(
+		{
+			if (0 == ((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == form) {
+NULL
+			}((o)form)->car
+		});
 		form = ((o)form)->cdr;
 		while (NULL != form) {
-			o e = ((o)form)->car;
+			o e = 
+			{
+				if (0 == ((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type))) {
+					_putsn("(can't access car)", 18);
+					_putsn("EXIT\n", 6);
+					exit(0);
+				}
+				if (NULL == form) {
+NULL
+				}((o)form)->car
+			};
 			((void)e);
 			if ((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type)) {
 				_putchar(' ');
@@ -974,21 +1473,71 @@ o _eval(o form, o env)
 		}
 	}
 	//it's a list
-	o function = ((o)form)->car;
+	o function = 
+	{
+		if (0 == ((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == form) {
+NULL
+		}((o)form)->car
+	};
 	o args = ((o)form)->cdr;
 	//list starting with symbol?
 	if (1 == ((cons_symbol*)function)->type) {
 		{
 			uintgr name = ((cons_symbol*)function)->name;
 			if (3 == name) {
-				o assigns = ((o)args)->car;
+				o assigns = 
+				{
+					if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+						_putsn("(can't access car)", 18);
+						_putsn("EXIT\n", 6);
+						exit(0);
+					}
+					if (NULL == args) {
+NULL
+					}((o)args)->car
+				};
 				o forms = ((o)args)->cdr;
 				o newenv = env;
 				while (NULL != assigns) {
-					o assign = ((o)assigns)->car;
+					o assign = 
+					{
+						if (0 == ((2 != ((cons_symbol*)assigns)->type) && (1 != ((cons_symbol*)assigns)->type))) {
+							_putsn("(can't access car)", 18);
+							_putsn("EXIT\n", 6);
+							exit(0);
+						}
+						if (NULL == assigns) {
+NULL
+						}((o)assigns)->car
+					};
 					((void)assign);
 					if ((2 != ((cons_symbol*)assign)->type) && (1 != ((cons_symbol*)assign)->type) && (NULL != assign)) {
-						newenv = _cons(_cons(((o)assign)->car, _eval(((o)((o)assign)->cdr)->car, env)), newenv);
+						newenv = _cons(_cons(
+						{
+							if (0 == ((2 != ((cons_symbol*)assign)->type) && (1 != ((cons_symbol*)assign)->type))) {
+								_putsn("(can't access car)", 18);
+								_putsn("EXIT\n", 6);
+								exit(0);
+							}
+							if (NULL == assign) {
+NULL
+							}((o)assign)->car
+						}, _eval(
+						{
+							if (0 == ((2 != ((cons_symbol*)((o)assign)->cdr)->type) && (1 != ((cons_symbol*)((o)assign)->cdr)->type))) {
+								_putsn("(can't access car)", 18);
+								_putsn("EXIT\n", 6);
+								exit(0);
+							}
+							if (NULL == ((o)assign)->cdr) {
+NULL
+							}((o)((o)assign)->cdr)->car
+						}, env)), newenv);
 					}
 					else {
 						newenv = _cons(_cons(assign, NULL), newenv);
@@ -1007,13 +1556,33 @@ o _eval(o form, o env)
 				o envcopy = NULL;
 				while (NULL != env) {
 					{
-						o pair = ((o)env)->car;
+						o pair = 
+						{
+							if (0 == ((2 != ((cons_symbol*)env)->type) && (1 != ((cons_symbol*)env)->type))) {
+								_putsn("(can't access car)", 18);
+								_putsn("EXIT\n", 6);
+								exit(0);
+							}
+							if (NULL == env) {
+NULL
+							}((o)env)->car
+						};
 						((void)pair);
 						o val = ((o)pair)->cdr;
 						if (2 == ((cons_symbol*)val)->type) {
 							val = _number(((cons_number*)val)->integer);
 						}
-						envcopy = _cons(_cons(((o)pair)->car, val), envcopy);
+						envcopy = _cons(_cons(
+						{
+							if (0 == ((2 != ((cons_symbol*)pair)->type) && (1 != ((cons_symbol*)pair)->type))) {
+								_putsn("(can't access car)", 18);
+								_putsn("EXIT\n", 6);
+								exit(0);
+							}
+							if (NULL == pair) {
+NULL
+							}((o)pair)->car
+						}, val), envcopy);
 					}
 					env = ((o)env)->cdr;
 				}
@@ -1030,16 +1599,46 @@ o _eval(o form, o env)
 		}
 	}
 	//evaluate the parameters - result in head
-	o fname = ((o)form)->car;
+	o fname = 
+	{
+		if (0 == ((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == form) {
+NULL
+		}((o)form)->car
+	};
 	int TCstart = TC;
-	o head = _cons(_eval(((o)form)->car, env), NULL);
+	o head = _cons(_eval(
+	{
+		if (0 == ((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == form) {
+NULL
+		}((o)form)->car
+	}, env), NULL);
 	//don't gc the result list
 	gc_stack = _cons(head, gc_stack);
 	o tail = head;
 	form = ((o)form)->cdr;
 	int nargs = 0;
 	while (NULL != form) {
-		o e = ((o)form)->car;
+		o e = 
+		{
+			if (0 == ((2 != ((cons_symbol*)form)->type) && (1 != ((cons_symbol*)form)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == form) {
+NULL
+			}((o)form)->car
+		};
 		((void)e);
 		o obj = _cons(_eval(e, env), NULL);
 		((o)tail)->cdr = obj;
@@ -1047,7 +1646,17 @@ o _eval(o form, o env)
 		nargs = 1 + nargs;
 		form = ((o)form)->cdr;
 	}
-	function = ((o)head)->car;
+	function = 
+	{
+		if (0 == ((2 != ((cons_symbol*)head)->type) && (1 != ((cons_symbol*)head)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == head) {
+NULL
+		}((o)head)->car
+	};
 	args = ((o)head)->cdr;
 	if (1 == ((cons_symbol*)function)->type) {
 		{
@@ -1072,15 +1681,45 @@ o _eval(o form, o env)
 			return result;
 		}
 	}
-	if (((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type)) && issymbol(((o)function)->car, 2)) {
+	if (((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type)) && issymbol(
+	{
+		if (0 == ((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == function) {
+NULL
+		}((o)function)->car
+	}, 2)) {
 		form = closure(TCstart, fname, NULL, ((o)function)->cdr, args, &env);
 		gc_stack = ((o)gc_stack)->cdr;
 		TC = 1;
 		goto EVALJUMP;
 	}
-	if (((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type)) && issymbol(((o)function)->car, 4)) {
+	if (((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type)) && issymbol(
+	{
+		if (0 == ((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == function) {
+NULL
+		}((o)function)->car
+	}, 4)) {
 		function = ((o)function)->cdr;
-		form = closure(TCstart, fname, ((o)function)->car, ((o)function)->cdr, args, &env);
+		form = closure(TCstart, fname, 
+		{
+			if (0 == ((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == function) {
+NULL
+			}((o)function)->car
+		}, ((o)function)->cdr, args, &env);
 		gc_stack = ((o)gc_stack)->cdr;
 		TC = 1;
 		goto EVALJUMP;
@@ -1114,7 +1753,17 @@ o carx(o arg)
 	if (NULL == arg) {
 		return NULL;
 	}
-	return ((o)arg)->car;
+	return 
+	{
+		if (0 == ((2 != ((cons_symbol*)arg)->type) && (1 != ((cons_symbol*)arg)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == arg) {
+NULL
+		}((o)arg)->car
+	};
 }
 
 o _apply(o function, o args, o *env)
@@ -1139,15 +1788,45 @@ o _apply(o function, o args, o *env)
 		}
 		return ((fn_ptr_type)lookupfn(name))(args, *env);
 	}
-	if (((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type)) && issymbol(((o)function)->car, 2)) {
+	if (((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type)) && issymbol(
+	{
+		if (0 == ((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == function) {
+NULL
+		}((o)function)->car
+	}, 2)) {
 		function = ((o)function)->cdr;
 		o result = closure(0, NULL, NULL, function, args, env);
 		return _eval(result, *env);
 	}
-	if (((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type)) && issymbol(((o)function)->car, 4)) {
+	if (((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type)) && issymbol(
+	{
+		if (0 == ((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == function) {
+NULL
+		}((o)function)->car
+	}, 4)) {
 		function = ((o)function)->cdr;
 		{
-			o result = closure(0, NULL, ((o)function)->car, ((o)function)->cdr, args, env);
+			o result = closure(0, NULL, 
+			{
+				if (0 == ((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type))) {
+					_putsn("(can't access car)", 18);
+					_putsn("EXIT\n", 6);
+					exit(0);
+				}
+				if (NULL == function) {
+NULL
+				}((o)function)->car
+			}, ((o)function)->cdr, args, env);
 			return _eval(result, *env);
 		}
 	}
@@ -1200,7 +1879,17 @@ int listlength(o list)
 {
 	int len = 0;
 	while (NULL != list) {
-		o e = ((o)list)->car;
+		o e = 
+		{
+			if (0 == ((2 != ((cons_symbol*)list)->type) && (1 != ((cons_symbol*)list)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == list) {
+NULL
+			}((o)list)->car
+		};
 		((void)e);
 		len = 1 + len;
 		list = ((o)list)->cdr;
@@ -1211,21 +1900,71 @@ int listlength(o list)
 o closure(int tail, o fname, o state, o function, o args, o *env)
 {
 	(void) fname;
-	o params = ((o)function)->car;
+	o params = 
+	{
+		if (0 == ((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == function) {
+NULL
+		}((o)function)->car
+	};
 	function = ((o)function)->cdr;
 	//push state if not already in env
 	while (NULL != state) {
-		o pair = ((o)state)->car;
+		o pair = 
+		{
+			if (0 == ((2 != ((cons_symbol*)state)->type) && (1 != ((cons_symbol*)state)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == state) {
+NULL
+			}((o)state)->car
+		};
 		((void)pair);
-		if (NULL == findtwin(((o)pair)->car, *env)) {
+		if (NULL == findtwin(
+		{
+			if (0 == ((2 != ((cons_symbol*)pair)->type) && (1 != ((cons_symbol*)pair)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == pair) {
+NULL
+			}((o)pair)->car
+		}, *env)) {
 			*env = _cons(pair, *env);
 		}
 		state = ((o)state)->cdr;
 	}
 	//add arguments to environment
 	while ((NULL != params) && (NULL != args)) {
-		o var = ((o)params)->car;
-		o value = ((o)args)->car;
+		o var = 
+		{
+			if (0 == ((2 != ((cons_symbol*)params)->type) && (1 != ((cons_symbol*)params)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == params) {
+NULL
+			}((o)params)->car
+		};
+		o value = 
+		{
+			if (0 == ((2 != ((cons_symbol*)args)->type) && (1 != ((cons_symbol*)args)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == args) {
+NULL
+			}((o)args)->car
+		};
 		if (tail) {
 			{
 				o pair = findtwin(var, *env);
@@ -1260,9 +1999,29 @@ o closure(int tail, o fname, o state, o function, o args, o *env)
 o findtwin(o var, o env)
 {
 	while (NULL != env) {
-		o item = ((o)env)->car;
+		o item = 
+		{
+			if (0 == ((2 != ((cons_symbol*)env)->type) && (1 != ((cons_symbol*)env)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == env) {
+NULL
+			}((o)env)->car
+		};
 		((void)item);
-		if (var == ((o)item)->car) {
+		if (var == 
+		{
+			if (0 == ((2 != ((cons_symbol*)item)->type) && (1 != ((cons_symbol*)item)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == item) {
+NULL
+			}((o)item)->car
+		}) {
 			return item;
 		}
 		env = ((o)env)->cdr;
@@ -1288,9 +2047,29 @@ o findvalue(o var, o env)
 o value(uintgr n, o env)
 {
 	while (NULL != env) {
-		o item = ((o)env)->car;
+		o item = 
+		{
+			if (0 == ((2 != ((cons_symbol*)env)->type) && (1 != ((cons_symbol*)env)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == env) {
+NULL
+			}((o)env)->car
+		};
 		((void)item);
-		if (n == ((cons_symbol*)((o)item)->car)->name) {
+		if (n == ((cons_symbol*)
+		{
+			if (0 == ((2 != ((cons_symbol*)item)->type) && (1 != ((cons_symbol*)item)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == item) {
+NULL
+			}((o)item)->car
+		})->name) {
 			return item;
 		}
 		env = ((o)env)->cdr;
@@ -1410,11 +2189,51 @@ void sweep(void)
 	freespace = 0;
 	for(int i = 315 - 1; 0 <= i; i = i - 1){
 		o obj = workspace + i;
-		if (1 == (0 != (((uintgr)((o)obj)->car) & (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1))))) {
-			((o)obj)->car = ((o)(((uintgr)((o)obj)->car) & ((__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1)) - 1)));
+		if (1 == (0 != (((uintgr)
+		{
+			if (0 == ((2 != ((cons_symbol*)obj)->type) && (1 != ((cons_symbol*)obj)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == obj) {
+NULL
+			}((o)obj)->car
+		}) & (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1))))) {
+			
+			{
+				if (0 == ((2 != ((cons_symbol*)obj)->type) && (1 != ((cons_symbol*)obj)->type))) {
+					_putsn("(can't access car)", 18);
+					_putsn("EXIT\n", 6);
+					exit(0);
+				}
+				if (NULL == obj) {
+NULL
+				}((o)obj)->car
+			} = ((o)(((uintgr)
+			{
+				if (0 == ((2 != ((cons_symbol*)obj)->type) && (1 != ((cons_symbol*)obj)->type))) {
+					_putsn("(can't access car)", 18);
+					_putsn("EXIT\n", 6);
+					exit(0);
+				}
+				if (NULL == obj) {
+NULL
+				}((o)obj)->car
+			}) & ((__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1)) - 1)));
 		}
 		else {
-			((o)obj)->car = ((o)0);
+			
+			{
+				if (0 == ((2 != ((cons_symbol*)obj)->type) && (1 != ((cons_symbol*)obj)->type))) {
+					_putsn("(can't access car)", 18);
+					_putsn("EXIT\n", 6);
+					exit(0);
+				}
+				if (NULL == obj) {
+NULL
+				}((o)obj)->car
+			} = ((o)0);
 			((o)obj)->cdr = freelist;
 			freelist = obj;
 			freespace = 1 + freespace;
@@ -1427,12 +2246,52 @@ void mark_object(o obj)
 	if (0 == obj) {
 		return;
 	}
-	if (0 != (((uintgr)((o)obj)->car) & (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1)))) {
+	if (0 != (((uintgr)
+	{
+		if (0 == ((2 != ((cons_symbol*)obj)->type) && (1 != ((cons_symbol*)obj)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == obj) {
+NULL
+		}((o)obj)->car
+	}) & (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1)))) {
 		return;
 	}
-	o arg = ((o)obj)->car;
+	o arg = 
+	{
+		if (0 == ((2 != ((cons_symbol*)obj)->type) && (1 != ((cons_symbol*)obj)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == obj) {
+NULL
+		}((o)obj)->car
+	};
 	intgr type = ((cons_symbol*)obj)->type;
-	((o)obj)->car = ((o)(((uintgr)((o)obj)->car) | (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1))));
+	
+	{
+		if (0 == ((2 != ((cons_symbol*)obj)->type) && (1 != ((cons_symbol*)obj)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == obj) {
+NULL
+		}((o)obj)->car
+	} = ((o)(((uintgr)
+	{
+		if (0 == ((2 != ((cons_symbol*)obj)->type) && (1 != ((cons_symbol*)obj)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == obj) {
+NULL
+		}((o)obj)->car
+	}) | (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1))));
 	if ((1 != type) && (2 != type)) {
 		mark_object(arg);
 		mark_object(((o)obj)->cdr);
@@ -1450,7 +2309,17 @@ o _symbol(uintgr name)
 o _cons(o arg1, o arg2)
 {
 	o ptr = ((o)_alloc());
-	((o)ptr)->car = arg1;
+	
+	{
+		if (0 == ((2 != ((cons_symbol*)ptr)->type) && (1 != ((cons_symbol*)ptr)->type))) {
+			_putsn("(can't access car)", 18);
+			_putsn("EXIT\n", 6);
+			exit(0);
+		}
+		if (NULL == ptr) {
+NULL
+		}((o)ptr)->car
+	} = arg1;
 	((o)ptr)->cdr = arg2;
 	return ptr;
 }
@@ -1481,7 +2350,17 @@ void init_workspace(void)
 	freelist = 0;
 	for(intgr i = 315 - 1; 0 <= i; i = i - 1){
 		o obj = workspace + i;
-		((o)obj)->car = 0;
+		
+		{
+			if (0 == ((2 != ((cons_symbol*)obj)->type) && (1 != ((cons_symbol*)obj)->type))) {
+				_putsn("(can't access car)", 18);
+				_putsn("EXIT\n", 6);
+				exit(0);
+			}
+			if (NULL == obj) {
+NULL
+			}((o)obj)->car
+		} = 0;
 		((o)obj)->cdr = freelist;
 		freelist = obj;
 		freespace = 1 + freespace;

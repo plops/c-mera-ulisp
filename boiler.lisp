@@ -667,10 +667,9 @@
 		(funcall _print-object (%car form))
 		(set form (%cdr form))
 		(%dolist (e form) 
-		  (if (%listp form)
-		      (progn
-			(funcall _putchar #\Space)
-			(funcall _print-object e))))
+		  (when (%listp form)
+		      (funcall _putchar #\Space)
+		      (funcall _print-object e)))
  		(if (!= NULL form)
 		    (progn (%puts " . ")
 			   (funcall _print-object form)))
