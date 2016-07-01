@@ -5,7 +5,7 @@ WARN := -Wswitch-default -Wfloat-equal -Winline -Wundef -Wnested-externs  -Wstri
 
 #CFLAGS := -Os -fomit-frame-pointer #-fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing
 
-CFLAGS := -Og -ggdb3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing -fsanitize=address
+CFLAGS := -Og -ggdb3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing -fsanitize=address -fsanitize=bounds-strict
 
 ulisp-interp: ulisp.c
 	gcc  $(CFLAGS) $(DEADCODESTRIP) $(WARN)  ulisp.c  -o ulisp-interp
