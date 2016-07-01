@@ -531,12 +531,12 @@ o fn_apply(o args, o env)
 	//minimum number of parameters: 2, max. nr. of parameters: 127
 	o previous = NULL;
 	o last = args;
-	o G1373 = ((o)last)->cdr;
-	while (NULL != G1373) {
-		o e = ((o)G1373)->car;
+	o G1431 = ((o)last)->cdr;
+	while (NULL != G1431) {
+		o e = ((o)G1431)->car;
 		((void)e);
 		previous = last;
-		G1373 = ((o)G1373)->cdr;
+		G1431 = ((o)G1431)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -928,13 +928,6 @@ void init_env(void)
 
 o _eval(o form, o env)
 {
-	_putsn("eval ", 5);
-	_putsn("form ", 5);
-	_print_object(form);
-	_putchar('\n');
-	_putsn("env ", 4);
-	_print_object(env);
-	_putchar('\n');
 	int TC = 0;
 	EVALJUMP:
 	if (freespace < 10) {
