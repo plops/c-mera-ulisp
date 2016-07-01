@@ -60,12 +60,7 @@
 (defparameter *number* 2)
 
 (defmacro cons-car (x)
-  `(block
-     (when (== 0 (%listp ,x))
-       (%err "can't access car"))
-     (when (== cnil ,x)
-       cnil)
-     (pref (cast 'o ,x) car)))
+  `(pref (cast 'o ,x) car))
 (defmacro cons-cdr (x)
   `(pref (cast 'o ,x) cdr))
 (defmacro cons-name (x)
@@ -378,6 +373,7 @@ const char builtin_par_min[53] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 2, 0,
 	     (cast 'void ,item)
 	     ,@body)
 	   (set ,list (cons-cdr ,list))))))
+
 
 (defmacro %dolist2 (((e1 l1) (e2 l2)) &body body)
   "Go through two lists simultaneously"

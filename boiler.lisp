@@ -666,10 +666,11 @@
 		(funcall _putchar (cast 'int #\())
 		(funcall _print-object (%car form))
 		(set form (%cdr form))
-		(%dolist (e form) 
-		  (when (%listp form)
-		      (funcall _putchar #\Space)
-		      (funcall _print-object e)))
+		(while (and (!= cnil form)
+			    (%listp form))
+		  (funcall _putchar #\Space)
+		  (funcall _print-object (%car form))
+		  (set form (%cdr form)))
  		(if (!= NULL form)
 		    (progn (%puts " . ")
 			   (funcall _print-object form)))
@@ -756,4 +757,4 @@
       (decl ((uintgr digit (% rev 10UL)))
 	(funcall _putchar (+ 48 digit))
 	(set rev (/ rev 10))))))
-		    
+	
