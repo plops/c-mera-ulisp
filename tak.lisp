@@ -18,5 +18,6 @@
 (bla 2)
 
 (defun bla (a) (princ a) (setq a (add a -1)) (if (less 0 a) 1 0))
+(defun bla (a) (setq a (add a -1)) (if (less 0 a) 1 0))
 (bla 2)
 
