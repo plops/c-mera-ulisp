@@ -43,7 +43,7 @@ o tee;
 o global_env;
 o gc_stack;
 uintgr freespace;
-cons_object workspace[315];
+cons_object workspace[1024 * 1024 * 8];
 char return_flag = 0;
 char buffer[7 + 1];
 char last_char;
@@ -633,12 +633,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G864 = ((o)last)->cdr;
-	while (NULL != G864) {
-		o e = ((o)G864)->car;
+	o G924 = ((o)last)->cdr;
+	while (NULL != G924) {
+		o e = ((o)G924)->car;
 		((void)e);
 		previous = last;
-		G864 = ((o)G864)->cdr;
+		G924 = ((o)G924)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -1506,7 +1506,7 @@ void sweep(void)
 {
 	freelist = 0;
 	freespace = 0;
-	for(int i = 315 - 1; 0 <= i; i = i - 1){
+	for(int i = (1024 * 1024 * 8) - 1; 0 <= i; i = i - 1){
 		o obj = workspace + i;
 		if (1 == (0 != (((uintgr)((o)obj)->car) & (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1))))) {
 			((o)obj)->car = ((o)(((uintgr)((o)obj)->car) & ((__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1)) - 1)));
@@ -1577,7 +1577,7 @@ o _alloc(void)
 void init_workspace(void)
 {
 	freelist = 0;
-	for(intgr i = 315 - 1; 0 <= i; i = i - 1){
+	for(intgr i = (1024 * 1024 * 8) - 1; 0 <= i; i = i - 1){
 		o obj = workspace + i;
 		((o)obj)->car = 0;
 		((o)obj)->cdr = freelist;

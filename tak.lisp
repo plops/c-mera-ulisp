@@ -34,9 +34,9 @@
   (push (list to frm tim) md))
 
 (defun adi (i q) ;; add item to queue
-  (if (null q) 
+  (if (not q) 
       (cons i q)
-    (if (< (car i) (car (car q)))
+    (if (less (car i) (car (car q)))
         (cons i q)
       (cons (car q) (adi i (cdr q))))))
 
