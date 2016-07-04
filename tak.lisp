@@ -22,7 +22,11 @@
 (bla 2)
 
 
-;; list null dolist assoc
+;; fn_list 0 127  sp_dolist 1 127  fn_assoc 2 2  second 1 1 (fn_cdar)  third 1 1 (fn_caddr) fn_reverse 1 1
+;; i already have: null 1 1 (fn_not)
+;; not important: first, when
+;; too much effort for now: let*
+
 (defvar md nil)
 
 (defun adr (frm to tim) ;; add road
@@ -48,16 +52,26 @@
       (when (and (eq frm loc) (not (assoc to vis)))
 	(setq pq (adq (add go tim) to loc pq))))))
 
-(defun gro (frm to)
-  (let* ((vis (list (cons frm nil)))
-         (pq (ars frm 0 nil))
-         w)
-    (loop
-     (when (eq frm to) (return (reverse vis)))
-     (unless pq (return))
-     (setq w (first pq))
-     (setq frm (second w))
-     (setq pq (cdr pq))
-     (unless (assoc frm vis)
-       (setq vis (cons (cons frm (third w)) vis))
-       (setq pq (ars frm (car w) pq))))))
+(defun gro (frm to) ;; grow
+  (let ((vis (list (cons frm nil))))
+    (let ((pq (ars frm 0 nil)))
+      (let (w)
+       (loop
+	  (when (eq frm to) (return (reverse vis)))
+	  (unless pq (return))
+	  (setq w (first pq))
+	  (setq frm (second w))
+	  (setq pq (cdr pq))
+	  (unless (assoc frm vis)
+	    (setq vis (cons (cons frm (third w)) vis))
+	    (setq pq (ars frm (car w) pq))))))))
+
+(defun lis (frm to) ;; list route
+  (let* ((vis (gro frm to)))
+	(let (rte)
+	 (if vis
+	     (loop
+		(push to rte)
+		(when (eq frm to) (return rte))
+		(setq to (cdr (assoc to vis))))
+	     nil))))
