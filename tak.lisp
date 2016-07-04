@@ -36,9 +36,9 @@
 (defun adi (i q) ;; add item to queue
   (if (null q) 
       (cons i q)
-    (if (< (first i) (car (car q)))
+    (if (< (car i) (car (car q)))
         (cons i q)
-      (cons (first q) (adi i (cdr q))))))
+      (cons (car q) (adi i (cdr q))))))
 
 (defun adq (tim loc via pq) ;; add to queue
   (setq pq (adi (list tim loc via) pq))
@@ -46,7 +46,7 @@
 
 (defun ars (loc go pq) ;; add roads
   (dolist (i md pq)
-    (let* ((frm (first i))
+    (let* ((frm (car i))
            (to (second i))
            (tim (third i)))
       (when (and (eq frm loc) (not (assoc to vis)))
@@ -59,7 +59,7 @@
        (loop
 	  (when (eq frm to) (return (reverse vis)))
 	  (unless pq (return))
-	  (setq w (first pq))
+	  (setq w (car pq))
 	  (setq frm (second w))
 	  (setq pq (cdr pq))
 	  (unless (assoc frm vis)
@@ -75,3 +75,19 @@
 		(when (eq frm to) (return rte))
 		(setq to (cdr (assoc to vis))))
 	     nil))))
+(defun mm ()
+  (adr 'a 'b 2)
+  (adr 'b 'c 3)
+  (adr 'a 'd 9)
+  (adr 'b 'e 3)
+  (adr 'c 'f 7)
+  (adr 'd 'e 3)
+  (adr 'e 'f 6)
+  (adr 'd 'g 2)
+  (adr 'e 'h 8)
+  (adr 'f 'z 6)
+  (adr 'g 'h 2)
+  (adr 'h 'z 4))
+(setq md nil)
+(mm)
+(lis 'a 'z)

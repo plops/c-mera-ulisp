@@ -95,6 +95,12 @@ o tf_return(o args, o env)
 o tf_progn(o args, o env)
 ;
 
+o fn_third(o args, o env)
+;
+
+o fn_second(o args, o env)
+;
+
 o fn_reverse(o args, o env)
 ;
 
@@ -275,10 +281,10 @@ o _alloc(void)
 void init_workspace(void)
 ;
 //Global variables
-const char builtin_name[35][7] = { "nil", "tee", "lambda", "let", "closure", "decf", "incf", "pop", "push", "loop", "setq", "defvar", "defun", "quote", "or", "and", "cond", "if", "return", "progn", "reverse", "length", "list", "assoc", "princ", "less", "add", "apply", "cdr", "car", "eq", "listp", "atom", "cons", "not" };
-const char builtin_par_max[35] = { 0, 0, 0, 0, 0, 2, 2, 1, 2, 127, 2, 127, 127, 1, 127, 127, 127, 3, 127, 127, 1, 1, 127, 2, 1, 127, 127, 127, 1, 1, 2, 1, 1, 2, 1 };
-const char builtin_par_min[35] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 2, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1, 1, 0, 2, 1, 1, 0, 2, 1, 1, 2, 1, 1, 2, 1 };
-fn_ptr_type builtin_fptr[35] = { 0, 0, 0, 0, 0, sp_decf, sp_incf, sp_pop, sp_push, sp_loop, sp_setq, sp_defvar, sp_defun, sp_quote, tf_or, tf_and, tf_cond, tf_if, tf_return, tf_progn, fn_reverse, fn_length, fn_list, fn_assoc, fn_princ, fn_less, fn_add, fn_apply, fn_cdr, fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
+const char builtin_name[37][7] = { "nil", "tee", "lambda", "let", "closure", "decf", "incf", "pop", "push", "loop", "setq", "defvar", "defun", "quote", "or", "and", "cond", "if", "return", "progn", "third", "second", "reverse", "length", "list", "assoc", "princ", "less", "add", "apply", "cdr", "car", "eq", "listp", "atom", "cons", "not" };
+const char builtin_par_max[37] = { 0, 0, 0, 0, 0, 2, 2, 1, 2, 127, 2, 127, 127, 1, 127, 127, 127, 3, 127, 127, 1, 1, 1, 1, 127, 2, 1, 127, 127, 127, 1, 1, 2, 1, 1, 2, 1 };
+const char builtin_par_min[37] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 2, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1, 1, 1, 1, 0, 2, 1, 1, 0, 2, 1, 1, 2, 1, 1, 2, 1 };
+fn_ptr_type builtin_fptr[37] = { 0, 0, 0, 0, 0, sp_decf, sp_incf, sp_pop, sp_push, sp_loop, sp_setq, sp_defvar, sp_defun, sp_quote, tf_or, tf_and, tf_cond, tf_if, tf_return, tf_progn, fn_third, fn_second, fn_reverse, fn_length, fn_list, fn_assoc, fn_princ, fn_less, fn_add, fn_apply, fn_cdr, fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
 
 o sp_decf(o args, o env)
 {
@@ -495,9 +501,24 @@ o tf_progn(o args, o env)
 	return ((o)args)->car;
 }
 
+o fn_third(o args, o env)
+{
+	//minimum number of parameters: 1, max. nr. of parameters: 1
+	(void) env;
+	return carx(cdrx(cdrx(((o)args)->car)));
+}
+
+o fn_second(o args, o env)
+{
+	//minimum number of parameters: 1, max. nr. of parameters: 1
+	(void) env;
+	return carx(cdrx(((o)args)->car));
+}
+
 o fn_reverse(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
+	(void) env;
 	(void) env;
 	o list = ((o)args)->car;
 	if (0 == ((2 != ((cons_symbol*)list)->type) && (1 != ((cons_symbol*)list)->type))) {
@@ -519,6 +540,7 @@ o fn_length(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
+	(void) env;
 	o list = ((o)args)->car;
 	if (0 == ((2 != ((cons_symbol*)list)->type) && (1 != ((cons_symbol*)list)->type))) {
 		_putsn("(arg not list)", 14);
@@ -532,12 +554,14 @@ o fn_list(o args, o env)
 {
 	//minimum number of parameters: 0, max. nr. of parameters: 127
 	(void) env;
+	(void) env;
 	return args;
 }
 
 o fn_assoc(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 2
+	(void) env;
 	(void) env;
 	o key = ((o)args)->car;
 	o list = ((o)((o)args)->cdr)->car;
@@ -561,6 +585,7 @@ o fn_princ(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
+	(void) env;
 	o obj = ((o)args)->car;
 	_print_object(obj);
 	return obj;
@@ -569,6 +594,7 @@ o fn_princ(o args, o env)
 o fn_less(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 127
+	(void) env;
 	(void) env;
 	intgr arg1 = _integer(((o)args)->car);
 	args = ((o)args)->cdr;
@@ -589,6 +615,7 @@ o fn_add(o args, o env)
 {
 	//minimum number of parameters: 0, max. nr. of parameters: 127
 	(void) env;
+	(void) env;
 	intgr result = 0;
 	while (NULL != args) {
 		o item = ((o)args)->car;
@@ -603,14 +630,15 @@ o fn_add(o args, o env)
 o fn_apply(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 127
+	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G804 = ((o)last)->cdr;
-	while (NULL != G804) {
-		o e = ((o)G804)->car;
+	o G864 = ((o)last)->cdr;
+	while (NULL != G864) {
+		o e = ((o)G864)->car;
 		((void)e);
 		previous = last;
-		G804 = ((o)G804)->cdr;
+		G864 = ((o)G864)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -625,6 +653,7 @@ o fn_cdr(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
+	(void) env;
 	return cdrx(((o)args)->car);
 }
 
@@ -632,12 +661,14 @@ o fn_car(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
+	(void) env;
 	return carx(((o)args)->car);
 }
 
 o fn_eq(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 2
+	(void) env;
 	(void) env;
 	o arg1 = ((o)args)->car;
 	o arg2 = ((o)((o)args)->cdr)->car;
@@ -653,6 +684,7 @@ o fn_listp(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
+	(void) env;
 	o arg1 = ((o)args)->car;
 	if ((2 != ((cons_symbol*)arg1)->type) && (1 != ((cons_symbol*)arg1)->type)) {
 		return tee;
@@ -665,6 +697,7 @@ o fn_listp(o args, o env)
 o fn_atom(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
+	(void) env;
 	(void) env;
 	o arg1 = ((o)args)->car;
 	if ((2 != ((cons_symbol*)arg1)->type) && (1 != ((cons_symbol*)arg1)->type) && (NULL != arg1)) {
@@ -679,12 +712,14 @@ o fn_cons(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 2
 	(void) env;
+	(void) env;
 	return _cons(((o)args)->car, ((o)((o)args)->cdr)->car);
 }
 
 o fn_not(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
+	(void) env;
 	(void) env;
 	if (NULL == ((o)args)->car) {
 		return tee;
@@ -962,7 +997,7 @@ o nextitem(void)
 	if (x == 0) {
 		return NULL;
 	}
-	if (x < 35) {
+	if (x < 37) {
 		return _symbol(x);
 	}
 	else {
@@ -1026,7 +1061,7 @@ o _eval(o form, o env)
 		if (NULL != pair) {
 			return ((o)pair)->cdr;
 		}
-		else if (name <= 35) 
+		else if (name <= 37) 
 		{
 			return form;
 		}
@@ -1115,7 +1150,7 @@ o _eval(o form, o env)
 	if (1 == ((cons_symbol*)function)->type) {
 		{
 			uintgr name = ((cons_symbol*)function)->name;
-			if (35 <= name) {
+			if (37 <= name) {
 				_putsn("(not a function)", 16);
 				_putsn("EXIT\n", 6);
 				exit(0);
@@ -1185,7 +1220,7 @@ o _apply(o function, o args, o *env)
 	if (1 == ((cons_symbol*)function)->type) {
 		uintgr name = ((cons_symbol*)function)->name;
 		int nargs = listlength(args);
-		if (35 < name) {
+		if (37 < name) {
 			_putsn("(not a function)", 16);
 			_putsn("EXIT\n", 6);
 			exit(0);
@@ -1240,13 +1275,13 @@ int lookupmin(uintgr idx)
 int builtin(char *name)
 {
 	intgr entry = 0;
-	while (entry < 35) {
+	while (entry < 37) {
 		if (_string_eq_p(name, builtin_name[entry], 7)) {
 			return entry;
 		}
 		entry = 1 + entry;
 	}
-	return 35;
+	return 37;
 }
 
 int _string_eq_p(const char *a, const char *b, int n)
@@ -1390,7 +1425,7 @@ char *name(o obj)
 		exit(0);
 	}
 	uintgr x = ((cons_symbol*)obj)->name;
-	if (x < 35) {
+	if (x < 37) {
 		return lookupstring(x);
 	}
 	for(int n = 2; 0 <= n; n = n - 1){
