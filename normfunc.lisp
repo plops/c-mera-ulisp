@@ -101,3 +101,9 @@
       (%dolist (e list)
 	(%push e result))
       (return result))))
+
+(deffunction (second 1 1)
+  (return (funcall carx (funcall cdrx (%car args)))))
+
+(deffunction (third 1 1)
+  (return (funcall carx (funcall cdrx (funcall cdrx (%car args))))))

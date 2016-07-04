@@ -143,7 +143,9 @@ definitions, the C code and some string arrays."
   `(def-with-prefix (tf ,name ,min ,max) ,@body))
 
 (defmacro deffunction ((name &optional (min 1) (max min)) &body body)
-  `(def-with-prefix (fn ,name ,min ,max) ,@body))
+  `(def-with-prefix (fn ,name ,min ,max)
+     (comment "(void) env;" :prefix "") ;; every definition seems to have that
+     ,@body))
 
 (defun parameter-names (l)
     "turn a c-mera function parameter list with types like this ((o form) (o env)) into a list of variable names like this (form env)."
