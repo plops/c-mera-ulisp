@@ -192,9 +192,9 @@ name, forward declaration and function code into *boiler-func*"
 	      (:fwd  (function ,name ,parameters ,-> ,type))
 	      (:code (progn
 		       (function ,name ,parameters -> ,type
-			 ;; ,(cl:unless (member name '(_putsn putui _putchar puti _isspace _getchar digitvalue mark-object _string_eq_p
-			 ;; 			    _print_object issymbol name lookupstring _strlen princ))
-			 ;; 	     `(%puts ,(format nil "~a\\n" name)))
+			 ,(cl:unless (member name '(_putsn putui _putchar puti _isspace _getchar digitvalue mark-object _string_eq_p
+			 			    _print_object issymbol name lookupstring _strlen princ))
+			 	     `(%puts ,(format nil "~a\\n" name)))
 			 ,@body))))
 	    *boiler-func*))
 

@@ -33,6 +33,9 @@
   (push (list frm to tim) md)
   (push (list to frm tim) md))
 
+#+nil
+(adr 'a 'b 2)
+
 (defun adi (i q) ;; add item to queue
   (if (not q) 
       (cons i q)
