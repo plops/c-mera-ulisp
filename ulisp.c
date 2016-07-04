@@ -500,7 +500,7 @@ o fn_assoc(o args, o env)
 	while (NULL != list) {
 		o pair = ((o)list)->car;
 		((void)pair);
-		if (1 == eq(key, ((o)pair)->car)) {
+		if (1 == _eq(key, ((o)pair)->car)) {
 			return pair;
 		}
 		list = ((o)list)->cdr;
@@ -556,12 +556,12 @@ o fn_apply(o args, o env)
 	//minimum number of parameters: 2, max. nr. of parameters: 127
 	o previous = NULL;
 	o last = args;
-	o G676 = ((o)last)->cdr;
-	while (NULL != G676) {
-		o e = ((o)G676)->car;
+	o G744 = ((o)last)->cdr;
+	while (NULL != G744) {
+		o e = ((o)G744)->car;
 		((void)e);
 		previous = last;
-		G676 = ((o)G676)->cdr;
+		G744 = ((o)G744)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);

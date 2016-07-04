@@ -77,6 +77,10 @@
     (when (== 0 (%listp list))
       (%err "last arg not list"))
     (%dolist (pair list)
-      (when (== 1 (funcall eq key (%car pair)))
+      (when (== 1 (funcall _eq key (%car pair)))
 	(return pair)))
     (return cnil)))
+
+(deffunction (list 0 127)
+  (comment "(void) env;" :prefix "")
+  (return args))
