@@ -57,7 +57,7 @@
 	w)
     (let ((pq (ars frm 0 nil vis)))
       (loop
-	 (if (eq frm to)
+	 (if (eq frm to) 
 	     (return (reverse vis))
 	     nil)
 	 (if pq
@@ -99,3 +99,6 @@
 (setq md nil)
 (mm) ;; of 1024 271 free
 (lis 'a 'z)
+
+
+(reverse (list 'a 'b 'c))
