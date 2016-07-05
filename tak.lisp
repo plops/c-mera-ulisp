@@ -28,13 +28,9 @@
 ;; too much effort for now: let*
 
 (defvar md nil)
-
 (defun adr (frm to tim) ;; add road
   (push (list frm to tim) md)
   (push (list to frm tim) md))
-
-#+nil
-(adr 'a 'b 2)
 
 (defun adi (i q) ;; add item to queue
   (if (not q) 
