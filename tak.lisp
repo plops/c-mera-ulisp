@@ -45,25 +45,32 @@
 
 (defun ars (loc go pq) ;; add roads
   (dolist (i md pq)
-    (let* ((frm (car i))
-           (to (second i))
-           (tim (third i)))
-      (when (and (eq frm loc) (not (assoc to vis)))
-	(setq pq (adq (add go tim) to loc pq))))))
+    (let ((frm (car i))
+	  (to (second i))
+	  (tim (third i)))
+      (if (and (eq frm loc) (not (assoc to vis)))
+	  (setq pq (adq (add go tim) to loc pq))
+	  nil))))
 
 (defun gro (frm to) ;; grow
   (let ((vis (list (cons frm nil)))
 	(pq (ars frm 0 nil))
 	w)
     (loop
-       (when (eq frm to) (return (reverse vis)))
-       (unless pq (return))
+       (if (eq frm to)
+	   (return (reverse vis))
+	   nil)
+       (if pq
+	   nil
+	   (return))
        (setq w (car pq))
        (setq frm (second w))
        (setq pq (cdr pq))
-       (unless (assoc frm vis)
-	 (setq vis (cons (cons frm (third w)) vis))
-	 (setq pq (ars frm (car w) pq))))))
+       (if (assoc frm vis)
+	   nil
+	   (progn
+	     (setq vis (cons (cons frm (third w)) vis))
+	     (setq pq (ars frm (car w) pq)))))))
 
 (defun lis (frm to) ;; list route
   (let ((vis (gro frm to))
@@ -71,7 +78,9 @@
     (if vis
 	(loop
 	   (push to rte)
-	   (when (eq frm to) (return rte))
+	   (if (eq frm to)
+	       (return rte)
+	       nil)
 	   (setq to (cdr (assoc to vis))))
 	nil)))
 (defun mm ()
