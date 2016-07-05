@@ -625,6 +625,7 @@
 	      (%err "num out of range"))
 	  (return (funcall _number (* sign result))))
 	(decl ((intgr x (funcall builtin buffer)))
+	  (funcall puti x)
 	  (when (== x (get-builtin-idx-from-name 'nil)) (comment "cnil")
 	    (return cnil))
 	  (if (< x (cl:length *builtin-declaration*))
