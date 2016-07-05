@@ -658,7 +658,9 @@
     (return (funcall _cons item (funcall read-rest)))))
 (%function _strlen ((const char* s)) -> int
   (decl ((const char* start s))
-    (while *s
+    (for ((int i 0) (and *s
+			 (< i (calc-builtin-name-max-len *builtin-declaration*)))
+	  (inc i))
       (inc s))
     (return (- s start))))
 (%function _print-object ((o form)) -> void

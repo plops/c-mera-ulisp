@@ -547,7 +547,7 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 			(%puts "(")
 			(funcall puti i)
 			(%puts " ")
-			(funcall puti (funcall strlen (aref builtin-name i)))
+			(funcall puti (funcall _strlen (aref builtin-name i)))
 			(%puts ") ")
 			)
 		      (return 0))) 

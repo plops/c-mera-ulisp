@@ -671,12 +671,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G2851 = ((o)last)->cdr;
-	while (NULL != G2851) {
-		o e = ((o)G2851)->car;
+	o G2971 = ((o)last)->cdr;
+	while (NULL != G2971) {
+		o e = ((o)G2971)->car;
 		((void)e);
 		previous = last;
-		G2851 = ((o)G2851)->cdr;
+		G2971 = ((o)G2971)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -919,7 +919,7 @@ void _print_object(o form)
 int _strlen(const char *s)
 {
 	const char *start = s;
-	while (*s) {
+	for(int i = 0; *s && (i < 7); i = 1 + i){
 		s = 1 + s;
 	}
 	return s - start;
@@ -1711,7 +1711,7 @@ int main(int argc, char **argv)
 		_putsn("(", 1);
 		puti(i);
 		_putsn(" ", 1);
-		puti(strlen(builtin_name[i]));
+		puti(_strlen(builtin_name[i]));
 		_putsn(") ", 2);
 	}
 	return 0;
