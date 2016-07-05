@@ -284,10 +284,10 @@ o _alloc(void)
 void init_workspace(void)
 ;
 //Global variables
-const char builtin_name[38][7] = { "nil", "tee", "lambda", "let", "closure", "dolist", "decf", "incf", "pop", "push", "loop", "setq", "defvar", "defun", "quote", "or", "and", "cond", "if", "return", "progn", "third", "second", "reverse", "length", "list", "assoc", "princ", "less", "add", "apply", "cdr", "car", "eq", "listp", "atom", "cons", "not" };
-const char builtin_par_max[38] = { 0, 0, 0, 0, 0, 127, 2, 2, 1, 2, 127, 2, 127, 127, 1, 127, 127, 127, 3, 127, 127, 1, 1, 1, 1, 127, 2, 1, 127, 127, 127, 1, 1, 2, 1, 1, 2, 1 };
-const char builtin_par_min[38] = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 2, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1, 1, 1, 1, 0, 2, 1, 1, 0, 2, 1, 1, 2, 1, 1, 2, 1 };
-fn_ptr_type builtin_fptr[38] = { 0, 0, 0, 0, 0, sp_dolist, sp_decf, sp_incf, sp_pop, sp_push, sp_loop, sp_setq, sp_defvar, sp_defun, sp_quote, tf_or, tf_and, tf_cond, tf_if, tf_return, tf_progn, fn_third, fn_second, fn_reverse, fn_length, fn_list, fn_assoc, fn_princ, fn_less, fn_add, fn_apply, fn_cdr, fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
+const char builtin_name[38][7] = { "nil", "tee", "lambda", "let", "closure", "quote", "defun", "defvar", "setq", "loop", "push", "pop", "incf", "decf", "dolist", "progn", "return", "if", "cond", "and", "or", "not", "cons", "atom", "listp", "eq", "car", "cdr", "apply", "add", "less", "princ", "assoc", "list", "length", "reverse", "second", "third" };
+const char builtin_par_max[38] = { 0, 0, 0, 0, 0, 1, 127, 127, 2, 127, 2, 1, 2, 2, 127, 127, 127, 3, 127, 127, 127, 1, 2, 1, 1, 2, 1, 1, 127, 127, 127, 1, 2, 127, 1, 1, 1, 1 };
+const char builtin_par_min[38] = { 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 2, 1, 1, 1, 1, 0, 0, 2, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 1, 1 };
+fn_ptr_type builtin_fptr[38] = { 0, 0, 0, 0, 0, sp_quote, sp_defun, sp_defvar, sp_setq, sp_loop, sp_push, sp_pop, sp_incf, sp_decf, sp_dolist, tf_progn, tf_return, tf_if, tf_cond, tf_and, tf_or, fn_not, fn_cons, fn_atom, fn_listp, fn_eq, fn_car, fn_cdr, fn_apply, fn_add, fn_less, fn_princ, fn_assoc, fn_list, fn_length, fn_reverse, fn_second, fn_third };
 
 o sp_dolist(o args, o env)
 {
@@ -659,12 +659,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G1576 = ((o)last)->cdr;
-	while (NULL != G1576) {
-		o e = ((o)G1576)->car;
+	o G1637 = ((o)last)->cdr;
+	while (NULL != G1637) {
+		o e = ((o)G1637)->car;
 		((void)e);
 		previous = last;
-		G1576 = ((o)G1576)->cdr;
+		G1637 = ((o)G1637)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -841,7 +841,7 @@ o _read(void)
 		return _read();
 	}
 	if (((o)3) == item) {
-		return _cons(_symbol(14), _cons(_read(), NULL));
+		return _cons(_symbol(5), _cons(_read(), NULL));
 	}
 	return item;
 }
@@ -915,7 +915,7 @@ o read_rest(void)
 	if (((o)3) == item) {
 		{
 			o arg1 = _read();
-			return _cons(_cons(_symbol(14), _cons(arg1, NULL)), read_rest());
+			return _cons(_cons(_symbol(5), _cons(arg1, NULL)), read_rest());
 		}
 	}
 	if (((o)1) == item) {

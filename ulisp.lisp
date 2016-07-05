@@ -439,9 +439,11 @@ const char builtin_par_min[53] = { 0, 0, 0, 0, 0, 1, 1, 1, 2, 0, 2, 0,
   (load "boiler")
   (defparameter *builtin-declaration*
     (append (mapcar #'(lambda (x) (push '(:type symbol) x)) *builtin-symbol*)
-	    (mapcar #'(lambda (x) (push '(:type special) x)) *builtin-special*)
-	    (mapcar #'(lambda (x) (push '(:type tailrec) x)) *builtin-tailrec*)
-	    (mapcar #'(lambda (x) (push '(:type normalfunc) x)) *builtin-normalfunc*))))
+	    (mapcar #'(lambda (x) (push '(:type special) x)) (sort (copy-seq *builtin-special*) #'string<= :key #'caar))
+	    (mapcar #'(lambda (x) (push '(:type tailrec) x)) (sort (copy-seq *builtin-tailrec*) #'string<= :key #'caar))
+	    (mapcar #'(lambda (x) (push '(:type normalfunc) x)) (sort (copy-seq *builtin-normalfunc*) #'string<= :key #'caar)))))
+
+
 
 (defmacro is-idx-in-type-range (idx type)
     "This emits a range check to test whether an index IDX into
