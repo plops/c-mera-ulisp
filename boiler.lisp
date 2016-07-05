@@ -390,6 +390,7 @@
 			 (return form))
 		  (progn
 		    (funcall puti name)
+		    (funcall _print-object form )
 		    (%err "undefined variable")))))))
     (comment "it's a list")
     (decl ((o function (%car form))

@@ -633,12 +633,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G1208 = ((o)last)->cdr;
-	while (NULL != G1208) {
-		o e = ((o)G1208)->car;
+	o G1271 = ((o)last)->cdr;
+	while (NULL != G1271) {
+		o e = ((o)G1271)->car;
 		((void)e);
 		previous = last;
-		G1208 = ((o)G1208)->cdr;
+		G1271 = ((o)G1271)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -1074,6 +1074,7 @@ o _eval(o form, o env)
 		}
 		else {
 			puti(name);
+			_print_object(form);
 			_putsn("(undefined variable)", 20);
 			_putsn("EXIT\n", 6);
 			exit(0);
