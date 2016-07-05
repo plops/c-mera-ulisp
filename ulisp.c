@@ -1697,8 +1697,16 @@ int main(int argc, char **argv)
 {
 	(void) argc;
 	(void) argv;
-	init_workspace();
-	init_env();
-	repl(NULL);
+
+	int i;
+	for(i=0;i<39;i++){
+	  puti(i);
+	  _putsn(" " ,1);
+	  puti(strlen(builtin_name[i]));
+	  _putsn("\n",1);
+	}
+	//init_workspace();
+	//init_env();
+	//repl(NULL);
 	return 0;
 }
