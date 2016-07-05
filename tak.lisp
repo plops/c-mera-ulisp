@@ -43,7 +43,7 @@
   (setq pq (adi (list tim loc via) pq))
   pq)
 
-(defun ars (loc go pq) ;; add roads
+(defun ars (loc go pq vis) ;; add roads
   (dolist (i md pq)
     (let ((frm (car i))
 	  (to (second i))
@@ -54,23 +54,23 @@
 
 (defun gro (frm to) ;; grow
   (let ((vis (list (cons frm nil)))
-	(pq (ars frm 0 nil))
 	w)
-    (loop
-       (if (eq frm to)
-	   (return (reverse vis))
-	   nil)
-       (if pq
-	   nil
-	   (return))
-       (setq w (car pq))
-       (setq frm (second w))
-       (setq pq (cdr pq))
-       (if (assoc frm vis)
-	   nil
-	   (progn
-	     (setq vis (cons (cons frm (third w)) vis))
-	     (setq pq (ars frm (car w) pq)))))))
+    (let ((pq (ars frm 0 nil vis)))
+      (loop
+	 (if (eq frm to)
+	     (return (rev vis))
+	     nil)
+	 (if pq
+	     nil
+	     (return))
+	 (setq w (car pq))
+	 (setq frm (second w))
+	 (setq pq (cdr pq))
+	 (if (assoc frm vis)
+	     nil
+	     (progn
+	       (setq vis (cons (cons frm (third w)) vis))
+	       (setq pq (ars frm (car w) pq vis))))))))
 
 (defun lis (frm to) ;; list route
   (let ((vis (gro frm to))

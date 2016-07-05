@@ -92,7 +92,7 @@
       (%err "arg not list"))
     (return (funcall _number (funcall listlength list)))))
 
-(deffunction (reverse 1 1)
+(deffunction (rev 1 1)
   (comment "(void) env;" :prefix "")
   (decl ((o list (%car args)))
     (when (== 0 (%listp list))
