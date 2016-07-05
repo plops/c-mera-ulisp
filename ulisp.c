@@ -104,7 +104,7 @@ o fn_third(o args, o env)
 o fn_second(o args, o env)
 ;
 
-o fn_rev(o args, o env)
+o fn_reverse(o args, o env)
 ;
 
 o fn_length(o args, o env)
@@ -284,10 +284,10 @@ o _alloc(void)
 void init_workspace(void)
 ;
 //Global variables
-const char builtin_name[38][7] = { "nil", "tee", "lambda", "let", "closure", "dolist", "decf", "incf", "pop", "push", "loop", "setq", "defvar", "defun", "quote", "or", "and", "cond", "if", "return", "progn", "third", "second", "rev", "length", "list", "assoc", "princ", "less", "add", "apply", "cdr", "car", "eq", "listp", "atom", "cons", "not" };
+const char builtin_name[38][7] = { "nil", "tee", "lambda", "let", "closure", "dolist", "decf", "incf", "pop", "push", "loop", "setq", "defvar", "defun", "quote", "or", "and", "cond", "if", "return", "progn", "third", "second", "reverse", "length", "list", "assoc", "princ", "less", "add", "apply", "cdr", "car", "eq", "listp", "atom", "cons", "not" };
 const char builtin_par_max[38] = { 0, 0, 0, 0, 0, 127, 2, 2, 1, 2, 127, 2, 127, 127, 1, 127, 127, 127, 3, 127, 127, 1, 1, 1, 1, 127, 2, 1, 127, 127, 127, 1, 1, 2, 1, 1, 2, 1 };
 const char builtin_par_min[38] = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 2, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1, 1, 1, 1, 0, 2, 1, 1, 0, 2, 1, 1, 2, 1, 1, 2, 1 };
-fn_ptr_type builtin_fptr[38] = { 0, 0, 0, 0, 0, sp_dolist, sp_decf, sp_incf, sp_pop, sp_push, sp_loop, sp_setq, sp_defvar, sp_defun, sp_quote, tf_or, tf_and, tf_cond, tf_if, tf_return, tf_progn, fn_third, fn_second, fn_rev, fn_length, fn_list, fn_assoc, fn_princ, fn_less, fn_add, fn_apply, fn_cdr, fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
+fn_ptr_type builtin_fptr[38] = { 0, 0, 0, 0, 0, sp_dolist, sp_decf, sp_incf, sp_pop, sp_push, sp_loop, sp_setq, sp_defvar, sp_defun, sp_quote, tf_or, tf_and, tf_cond, tf_if, tf_return, tf_progn, fn_third, fn_second, fn_reverse, fn_length, fn_list, fn_assoc, fn_princ, fn_less, fn_add, fn_apply, fn_cdr, fn_car, fn_eq, fn_listp, fn_atom, fn_cons, fn_not };
 
 o sp_dolist(o args, o env)
 {
@@ -548,7 +548,7 @@ o fn_second(o args, o env)
 	return carx(cdrx(((o)args)->car));
 }
 
-o fn_rev(o args, o env)
+o fn_reverse(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
@@ -666,12 +666,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G1393 = ((o)last)->cdr;
-	while (NULL != G1393) {
-		o e = ((o)G1393)->car;
+	o G1515 = ((o)last)->cdr;
+	while (NULL != G1515) {
+		o e = ((o)G1515)->car;
 		((void)e);
 		previous = last;
-		G1393 = ((o)G1393)->cdr;
+		G1515 = ((o)G1515)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
