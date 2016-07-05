@@ -260,25 +260,34 @@
     (%dolist (e list)
       (inc len))
     (return len)))
-(%function _string_eq_p ((const char* a) (const char* b) (int n)) -> int
-  ;; i don't need to sort things
-  (for ((int i 0) (and (< i n)
-		       (aref a i)
-		       (aref b i)) (inc i))
-    (when (!= (aref a i) (aref b i))
-      (return 0)))
-  (return 1))
+(%function _string_eq_p ((const char* a) (const char* b) ;; (int n)
+			 ) -> int
+  (decl ((const int n (calc-builtin-name-max-len *builtin-declaration*)))
+   (for ((int i 0)
+	 (and (< i n)
+	      (aref a i)
+	      (aref b i))
+	 (inc i))
+     (if (!= (aref a i) (aref b i))
+	 (if (< (cast 'uchar (aref a i))
+		(cast 'uchar (aref b i)))
+	     (return -1)
+	     (return 1))
+	 (when (== 0 (aref a i))
+	   (return 0)))))
+  (return 0))
 (%function builtin ((char* name)) -> int
   (dcomment "Find the index of a builtin function with the name given as a string.")
   (decl ((intgr entry 0))
     (while (< entry (cl:length *builtin-declaration*))
-      ;; (when (funcall _string_eq_p name (aref builtin-name entry)
-      ;; 		     (calc-builtin-name-max-len *builtin-declaration*))
-      ;; 	(return entry))
-      (when (== 0 (funcall strncmp name
+      (when (== 0 (funcall _string_eq_p
 			   (aref builtin-name entry)
-			   (calc-builtin-name-max-len *builtin-declaration*)))
-	(return entry))
+			   name))
+      	(return entry))
+      ;; (when (== 0 (funcall strncmp name
+      ;; 			   (aref builtin-name entry)
+      ;; 			   (calc-builtin-name-max-len *builtin-declaration*)))
+      ;; 	(return entry))
       (inc entry))
     (return (cl:length *builtin-declaration*))))
 (%function lookupmin ((uintgr idx)) -> int

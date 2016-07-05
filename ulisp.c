@@ -37,6 +37,7 @@ struct cons_number
 	intgr integer;
 };
 typedef cons_object *o;
+typedef unsigned char uchar;
 #undef NULL
 o freelist;
 o tee;
@@ -218,7 +219,7 @@ int lookupmin(uintgr idx)
 int builtin(char *name)
 ;
 
-int _string_eq_p(const char *a, const char *b, int n)
+int _string_eq_p(const char *a, const char *b)
 ;
 
 int listlength(o list)
@@ -671,12 +672,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G3214 = ((o)last)->cdr;
-	while (NULL != G3214) {
-		o e = ((o)G3214)->car;
+	o G3405 = ((o)last)->cdr;
+	while (NULL != G3405) {
+		o e = ((o)G3405)->car;
 		((void)e);
 		previous = last;
-		G3214 = ((o)G3214)->cdr;
+		G3405 = ((o)G3405)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -1360,7 +1361,7 @@ int builtin(char *name)
 {
 	intgr entry = 0;
 	while (entry < 39) {
-		if (0 == strncmp(name, builtin_name[entry], 7)) {
+		if (0 == _string_eq_p(builtin_name[entry], name)) {
 			return entry;
 		}
 		entry = 1 + entry;
@@ -1368,14 +1369,24 @@ int builtin(char *name)
 	return 39;
 }
 
-int _string_eq_p(const char *a, const char *b, int n)
+int _string_eq_p(const char *a, const char *b)
 {
+	const int n = 7;
 	for(int i = 0; (i < n) && a[i] && b[i]; i = 1 + i){
 		if (a[i] != b[i]) {
+			if (((uchar)a[i]) < ((uchar)b[i])) {
+				return -1;
+			}
+			else {
+				return 1;
+			}
+		}
+		else if (0 == a[i]) 
+		{
 			return 0;
 		}
 	}
-	return 1;
+	return 0;
 }
 
 int listlength(o list)

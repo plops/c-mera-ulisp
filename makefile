@@ -7,7 +7,8 @@ WARN := -Wswitch-default -Wfloat-equal -Winline -Wundef -Wnested-externs  -Wstri
 
 #CFLAGS := -Og -ggdb3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing -fsanitize=address -fsanitize=bounds-strict -march=native -fdelete-null-pointer-checks  -fsanitize=undefined
 
-CFLAGS := -Og -ggdb3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing -march=native  
+CFLAGS := -Og -ggdb3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing -march=native
+
 
 ulisp-interp: ulisp.c
 	gcc  $(CFLAGS) $(DEADCODESTRIP) $(WARN)  ulisp.c  -o ulisp-interp
@@ -15,8 +16,16 @@ ulisp-interp: ulisp.c
 #--coverage -pg
 
 ulisp.s: ulisp.c
-	gcc -S -Wall -Wextra -O2  ulisp.c
-	cat ulisp.s
+	gcc -fverbose-asm -Wa,-adhln -g -Og ulisp.c > ulisp.s
+
+
+# -g: Produce debugging information
+# -Wa,option: Pass option as an option to the assembler
+# -adhln:
+# a: turn on listings
+# d: omit debugging directives; n: omit forms processing
+# h: include high-level source
+# l: include assembly
 
 clean:
 	rm ulisp-interp

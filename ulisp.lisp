@@ -509,6 +509,7 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 			     (intgr integer))))
 		    
 		    (typedef cons_object* o)
+		    (typedef unsigned char uchar)
 		    
 		    
 		    (comment "#undef NULL" :prefix "")
