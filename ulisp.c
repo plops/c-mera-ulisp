@@ -633,12 +633,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G908 = ((o)last)->cdr;
-	while (NULL != G908) {
-		o e = ((o)G908)->car;
+	o G968 = ((o)last)->cdr;
+	while (NULL != G968) {
+		o e = ((o)G968)->car;
 		((void)e);
 		previous = last;
-		G908 = ((o)G908)->cdr;
+		G968 = ((o)G968)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -1043,7 +1043,7 @@ o _eval(o form, o env)
 		gc(form, env);
 	}
 	if (NULL == form) {
-		//
+		//NULL
 		return NULL;
 	}
 	if (2 == ((cons_symbol*)form)->type) {
@@ -1054,6 +1054,7 @@ o _eval(o form, o env)
 		//symbol
 		uintgr name = ((cons_symbol*)form)->name;
 		if (0 == name) {
+			//
 			return NULL;
 		}
 		o pair = value(name, env);
@@ -1063,7 +1064,7 @@ o _eval(o form, o env)
 		}
 		pair = value(name, global_env);
 		if (NULL != pair) {
-			//sym cdr pair2
+			//sym cdr pair in global env
 			return ((o)pair)->cdr;
 		}
 		else if (name <= 37) 
