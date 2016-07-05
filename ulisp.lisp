@@ -192,9 +192,9 @@ name, forward declaration and function code into *boiler-func*"
 	      (:fwd  (function ,name ,parameters ,-> ,type))
 	      (:code (progn
 		       (function ,name ,parameters -> ,type
-				 ,(cl:unless (member name '(_putsn putui _putchar puti _isspace _getchar digitvalue mark-object _string_eq_p
-				 			    _print_object issymbol name lookupstring _strlen princ))
-				 	     `(%puts ,(format nil "~a\\n" name)))
+				 ;; ,(cl:unless (member name '(_putsn putui _putchar puti _isspace _getchar digitvalue mark-object _string_eq_p
+				 ;; 			    _print_object issymbol name lookupstring _strlen princ))
+				 ;; 	     `(%puts ,(format nil "~a\\n" name)))
 			 ,@body))))
 	    *boiler-func*))
 
@@ -540,16 +540,9 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 		    (function main ((int argc) (char** argv)) -> int
 		      (comment "(void) argc;" :prefix "")
 		      (comment "(void) argv;" :prefix "")
-		      ;; (funcall init-workspace)
-		      ;; (funcall init-env)
-		      ;; (repl NULL)
-		      (for ((int i 0) (< i 39) (inc i))
-			(%puts "(")
-			(funcall puti i)
-			(%puts " ")
-			(funcall puti (funcall _strlen (aref builtin-name i)))
-			(%puts ") ")
-			)
+		      (funcall init-workspace)
+		      (funcall init-env)
+		      (repl NULL)
 		      (return 0))) 
        do
 	 (simple-print e))))

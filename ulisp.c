@@ -671,12 +671,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G2971 = ((o)last)->cdr;
-	while (NULL != G2971) {
-		o e = ((o)G2971)->car;
+	o G3214 = ((o)last)->cdr;
+	while (NULL != G3214) {
+		o e = ((o)G3214)->car;
 		((void)e);
 		previous = last;
-		G2971 = ((o)G2971)->cdr;
+		G3214 = ((o)G3214)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -833,7 +833,6 @@ void _putsn(char *string, int len)
 
 void repl(o env)
 {
-	_putsn("repl\n", 6);
 	for(; ; ){
 		gc(NULL, env);
 		_putsn("freespace=", 10);
@@ -856,7 +855,6 @@ void repl(o env)
 
 o _read(void)
 {
-	_putsn("_read\n", 7);
 	o item = nextitem();
 	if (((o)1) == item) {
 		//bra
@@ -875,7 +873,6 @@ o _read(void)
 
 void _print_object(o form)
 {
-	_putsn("_print-object\n", 15);
 	if (NULL == form) {
 		_putsn("nil", 3);
 	}
@@ -927,7 +924,6 @@ int _strlen(const char *s)
 
 o read_rest(void)
 {
-	_putsn("read-rest\n", 11);
 	o item = nextitem();
 	if (((o)2) == item) {
 		//ket
@@ -959,7 +955,6 @@ o read_rest(void)
 
 o nextitem(void)
 {
-	_putsn("nextitem\n", 10);
 	int ch = _getc();
 	while (_isspace(ch)) {
 		ch = _getc();
@@ -1055,7 +1050,6 @@ o nextitem(void)
 		return _number(sign * result);
 	}
 	intgr x = builtin(buffer);
-	puti(x);
 	if (x == 0) {
 		//cnil
 		return NULL;
@@ -1082,7 +1076,6 @@ int _isspace(int c)
 
 int _getc(void)
 {
-	_putsn("_getc\n", 7);
 	if (last_char) {
 		int temp = last_char;
 		last_char = 0;
@@ -1097,14 +1090,12 @@ int _getc(void)
 
 void init_env(void)
 {
-	_putsn("init-env\n", 10);
 	global_env = NULL;
 	tee = _symbol(1);
 }
 
 o _eval(o form, o env)
 {
-	_putsn("_eval\n", 7);
 	int TC = 0;
 	EVALJUMP:
 	if (freespace < 10) {
@@ -1284,7 +1275,6 @@ o _eval(o form, o env)
 
 o cdrx(o arg)
 {
-	_putsn("cdrx\n", 6);
 	if (0 == ((2 != ((cons_symbol*)arg)->type) && (1 != ((cons_symbol*)arg)->type))) {
 		_putsn("(can't take cdr)", 16);
 		_putsn("EXIT\n", 6);
@@ -1298,7 +1288,6 @@ o cdrx(o arg)
 
 o carx(o arg)
 {
-	_putsn("carx\n", 6);
 	if (0 == ((2 != ((cons_symbol*)arg)->type) && (1 != ((cons_symbol*)arg)->type))) {
 		_putsn("(can't take car)", 16);
 		_putsn("EXIT\n", 6);
@@ -1312,7 +1301,6 @@ o carx(o arg)
 
 o _apply(o function, o args, o *env)
 {
-	_putsn("_apply\n", 8);
 	if (1 == ((cons_symbol*)function)->type) {
 		uintgr name = ((cons_symbol*)function)->name;
 		int nargs = listlength(args);
@@ -1353,30 +1341,26 @@ o _apply(o function, o args, o *env)
 
 fn_ptr_type lookupfn(uintgr idx)
 {
-	_putsn("lookupfn\n", 10);
 	return builtin_fptr[idx];
 }
 
 int lookupmax(uintgr idx)
 {
-	_putsn("lookupmax\n", 11);
 	(void) name;
 	return builtin_par_max[idx];
 }
 
 int lookupmin(uintgr idx)
 {
-	_putsn("lookupmin\n", 11);
 	(void) name;
 	return builtin_par_min[idx];
 }
 
 int builtin(char *name)
 {
-	_putsn("builtin\n", 9);
 	intgr entry = 0;
 	while (entry < 39) {
-		if (0 == strcmp(name, builtin_name[entry])) {
+		if (0 == strncmp(name, builtin_name[entry], 7)) {
 			return entry;
 		}
 		entry = 1 + entry;
@@ -1396,7 +1380,6 @@ int _string_eq_p(const char *a, const char *b, int n)
 
 int listlength(o list)
 {
-	_putsn("listlength\n", 12);
 	int len = 0;
 	while (NULL != list) {
 		o e = ((o)list)->car;
@@ -1409,7 +1392,6 @@ int listlength(o list)
 
 o closure(int tail, o fname, o state, o function, o args, o *env)
 {
-	_putsn("closure\n", 9);
 	(void) fname;
 	o params = ((o)function)->car;
 	function = ((o)function)->cdr;
@@ -1459,7 +1441,6 @@ o closure(int tail, o fname, o state, o function, o args, o *env)
 
 o findtwin(o var, o env)
 {
-	_putsn("findtwin\n", 10);
 	while (NULL != env) {
 		o item = ((o)env)->car;
 		((void)item);
@@ -1473,7 +1454,6 @@ o findtwin(o var, o env)
 
 o findvalue(o var, o env)
 {
-	_putsn("findvalue\n", 11);
 	uintgr varname = ((cons_symbol*)var)->name;
 	o pair = value(varname, env);
 	if (NULL == pair) {
@@ -1489,7 +1469,6 @@ o findvalue(o var, o env)
 
 o value(uintgr n, o env)
 {
-	_putsn("value\n", 7);
 	while (NULL != env) {
 		o item = ((o)env)->car;
 		((void)item);
@@ -1503,7 +1482,6 @@ o value(uintgr n, o env)
 
 int _eq(o a, o b)
 {
-	_putsn("_eq\n", 5);
 	return (a == b) || ((1 == ((cons_symbol*)a)->type) && (1 == ((cons_symbol*)b)->type) && (((cons_symbol*)a)->name == ((cons_symbol*)b)->name)) || ((2 == ((cons_symbol*)a)->type) && (2 == ((cons_symbol*)b)->type) && (((cons_number*)a)->integer == ((cons_number*)b)->integer));
 }
 
@@ -1514,7 +1492,6 @@ int issymbol(o obj, uintgr n)
 
 intgr _integer(o obj)
 {
-	_putsn("_integer\n", 10);
 	if (2 != ((cons_symbol*)obj)->type) {
 		_putsn("(not number)", 12);
 		_putsn("EXIT\n", 6);
@@ -1564,13 +1541,11 @@ intgr digitvalue(char d)
 
 uintgr pack40(char *c)
 {
-	_putsn("pack40\n", 8);
 	return (40 * ((40 * toradix40(c[0])) + toradix40(c[1]))) + toradix40(c[2]);
 }
 
 intgr fromradix40(intgr n)
 {
-	_putsn("fromradix40\n", 13);
 	if ((1 <= n) && (n <= 26)) {
 		return n + 'a' + -1;
 	}
@@ -1585,7 +1560,6 @@ intgr fromradix40(intgr n)
 
 intgr toradix40(intgr ch)
 {
-	_putsn("toradix40\n", 11);
 	if (0 == ch) {
 		return 0;
 	}
@@ -1604,7 +1578,6 @@ intgr toradix40(intgr ch)
 
 void gc(o form, o env)
 {
-	_putsn("gc\n", 4);
 	mark_object(tee);
 	mark_object(global_env);
 	mark_object(gc_stack);
@@ -1615,7 +1588,6 @@ void gc(o form, o env)
 
 void sweep(void)
 {
-	_putsn("sweep\n", 7);
 	freelist = 0;
 	freespace = 0;
 	for(int i = (16 * 1024) - 1; 0 <= i; i = i - 1){
@@ -1651,7 +1623,6 @@ void mark_object(o obj)
 
 o _symbol(uintgr name)
 {
-	_putsn("_symbol\n", 9);
 	cons_symbol *ptr = ((cons_symbol*)_alloc());
 	((cons_symbol*)ptr)->type = 1;
 	((cons_symbol*)ptr)->name = name;
@@ -1660,7 +1631,6 @@ o _symbol(uintgr name)
 
 o _cons(o arg1, o arg2)
 {
-	_putsn("_cons\n", 7);
 	o ptr = ((o)_alloc());
 	((o)ptr)->car = arg1;
 	((o)ptr)->cdr = arg2;
@@ -1669,7 +1639,6 @@ o _cons(o arg1, o arg2)
 
 o _number(intgr n)
 {
-	_putsn("_number\n", 9);
 	cons_number *ptr = ((cons_number*)_alloc());
 	((cons_symbol*)ptr)->type = 2;
 	((cons_number*)ptr)->integer = n;
@@ -1678,7 +1647,6 @@ o _number(intgr n)
 
 o _alloc(void)
 {
-	_putsn("_alloc\n", 8);
 	if (0 == freespace) {
 		_putsn("(No room)", 9);
 		_putsn("EXIT\n", 6);
@@ -1692,7 +1660,6 @@ o _alloc(void)
 
 void init_workspace(void)
 {
-	_putsn("init-workspace\n", 16);
 	freelist = 0;
 	for(intgr i = (16 * 1024) - 1; 0 <= i; i = i - 1){
 		o obj = workspace + i;
@@ -1707,12 +1674,8 @@ int main(int argc, char **argv)
 {
 	(void) argc;
 	(void) argv;
-	for(int i = 0; i < 39; i = 1 + i){
-		_putsn("(", 1);
-		puti(i);
-		_putsn(" ", 1);
-		puti(_strlen(builtin_name[i]));
-		_putsn(") ", 2);
-	}
+	init_workspace();
+	init_env();
+	repl(NULL);
 	return 0;
 }

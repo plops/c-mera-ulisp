@@ -275,8 +275,9 @@
       ;; (when (funcall _string_eq_p name (aref builtin-name entry)
       ;; 		     (calc-builtin-name-max-len *builtin-declaration*))
       ;; 	(return entry))
-      (when (== 0 (funcall strcmp name
-			   (aref builtin-name entry)))
+      (when (== 0 (funcall strncmp name
+			   (aref builtin-name entry)
+			   (calc-builtin-name-max-len *builtin-declaration*)))
 	(return entry))
       (inc entry))
     (return (cl:length *builtin-declaration*))))
@@ -625,7 +626,7 @@
 	      (%err "num out of range"))
 	  (return (funcall _number (* sign result))))
 	(decl ((intgr x (funcall builtin buffer)))
-	  (funcall puti x)
+	  ;(funcall puti x)
 	  (when (== x (get-builtin-idx-from-name 'nil)) (comment "cnil")
 	    (return cnil))
 	  (if (< x (cl:length *builtin-declaration*))
@@ -657,6 +658,7 @@
       (set item (funcall read-rest)))
     (return (funcall _cons item (funcall read-rest)))))
 (%function _strlen ((const char* s)) -> int
+  (dcomment "Like strlen but limited to maximum name length.")
   (decl ((const char* start s))
     (for ((int i 0) (and *s
 			 (< i (calc-builtin-name-max-len *builtin-declaration*)))
