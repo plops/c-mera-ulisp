@@ -552,7 +552,6 @@ o fn_reverse(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	(void) env;
 	o list = ((o)args)->car;
 	if (0 == ((2 != ((cons_symbol*)list)->type) && (1 != ((cons_symbol*)list)->type))) {
 		_putsn("(arg not list)", 14);
@@ -573,7 +572,6 @@ o fn_length(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	(void) env;
 	o list = ((o)args)->car;
 	if (0 == ((2 != ((cons_symbol*)list)->type) && (1 != ((cons_symbol*)list)->type))) {
 		_putsn("(arg not list)", 14);
@@ -587,14 +585,12 @@ o fn_list(o args, o env)
 {
 	//minimum number of parameters: 0, max. nr. of parameters: 127
 	(void) env;
-	(void) env;
 	return args;
 }
 
 o fn_assoc(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 2
-	(void) env;
 	(void) env;
 	o key = ((o)args)->car;
 	o list = ((o)((o)args)->cdr)->car;
@@ -618,7 +614,6 @@ o fn_princ(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	(void) env;
 	o obj = ((o)args)->car;
 	_print_object(obj);
 	return obj;
@@ -627,7 +622,6 @@ o fn_princ(o args, o env)
 o fn_less(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 127
-	(void) env;
 	(void) env;
 	intgr arg1 = _integer(((o)args)->car);
 	args = ((o)args)->cdr;
@@ -648,7 +642,6 @@ o fn_add(o args, o env)
 {
 	//minimum number of parameters: 0, max. nr. of parameters: 127
 	(void) env;
-	(void) env;
 	intgr result = 0;
 	while (NULL != args) {
 		o item = ((o)args)->car;
@@ -666,12 +659,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G1515 = ((o)last)->cdr;
-	while (NULL != G1515) {
-		o e = ((o)G1515)->car;
+	o G1576 = ((o)last)->cdr;
+	while (NULL != G1576) {
+		o e = ((o)G1576)->car;
 		((void)e);
 		previous = last;
-		G1515 = ((o)G1515)->cdr;
+		G1576 = ((o)G1576)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -686,7 +679,6 @@ o fn_cdr(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	(void) env;
 	return cdrx(((o)args)->car);
 }
 
@@ -694,14 +686,12 @@ o fn_car(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	(void) env;
 	return carx(((o)args)->car);
 }
 
 o fn_eq(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 2
-	(void) env;
 	(void) env;
 	o arg1 = ((o)args)->car;
 	o arg2 = ((o)((o)args)->cdr)->car;
@@ -717,7 +707,6 @@ o fn_listp(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
 	(void) env;
-	(void) env;
 	o arg1 = ((o)args)->car;
 	if ((2 != ((cons_symbol*)arg1)->type) && (1 != ((cons_symbol*)arg1)->type)) {
 		return tee;
@@ -730,7 +719,6 @@ o fn_listp(o args, o env)
 o fn_atom(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
-	(void) env;
 	(void) env;
 	o arg1 = ((o)args)->car;
 	if ((2 != ((cons_symbol*)arg1)->type) && (1 != ((cons_symbol*)arg1)->type) && (NULL != arg1)) {
@@ -745,14 +733,12 @@ o fn_cons(o args, o env)
 {
 	//minimum number of parameters: 2, max. nr. of parameters: 2
 	(void) env;
-	(void) env;
 	return _cons(((o)args)->car, ((o)((o)args)->cdr)->car);
 }
 
 o fn_not(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
-	(void) env;
 	(void) env;
 	if (NULL == ((o)args)->car) {
 		return tee;

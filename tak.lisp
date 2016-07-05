@@ -58,7 +58,7 @@
     (let ((pq (ars frm 0 nil vis)))
       (loop
 	 (if (eq frm to)
-	     (return (rev vis))
+	     (return (reverse vis))
 	     nil)
 	 (if pq
 	     nil
