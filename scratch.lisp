@@ -93,3 +93,32 @@
 ;; 101: (14 #\e)
 ;; 102: (15 #\f)
 ;; 103: (16 #\g)
+
+(defun puti (i)
+  (when (< i 0)
+    (format t "-")
+    (setf i (- i)))
+  (let ((rev 0))
+    (loop while (< 0 i) do
+      (let ((digit (mod i 10)))
+	(setf rev (+ (* 10 rev) digit))
+	(setf i (floor i 10))))
+    (loop while (< 0 rev) do
+      (let ((digit (mod rev 10)))
+	(format t "~c" (code-char (+ 48 digit)))
+	(setf rev (floor rev 10))))))
+
+(loop for i in (list -123 -100 -1 0 1 2 3 100) do
+     (progn
+       (format t "~d " i)
+       (puti i)
+       (terpri)))
+
+;; -123 -123
+;; -100 -1
+;; -1 -1
+;; 0 
+;; 1 1
+;; 2 2
+;; 3 3
+;; 100 1
