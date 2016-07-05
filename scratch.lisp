@@ -108,14 +108,16 @@
 	(setf i (floor i 10))
 	(incf digits)))
     ;;(format t "(rev ~d)(digits ~d)" rev digits)
-    (loop for i from 0 below digits do;  while (< 0 digits) do
-	 
-	 (let ((digit (mod rev 10)))
-	   (format t "~c" (code-char (+ 48 digit)))
-	   (setf rev (floor rev 10))))))
+    (if (= digits 0)
+	(format t "0")
+	(loop for i from 0 below digits do	;  while (< 0 digits) do
+	     
+	     (let ((digit (mod rev 10)))
+	       (format t "~c" (code-char (+ 48 digit)))
+	       (setf rev (floor rev 10)))))))
 
 (loop for i in (list -123 -100 -1 0 1 2 3 100) collect
-     (list
+     (string=
        (format nil "~d" i)
        (with-output-to-string (*standard-output* ) (puti i))))
 

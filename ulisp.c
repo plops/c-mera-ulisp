@@ -671,12 +671,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G2308 = ((o)last)->cdr;
-	while (NULL != G2308) {
-		o e = ((o)G2308)->car;
+	o G2471 = ((o)last)->cdr;
+	while (NULL != G2471) {
+		o e = ((o)G2471)->car;
 		((void)e);
 		previous = last;
-		G2308 = ((o)G2308)->cdr;
+		G2471 = ((o)G2471)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -785,17 +785,17 @@ void puti(intgr i)
 		i = -i;
 	}
 	intgr rev = 0;
+	intgr digits = 0;
 	while (0 < i) {
 		int digit = i % 10;
 		rev = (10 * rev) + digit;
 		i = i / 10;
+		digits = 1 + digits;
 	}
-	while (0 < rev) {
-		{
-			int digit = rev % 10;
-			_putchar(48 + digit);
-			rev = rev / 10;
-		}
+	for(int j = 0; j < digits; j = 1 + j){
+		int digit = rev % 10;
+		_putchar(48 + digit);
+		rev = rev / 10;
 	}
 }
 
@@ -1697,16 +1697,8 @@ int main(int argc, char **argv)
 {
 	(void) argc;
 	(void) argv;
-
-	int i;
-	for(i=0;i<39;i++){
-	  puti(i);
-	  _putsn(" " ,1);
-	  puti(strlen(builtin_name[i]));
-	  _putsn("\n",1);
-	}
-	//init_workspace();
-	//init_env();
-	//repl(NULL);
+	init_workspace();
+	init_env();
+	repl(NULL);
 	return 0;
 }
