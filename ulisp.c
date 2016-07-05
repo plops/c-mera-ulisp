@@ -659,12 +659,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G1637 = ((o)last)->cdr;
-	while (NULL != G1637) {
-		o e = ((o)G1637)->car;
+	o G1820 = ((o)last)->cdr;
+	while (NULL != G1820) {
+		o e = ((o)G1820)->car;
 		((void)e);
 		previous = last;
-		G1637 = ((o)G1637)->cdr;
+		G1820 = ((o)G1820)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -835,12 +835,15 @@ o _read(void)
 {
 	o item = nextitem();
 	if (((o)1) == item) {
+		//bra
 		return read_rest();
 	}
 	if (((o)4) == item) {
+		//dot
 		return _read();
 	}
 	if (((o)3) == item) {
+		//quo
 		return _cons(_symbol(5), _cons(_read(), NULL));
 	}
 	return item;
@@ -901,9 +904,11 @@ o read_rest(void)
 {
 	o item = nextitem();
 	if (((o)2) == item) {
+		//ket
 		return NULL;
 	}
 	if (((o)4) == item) {
+		//dot
 		o arg1 = _read();
 		if (NULL != read_rest()) {
 			_putsn("(malformed list)", 16);
@@ -913,12 +918,14 @@ o read_rest(void)
 		return arg1;
 	}
 	if (((o)3) == item) {
+		//quo
 		{
 			o arg1 = _read();
 			return _cons(_cons(_symbol(5), _cons(arg1, NULL)), read_rest());
 		}
 	}
 	if (((o)1) == item) {
+		//bra
 		item = read_rest();
 	}
 	return _cons(item, read_rest());
@@ -931,6 +938,7 @@ o nextitem(void)
 		ch = _getc();
 	}
 	if (';' == ch) {
+		//; initializes comment until next opening paren
 		while ('(' != ch) {
 			ch = _getc();
 		}
@@ -943,15 +951,19 @@ o nextitem(void)
 		_putsn("EXIT", 4);
 	}
 	if (')' == ch) {
+		//ket
 		return ((o)2);
 	}
 	if ('(' == ch) {
+		//bra
 		return ((o)1);
 	}
 	if (39 == ch) {
+		//quo
 		return ((o)3);
 	}
 	if ('.' == ch) {
+		//dot
 		return ((o)4);
 	}
 	//parse var or number

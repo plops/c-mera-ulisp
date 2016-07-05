@@ -603,6 +603,7 @@
 	(set (aref buffer 2) 0)
 	(while (and (== 0 (funcall _isspace ch))
 		    (!= #\) ch)
+		    (!= #\( ch)
 		    (< index buflen))
 	  (set (aref buffer index++) ch)
 	  (decl ((intgr temp (funcall digitvalue ch)))
@@ -613,6 +614,8 @@
 	(set (aref buffer index) 0)
 	(when (== #\) ch)
 	  (set last-char #\)))
+	(when (== #\( ch)
+	  (set last-char #\())
 	(when isnumber
 	  (if (and (== base 10)
 		   (< (+ (cast 'uintgr 32767)
