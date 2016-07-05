@@ -11,6 +11,27 @@
   
   ;(break "illegal character")
   )
+(defun fromradix40 (n) 
+  "Convert a radix 40 character into an ascii character."
+  (when (and (<= 1 n) (<= n 26))
+    (return-from fromradix40 (+ n (char-code #\a) -1)))
+  (when (and (<= 1 30) (<= n 39))
+    (return-from fromradix40 (+ n (char-code #\0) -30)))
+  (when (= 27 n)
+    (return-from fromradix40 (char-code #\-)))
+  (return-from fromradix40 0))
+
+(defun radix40-name-to-string (x)
+  (mapcar #'code-char
+   (loop for n from 2 downto 0 collect
+	(prog1
+	    (fromradix40 (mod x 40))
+	  (setf x (floor x 40))))))
+
+
+#+nil
+(radix40-name-to-string 7012)
+
 
 (length
  (loop for i below 200 when (toradix40 i) collect

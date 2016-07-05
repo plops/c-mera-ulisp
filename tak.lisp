@@ -52,28 +52,28 @@
 	(setq pq (adq (add go tim) to loc pq))))))
 
 (defun gro (frm to) ;; grow
-  (let ((vis (list (cons frm nil))))
-    (let ((pq (ars frm 0 nil)))
-      (let (w)
-       (loop
-	  (when (eq frm to) (return (reverse vis)))
-	  (unless pq (return))
-	  (setq w (car pq))
-	  (setq frm (second w))
-	  (setq pq (cdr pq))
-	  (unless (assoc frm vis)
-	    (setq vis (cons (cons frm (third w)) vis))
-	    (setq pq (ars frm (car w) pq))))))))
+  (let ((vis (list (cons frm nil)))
+	(pq (ars frm 0 nil))
+	w)
+    (loop
+       (when (eq frm to) (return (reverse vis)))
+       (unless pq (return))
+       (setq w (car pq))
+       (setq frm (second w))
+       (setq pq (cdr pq))
+       (unless (assoc frm vis)
+	 (setq vis (cons (cons frm (third w)) vis))
+	 (setq pq (ars frm (car w) pq))))))
 
 (defun lis (frm to) ;; list route
-  (let* ((vis (gro frm to)))
-	(let (rte)
-	 (if vis
-	     (loop
-		(push to rte)
-		(when (eq frm to) (return rte))
-		(setq to (cdr (assoc to vis))))
-	     nil))))
+  (let ((vis (gro frm to))
+	rte)
+    (if vis
+	(loop
+	   (push to rte)
+	   (when (eq frm to) (return rte))
+	   (setq to (cdr (assoc to vis))))
+	nil)))
 (defun mm ()
   (adr 'a 'b 2)
   (adr 'b 'c 3)
@@ -88,5 +88,5 @@
   (adr 'g 'h 2)
   (adr 'h 'z 4))
 (setq md nil)
-(mm)
+(mm) ;; of 1024 271 free
 (lis 'a 'z)
