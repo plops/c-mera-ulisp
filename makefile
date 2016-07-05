@@ -13,6 +13,7 @@ CFLAGS := -O3 -fomit-frame-pointer -march=native #-fno-omit-frame-pointer -ffloa
 ulisp-interp: ulisp.c
 	gcc  $(CFLAGS) $(DEADCODESTRIP) $(WARN)  ulisp.c  -o ulisp-interp
 	nm -S ulisp-interp --size-sort
+	size ulisp-interp
 #--coverage -pg
 
 ulisp.s: ulisp.c
