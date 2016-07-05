@@ -671,12 +671,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G2471 = ((o)last)->cdr;
-	while (NULL != G2471) {
-		o e = ((o)G2471)->car;
+	o G2851 = ((o)last)->cdr;
+	while (NULL != G2851) {
+		o e = ((o)G2851)->car;
 		((void)e);
 		previous = last;
-		G2471 = ((o)G2471)->cdr;
+		G2851 = ((o)G2851)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -763,13 +763,18 @@ o fn_not(o args, o env)
 void putui(uintgr i)
 {
 	uintgr rev = 0;
+	uintgr digits = 0;
 	while (0 < i) {
 		uintgr digit = i % 10;
 		rev = (10 * rev) + digit;
 		i = i / 10;
+		digits = 1 + digits;
 	}
-	while (0 < rev) {
-		{
+	if (0 == digits) {
+		_putchar('0');
+	}
+	else {
+		for(uintgr j = 0; j < digits; j = 1 + j){
 			uintgr digit = rev % 10;
 			_putchar(48 + digit);
 			rev = rev / 10;
@@ -792,10 +797,15 @@ void puti(intgr i)
 		i = i / 10;
 		digits = 1 + digits;
 	}
-	for(int j = 0; j < digits; j = 1 + j){
-		int digit = rev % 10;
-		_putchar(48 + digit);
-		rev = rev / 10;
+	if (0 == digits) {
+		_putchar('0');
+	}
+	else {
+		for(intgr j = 0; j < digits; j = 1 + j){
+			int digit = rev % 10;
+			_putchar(48 + digit);
+			rev = rev / 10;
+		}
 	}
 }
 
@@ -1697,8 +1707,12 @@ int main(int argc, char **argv)
 {
 	(void) argc;
 	(void) argv;
-	init_workspace();
-	init_env();
-	repl(NULL);
+	for(int i = 0; i < 39; i = 1 + i){
+		_putsn("(", 1);
+		puti(i);
+		_putsn(" ", 1);
+		puti(strlen(builtin_name[i]));
+		_putsn(") ", 2);
+	}
 	return 0;
 }
