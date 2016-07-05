@@ -280,14 +280,14 @@
   (dcomment "Find the index of a builtin function with the name given as a string.")
   (decl ((intgr entry 0))
     (while (< entry (cl:length *builtin-declaration*))
-      (when (== 0 (funcall _string_eq_p
-			   (aref builtin-name entry)
-			   name))
-      	(return entry))
-      ;; (when (== 0 (funcall strncmp name
+      ;; (when (== 0 (funcall _string_eq_p
       ;; 			   (aref builtin-name entry)
-      ;; 			   (calc-builtin-name-max-len *builtin-declaration*)))
+      ;; 			   name))
       ;; 	(return entry))
+      (when (== 0 (funcall strncmp name
+      			   (aref builtin-name entry)
+      			   (calc-builtin-name-max-len *builtin-declaration*)))
+      	(return entry))
       (inc entry))
     (return (cl:length *builtin-declaration*))))
 (%function lookupmin ((uintgr idx)) -> int

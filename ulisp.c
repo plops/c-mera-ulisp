@@ -672,12 +672,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G3405 = ((o)last)->cdr;
-	while (NULL != G3405) {
-		o e = ((o)G3405)->car;
+	o G694 = ((o)last)->cdr;
+	while (NULL != G694) {
+		o e = ((o)G694)->car;
 		((void)e);
 		previous = last;
-		G3405 = ((o)G3405)->cdr;
+		G694 = ((o)G694)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -1361,7 +1361,7 @@ int builtin(char *name)
 {
 	intgr entry = 0;
 	while (entry < 39) {
-		if (0 == _string_eq_p(builtin_name[entry], name)) {
+		if (0 == strncmp(name, builtin_name[entry], 7)) {
 			return entry;
 		}
 		entry = 1 + entry;

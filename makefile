@@ -3,16 +3,16 @@ DEADCODESTRIP := #-Wl,-static -fdata-sections -ffunction-sections -Wl,--gc-secti
 #-Wl,-s
 WARN := -Wswitch-default -Wfloat-equal -Winline -Wundef -Wnested-externs  -Wstrict-aliasing=3 -Wall -Wextra -pedantic -std=c99 -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wshift-negative-value -Wshift-overflow=2 -Wtautological-compare -Wnull-dereference -Wduplicated-cond  -Wmisleading-indentation 
 
-#CFLAGS := -Os -fomit-frame-pointer #-fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing
+CFLAGS := -O3 -fomit-frame-pointer -march=native #-fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing
 
 #CFLAGS := -Og -ggdb3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing -fsanitize=address -fsanitize=bounds-strict -march=native -fdelete-null-pointer-checks  -fsanitize=undefined
 
-CFLAGS := -Og -ggdb3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing -march=native
+#CFLAGS := -Og -ggdb3 -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing -march=native
 
 
 ulisp-interp: ulisp.c
 	gcc  $(CFLAGS) $(DEADCODESTRIP) $(WARN)  ulisp.c  -o ulisp-interp
-
+	nm -S ulisp-interp --size-sort
 #--coverage -pg
 
 ulisp.s: ulisp.c

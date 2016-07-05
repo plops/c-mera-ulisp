@@ -28,11 +28,12 @@
 ;; too much effort for now: let*
 
 (defvar md nil)
-(defun adr (frm to tim) ;; add road
+(defun adr (frm to tim)
+  ;; add road, assume travelling in both directions takes the same time
   (push (list frm to tim) md)
   (push (list to frm tim) md))
 
-(defun adi (i q) ;; add item to queue
+(defun adi (i q) ;; add item to priority queue
   (if (not q) 
       (cons i q)
     (if (less (car i) (car (car q)))
@@ -44,18 +45,19 @@
   pq)
 
 (defun ars (loc go pq vis) ;; add roads
+  ;; adds all paths from current location to the queue
   (dolist (i md pq)
     (let ((frm (car i))
 	  (to (second i))
 	  (tim (third i)))
-      (if (and (eq frm loc) (not (assoc to vis)))
+      (if (eq frm loc)
 	  (setq pq (adq (add go tim) to loc pq))
 	  nil))))
 
 (defun gro (frm to) ;; grow
   (let ((vis (list (cons frm nil)))
 	w)
-    (let ((pq (ars frm 0 nil vis)))
+    (let ((pq (ars frm 0 nil)))
       (loop
 	 (if (eq frm to) 
 	     (return (reverse vis))
@@ -70,7 +72,7 @@
 	     nil
 	     (progn
 	       (setq vis (cons (cons frm (third w)) vis))
-	       (setq pq (ars frm (car w) pq vis))))))))
+	       (setq pq (ars frm (car w) pq))))))))
 
 (defun lis (frm to) ;; list route
   (let ((vis (gro frm to))
