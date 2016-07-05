@@ -16,9 +16,9 @@ ulisp-interp: ulisp.c
 #--coverage -pg
 
 ulisp.s: ulisp.c
-	gcc -fverbose-asm -Wa,-adhln -g -Og ulisp.c > ulisp.s
+	gcc -fverbose-asm  -Wa,-adhln -Os -ggdb3 -march=native ulisp.c > ulisp.s
 
-
+# -fverbose-asm
 # -g: Produce debugging information
 # -Wa,option: Pass option as an option to the assembler
 # -adhln:
