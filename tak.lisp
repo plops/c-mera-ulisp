@@ -44,7 +44,7 @@
   (setq pq (adi (list tim loc via) pq))
   pq)
 
-(defun ars (loc go pq vis) ;; add roads
+(defun ars (loc go pq) ;; add roads
   ;; adds all paths from current location to the queue
   (dolist (i md pq)
     (let ((frm (car i))
@@ -103,4 +103,3 @@
 (lis 'a 'z)
 
 
-(reverse (list 'a 'b 'c))

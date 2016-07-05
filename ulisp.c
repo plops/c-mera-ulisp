@@ -672,12 +672,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G694 = ((o)last)->cdr;
-	while (NULL != G694) {
-		o e = ((o)G694)->car;
+	o G993 = ((o)last)->cdr;
+	while (NULL != G993) {
+		o e = ((o)G993)->car;
 		((void)e);
 		previous = last;
-		G694 = ((o)G694)->cdr;
+		G993 = ((o)G993)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -1437,6 +1437,7 @@ o closure(int tail, o fname, o state, o function, o args, o *env)
 		args = ((o)args)->cdr;
 	}
 	if (NULL != params) {
+		_print_object(function);
 		_putsn("(too few params)", 16);
 		_putsn("EXIT\n", 6);
 		exit(0);

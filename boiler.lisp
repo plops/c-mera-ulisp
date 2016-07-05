@@ -249,6 +249,7 @@
 		(%push (funcall _cons var value) *env)))
 	  (%push (funcall _cons var value) *env)))
     (when (!= NULL params)
+      (funcall _print-object function)
       (%err "too few params"))
     (when (!= NULL args)
       (%err "too many params"))
