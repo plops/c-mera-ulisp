@@ -465,7 +465,7 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
   (cl:position symb (cl:mapcar #'get-builtin-name *builtin-declaration*)))
 
 #+nil
-(let ((workspace-size (* 1024 1024 8))
+(let ((workspace-size 1024)
       (buflen  ;; length of longest symbol 
        (cl:max
 	(calc-builtin-name-max-len *builtin-symbol*)

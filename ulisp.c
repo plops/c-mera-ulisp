@@ -43,7 +43,7 @@ o tee;
 o global_env;
 o gc_stack;
 uintgr freespace;
-cons_object workspace[1024 * 1024 * 8];
+cons_object workspace[1024];
 char return_flag = 0;
 char buffer[7 + 1];
 char last_char;
@@ -633,12 +633,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G848 = ((o)last)->cdr;
-	while (NULL != G848) {
-		o e = ((o)G848)->car;
+	o G908 = ((o)last)->cdr;
+	while (NULL != G908) {
+		o e = ((o)G908)->car;
 		((void)e);
 		previous = last;
-		G848 = ((o)G848)->cdr;
+		G908 = ((o)G908)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -1043,26 +1043,32 @@ o _eval(o form, o env)
 		gc(form, env);
 	}
 	if (NULL == form) {
+		//
 		return NULL;
 	}
 	if (2 == ((cons_symbol*)form)->type) {
+		//number
 		return form;
 	}
 	if (1 == ((cons_symbol*)form)->type) {
+		//symbol
 		uintgr name = ((cons_symbol*)form)->name;
 		if (0 == name) {
 			return NULL;
 		}
 		o pair = value(name, env);
 		if (NULL != pair) {
+			//sym cdr pair
 			return ((o)pair)->cdr;
 		}
 		pair = value(name, global_env);
 		if (NULL != pair) {
+			//sym cdr pair2
 			return ((o)pair)->cdr;
 		}
 		else if (name <= 37) 
 		{
+			//builtin declaration
 			return form;
 		}
 		else {
@@ -1074,17 +1080,20 @@ o _eval(o form, o env)
 	//it's a list
 	o function = ((o)form)->car;
 	o args = ((o)form)->cdr;
-	//list starting with symbol?
 	if (1 == ((cons_symbol*)function)->type) {
+		//list starting with symbol
 		{
 			uintgr name = ((cons_symbol*)function)->name;
 			if (3 == name) {
+				//let
 				o assigns = ((o)args)->car;
 				o forms = ((o)args)->cdr;
 				o newenv = env;
+				//process LET
 				while (NULL != assigns) {
 					o assign = ((o)assigns)->car;
 					((void)assign);
+					//go through assigns
 					if ((2 != ((cons_symbol*)assign)->type) && (1 != ((cons_symbol*)assign)->type) && (NULL != assign)) {
 						newenv = _cons(_cons(((o)assign)->car, _eval(((o)((o)assign)->cdr)->car, env)), newenv);
 					}
@@ -1099,7 +1108,9 @@ o _eval(o form, o env)
 				goto EVALJUMP;
 			}
 			if (2 == name) {
+				//process LAMBDA
 				if (NULL == env) {
+					//lambda nil env
 					return form;
 				}
 				o envcopy = NULL;
@@ -1109,18 +1120,22 @@ o _eval(o form, o env)
 						((void)pair);
 						o val = ((o)pair)->cdr;
 						if (2 == ((cons_symbol*)val)->type) {
+							//number
 							val = _number(((cons_number*)val)->integer);
 						}
 						envcopy = _cons(_cons(((o)pair)->car, val), envcopy);
 					}
 					env = ((o)env)->cdr;
 				}
+				//call lambda
 				return _cons(_symbol(4), _cons(envcopy, args));
 			}
 			if ((5 <= name) && (name <= 13)) {
+				//process SPECIAL form
 				return ((fn_ptr_type)lookupfn(name))(args, env);
 			}
 			if ((14 <= name) && (name <= 19)) {
+				//process TAIL CALL form
 				form = ((fn_ptr_type)lookupfn(name))(args, env);
 				TC = 1;
 				goto EVALJUMP;
@@ -1133,12 +1148,14 @@ o _eval(o form, o env)
 	o head = _cons(_eval(((o)form)->car, env), NULL);
 	//don't gc the result list
 	gc_stack = _cons(head, gc_stack);
+	//push head on gc-stack
 	o tail = head;
 	form = ((o)form)->cdr;
 	int nargs = 0;
 	while (NULL != form) {
 		o e = ((o)form)->car;
 		((void)e);
+		//count number of arguments
 		o obj = _cons(_eval(e, env), NULL);
 		((o)tail)->cdr = obj;
 		tail = obj;
@@ -1148,9 +1165,13 @@ o _eval(o form, o env)
 	function = ((o)head)->car;
 	args = ((o)head)->cdr;
 	if (1 == ((cons_symbol*)function)->type) {
+		//function of type symbol
 		{
 			uintgr name = ((cons_symbol*)function)->name;
 			if (37 <= name) {
+				//name is bultin
+			}
+			else {
 				_putsn("(not a function)", 16);
 				_putsn("EXIT\n", 6);
 				exit(0);
@@ -1167,16 +1188,19 @@ o _eval(o form, o env)
 			}
 			o result = ((fn_ptr_type)lookupfn(name))(args, env);
 			gc_stack = ((o)gc_stack)->cdr;
+			//symbol
 			return result;
 		}
 	}
 	if (((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type)) && issymbol(((o)function)->car, 2)) {
+		//listp function and (car function) is lambda
 		form = closure(TCstart, fname, NULL, ((o)function)->cdr, args, &env);
 		gc_stack = ((o)gc_stack)->cdr;
 		TC = 1;
 		goto EVALJUMP;
 	}
 	if (((2 != ((cons_symbol*)function)->type) && (1 != ((cons_symbol*)function)->type)) && issymbol(((o)function)->car, 4)) {
+		//listp function and (car function) is closure
 		function = ((o)function)->cdr;
 		form = closure(TCstart, fname, ((o)function)->car, ((o)function)->cdr, args, &env);
 		gc_stack = ((o)gc_stack)->cdr;
@@ -1186,6 +1210,7 @@ o _eval(o form, o env)
 	_putsn("(illegal func)", 14);
 	_putsn("EXIT\n", 6);
 	exit(0);
+	//eval returns nil
 	return NULL;
 }
 
@@ -1506,7 +1531,7 @@ void sweep(void)
 {
 	freelist = 0;
 	freespace = 0;
-	for(int i = (1024 * 1024 * 8) - 1; 0 <= i; i = i - 1){
+	for(int i = 1024 - 1; 0 <= i; i = i - 1){
 		o obj = workspace + i;
 		if (1 == (0 != (((uintgr)((o)obj)->car) & (__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1))))) {
 			((o)obj)->car = ((o)(((uintgr)((o)obj)->car) & ((__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1)) - 1)));
@@ -1577,7 +1602,7 @@ o _alloc(void)
 void init_workspace(void)
 {
 	freelist = 0;
-	for(intgr i = (1024 * 1024 * 8) - 1; 0 <= i; i = i - 1){
+	for(intgr i = 1024 - 1; 0 <= i; i = i - 1){
 		o obj = workspace + i;
 		((o)obj)->car = 0;
 		((o)obj)->cdr = freelist;
