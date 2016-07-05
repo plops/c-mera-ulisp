@@ -659,12 +659,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G1820 = ((o)last)->cdr;
-	while (NULL != G1820) {
-		o e = ((o)G1820)->car;
+	o G2003 = ((o)last)->cdr;
+	while (NULL != G2003) {
+		o e = ((o)G2003)->car;
 		((void)e);
 		previous = last;
-		G1820 = ((o)G1820)->cdr;
+		G2003 = ((o)G2003)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -1005,7 +1005,7 @@ o nextitem(void)
 	intgr isnumber = digitvalue(ch) < base;
 	//in case var is one letter
 	buffer[2] = 0;
-	while ((0 == _isspace(ch)) && (')' != ch) && (index < 7)) {
+	while ((0 == _isspace(ch)) && (')' != ch) && ('(' != ch) && (index < 7)) {
 		buffer[index++] = ch;
 		intgr temp = digitvalue(ch);
 		result = temp + (result * base);
@@ -1015,6 +1015,9 @@ o nextitem(void)
 	buffer[index] = 0;
 	if (')' == ch) {
 		last_char = ')';
+	}
+	if ('(' == ch) {
+		last_char = '(';
 	}
 	if (isnumber) {
 		if ((base == 10) && ((((uintgr)32767) + ((1 - sign) / 2)) < result)) {
@@ -1026,12 +1029,15 @@ o nextitem(void)
 	}
 	intgr x = builtin(buffer);
 	if (x == 0) {
+		//cnil
 		return NULL;
 	}
 	if (x < 38) {
+		//builtin symbol
 		return _symbol(x);
 	}
 	else {
+		//usersymbol
 		return _symbol(pack40(buffer));
 	}
 }
