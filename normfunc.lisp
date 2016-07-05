@@ -93,3 +93,8 @@
 
 (deffunction (third 1 1)
   (return (funcall carx (funcall cdrx (funcall cdrx (%car args))))))
+
+(deffunction (showenv 0 0)
+  (comment "(void) args;" :prefix "")
+  (funcall _print-object global-env)
+  (return cnil))

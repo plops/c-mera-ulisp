@@ -98,6 +98,9 @@ o tf_return(o args, o env)
 o tf_progn(o args, o env)
 ;
 
+o fn_showenv(o args, o env)
+;
+
 o fn_third(o args, o env)
 ;
 
@@ -284,10 +287,10 @@ o _alloc(void)
 void init_workspace(void)
 ;
 //Global variables
-const char builtin_name[38][7] = { "nil", "tee", "lambda", "let", "closure", "quote", "defun", "defvar", "setq", "loop", "push", "pop", "incf", "decf", "dolist", "progn", "return", "if", "cond", "and", "or", "not", "cons", "atom", "listp", "eq", "car", "cdr", "apply", "add", "less", "princ", "assoc", "list", "length", "reverse", "second", "third" };
-const char builtin_par_max[38] = { 0, 0, 0, 0, 0, 1, 127, 127, 2, 127, 2, 1, 2, 2, 127, 127, 127, 3, 127, 127, 127, 1, 2, 1, 1, 2, 1, 1, 127, 127, 127, 1, 2, 127, 1, 1, 1, 1 };
-const char builtin_par_min[38] = { 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 2, 1, 1, 1, 1, 0, 0, 2, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 1, 1 };
-fn_ptr_type builtin_fptr[38] = { 0, 0, 0, 0, 0, sp_quote, sp_defun, sp_defvar, sp_setq, sp_loop, sp_push, sp_pop, sp_incf, sp_decf, sp_dolist, tf_progn, tf_return, tf_if, tf_cond, tf_and, tf_or, fn_not, fn_cons, fn_atom, fn_listp, fn_eq, fn_car, fn_cdr, fn_apply, fn_add, fn_less, fn_princ, fn_assoc, fn_list, fn_length, fn_reverse, fn_second, fn_third };
+const char builtin_name[39][7] = { "nil", "tee", "lambda", "let", "closure", "quote", "defun", "defvar", "setq", "loop", "push", "pop", "incf", "decf", "dolist", "progn", "return", "if", "cond", "and", "or", "not", "cons", "atom", "listp", "eq", "car", "cdr", "apply", "add", "less", "princ", "assoc", "list", "length", "reverse", "second", "third", "showenv" };
+const char builtin_par_max[39] = { 0, 0, 0, 0, 0, 1, 127, 127, 2, 127, 2, 1, 2, 2, 127, 127, 127, 3, 127, 127, 127, 1, 2, 1, 1, 2, 1, 1, 127, 127, 127, 1, 2, 127, 1, 1, 1, 1, 0 };
+const char builtin_par_min[39] = { 0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 2, 1, 1, 1, 1, 0, 0, 2, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 2, 0, 1, 1, 2, 0, 1, 1, 1, 1, 0 };
+fn_ptr_type builtin_fptr[39] = { 0, 0, 0, 0, 0, sp_quote, sp_defun, sp_defvar, sp_setq, sp_loop, sp_push, sp_pop, sp_incf, sp_decf, sp_dolist, tf_progn, tf_return, tf_if, tf_cond, tf_and, tf_or, fn_not, fn_cons, fn_atom, fn_listp, fn_eq, fn_car, fn_cdr, fn_apply, fn_add, fn_less, fn_princ, fn_assoc, fn_list, fn_length, fn_reverse, fn_second, fn_third, fn_showenv };
 
 o sp_dolist(o args, o env)
 {
@@ -534,6 +537,15 @@ o tf_progn(o args, o env)
 	return ((o)args)->car;
 }
 
+o fn_showenv(o args, o env)
+{
+	//minimum number of parameters: 0, max. nr. of parameters: 0
+	(void) env;
+	(void) args;
+	_print_object(global_env);
+	return NULL;
+}
+
 o fn_third(o args, o env)
 {
 	//minimum number of parameters: 1, max. nr. of parameters: 1
@@ -659,12 +671,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G2003 = ((o)last)->cdr;
-	while (NULL != G2003) {
-		o e = ((o)G2003)->car;
+	o G2125 = ((o)last)->cdr;
+	while (NULL != G2125) {
+		o e = ((o)G2125)->car;
 		((void)e);
 		previous = last;
-		G2003 = ((o)G2003)->cdr;
+		G2125 = ((o)G2125)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -1032,7 +1044,7 @@ o nextitem(void)
 		//cnil
 		return NULL;
 	}
-	if (x < 38) {
+	if (x < 39) {
 		//builtin symbol
 		return _symbol(x);
 	}
@@ -1104,7 +1116,7 @@ o _eval(o form, o env)
 			//sym cdr pair in global env
 			return ((o)pair)->cdr;
 		}
-		else if (name <= 38) 
+		else if (name <= 39) 
 		{
 			//builtin declaration
 			return form;
@@ -1207,7 +1219,7 @@ o _eval(o form, o env)
 		//function of type symbol
 		{
 			uintgr name = ((cons_symbol*)function)->name;
-			if (38 <= name) {
+			if (39 <= name) {
 				//name is not a bultin
 				_putsn("(not a function)", 16);
 				_putsn("EXIT\n", 6);
@@ -1282,7 +1294,7 @@ o _apply(o function, o args, o *env)
 	if (1 == ((cons_symbol*)function)->type) {
 		uintgr name = ((cons_symbol*)function)->name;
 		int nargs = listlength(args);
-		if (38 < name) {
+		if (39 < name) {
 			_putsn("(not a function)", 16);
 			_putsn("EXIT\n", 6);
 			exit(0);
@@ -1337,13 +1349,13 @@ int lookupmin(uintgr idx)
 int builtin(char *name)
 {
 	intgr entry = 0;
-	while (entry < 38) {
+	while (entry < 39) {
 		if (0 == strcmp(name, builtin_name[entry])) {
 			return entry;
 		}
 		entry = 1 + entry;
 	}
-	return 38;
+	return 39;
 }
 
 int _string_eq_p(const char *a, const char *b, int n)
@@ -1487,7 +1499,7 @@ char *name(o obj)
 		exit(0);
 	}
 	uintgr x = ((cons_symbol*)obj)->name;
-	if (x < 38) {
+	if (x < 39) {
 		return lookupstring(x);
 	}
 	for(int n = 2; 0 <= n; n = n - 1){
