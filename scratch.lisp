@@ -94,31 +94,36 @@
 ;; 102: (15 #\f)
 ;; 103: (16 #\g)
 
+(mod 100 10)
+
 (defun puti (i)
   (when (< i 0)
     (format t "-")
     (setf i (- i)))
-  (let ((rev 0))
+  (let ((rev 0)
+	(digits 0))
     (loop while (< 0 i) do
       (let ((digit (mod i 10)))
 	(setf rev (+ (* 10 rev) digit))
-	(setf i (floor i 10))))
-    (loop while (< 0 rev) do
-      (let ((digit (mod rev 10)))
-	(format t "~c" (code-char (+ 48 digit)))
-	(setf rev (floor rev 10))))))
+	(setf i (floor i 10))
+	(incf digits)))
+    ;;(format t "(rev ~d)(digits ~d)" rev digits)
+    (loop for i from 0 below digits do;  while (< 0 digits) do
+	 
+	 (let ((digit (mod rev 10)))
+	   (format t "~c" (code-char (+ 48 digit)))
+	   (setf rev (floor rev 10))))))
 
-(loop for i in (list -123 -100 -1 0 1 2 3 100) do
-     (progn
-       (format t "~d " i)
-       (puti i)
-       (terpri)))
+(loop for i in (list -123 -100 -1 0 1 2 3 100) collect
+     (list
+       (format nil "~d" i)
+       (with-output-to-string (*standard-output* ) (puti i))))
 
-;; -123 -123
-;; -100 -1
-;; -1 -1
-;; 0 
+;; -123 -123 OK
+;; -100 -1   WRONG
+;; -1 -1     OK
+;; 0         WRONG
 ;; 1 1
 ;; 2 2
 ;; 3 3
-;; 100 1
+;; 100 1     WRONG
