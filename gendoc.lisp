@@ -214,9 +214,13 @@
  0000000000000000      DF *UND*  0000000000000000  GLIBC_2.2.5 __libc_start_main
  0000000000000000      DF *UND*  0000000000000000  GLIBC_2.3   __ctype_b_loc
 
- ```")
+ ```
+ ## Links to other Lisps
+ https://github.com/eriksvedang/Carp
 
+ ")
 
+ 
 (mgl-pax:defsection @usage-sec (:title "Usage")
   ""
   (cg-user::gen-builtin-forward-declaration macro)
