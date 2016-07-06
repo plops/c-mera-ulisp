@@ -217,7 +217,7 @@
  ```
  ## Links to other Lisps
  https://github.com/eriksvedang/Carp
-
+ http://www.pipeline.com/~hbaker1/LinearLisp.html  hash consing
  ")
 
  
