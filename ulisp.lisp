@@ -541,6 +541,9 @@ Example: (is-idx-in-type-range i special) => (and (<= 5 i) (<= i 22))"
 		    (function main ((int argc) (char** argv)) -> int
 		      (comment "(void) argc;" :prefix "")
 		      (comment "(void) argv;" :prefix "")
+		      (when (!= *mark-bit*
+				(funcall __UINT64_C #x8000000000000000))
+			(%puts "error"))
 		      (funcall init-workspace)
 		      (funcall init-env)
 		      (repl NULL)

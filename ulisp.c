@@ -672,12 +672,12 @@ o fn_apply(o args, o env)
 	(void) env;
 	o previous = NULL;
 	o last = args;
-	o G1448 = ((o)last)->cdr;
-	while (NULL != G1448) {
-		o e = ((o)G1448)->car;
+	o G818 = ((o)last)->cdr;
+	while (NULL != G818) {
+		o e = ((o)G818)->car;
 		((void)e);
 		previous = last;
-		G1448 = ((o)G1448)->cdr;
+		G818 = ((o)G818)->cdr;
 	}
 	if (0 == ((2 != ((cons_symbol*)((o)last)->car)->type) && (1 != ((cons_symbol*)((o)last)->car)->type))) {
 		_putsn("(last arg not list)", 19);
@@ -1686,6 +1686,9 @@ int main(int argc, char **argv)
 {
 	(void) argc;
 	(void) argv;
+	if ((__UINT64_C(1) << ((8 * sizeof(uintptr_t)) - 1)) != __UINT64_C(9223372036854775808)) {
+		_putsn("error", 5);
+	}
 	init_workspace();
 	init_env();
 	repl(NULL);
